@@ -10,6 +10,7 @@ import 'package:calendar/screens/daily/app_bar.dart';
 import 'package:calendar/screens/daily/caregiver_view.dart';
 import 'package:calendar/screens/daily/dependent_view.dart';
 import 'package:calendar/state/app_state.dart';
+import 'package:calendar/util/get_adjusted_recurring_start_date.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -56,18 +57,32 @@ class _DailyScreenState extends State<DailyScreen> {
     if (appState.activeTeam == null) return Container();
 
     void onUpdate<T extends RealmObject>(RealmResults<T> newTasks) {
+      final idsToFilter = [];
       final sorted = newTasks
-          .map((e) => EventModel(realmManager.realm!, e as Event))
+          .map((e) {
+            final event = EventModel(realmManager.realm!, e as Event);
+            if (!event.isRecurring) return event;
+
+            final newStart = getAdjustedRecurringStartDate(event, selectedDate);
+            if (newStart != null) {
+              event.startDateTime = newStart;
+            } else {
+              idsToFilter.add(event.id);
+            }
+
+            return event;
+          })
+          .where((event) => !idsToFilter.contains(event.id))
           .toList();
 
       sorted.sort((a, b) {
-        final date = DateTime.now();
-        final aStartTime = DateTime(date.year, date.month, date.day,
-            a.startDateTime.toLocal().hour, a.startDateTime.toLocal().minute);
-        final bStartTime = DateTime(date.year, date.month, date.day,
-            b.startDateTime.toLocal().hour, b.startDateTime.toLocal().minute);
+        // final date = DateTime.now();
+        // final aStartTime = DateTime(date.year, date.month, date.day,
+        //     a.startDateTime.toLocal().hour, a.startDateTime.toLocal().minute);
+        // final bStartTime = DateTime(date.year, date.month, date.day,
+        //     b.startDateTime.toLocal().hour, b.startDateTime.toLocal().minute);
 
-        return aStartTime.compareTo(bStartTime);
+        return a.startDateTime.compareTo(b.startDateTime);
       });
 
       setState(() {

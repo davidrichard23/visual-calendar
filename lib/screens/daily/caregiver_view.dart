@@ -1,6 +1,7 @@
 import 'package:calendar/components/text/paragraph.dart';
 import 'package:calendar/main.dart';
 import 'package:calendar/models/event_model.dart';
+import 'package:calendar/util/get_adjusted_recurring_start_date.dart';
 import 'package:flutter/material.dart';
 import 'package:realm/realm.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -114,71 +115,7 @@ class EventCalendarDataSource extends CalendarDataSource<EventModel> {
     final EventModel event = appointments![index];
     final startDate = event.startDateTime.toLocal();
 
-    if (!event.isRecurring) return startDate;
-
-    var recurrencePattern = event.recurrencePattern!;
-    var recurrenceType = recurrencePattern.recurrenceType;
-    var interval = recurrencePattern.interval;
-
-    if (selectedDate.startOfDay.isBefore(startDate.startOfDay)) {
-      return startDate;
-    }
-
-    if (selectedDate.startOfDay
-        .isAfter(recurrencePattern.endDateTime.startOfDay)) {
-      return startDate;
-    }
-
-    switch (recurrenceType) {
-      case 'daily':
-        final daysBetween = startDate.daysBetween(selectedDate);
-        if (daysBetween % interval == 0) {
-          final newStartDate = DateTime(selectedDate.year, selectedDate.month,
-              selectedDate.day, startDate.hour, startDate.minute);
-
-          return newStartDate;
-        }
-        return startDate;
-      case 'weekly':
-        final weeksBetween = startDate.weeksBetween(selectedDate);
-        final isCorrectWeekday =
-            recurrencePattern.daysOfWeek.contains(selectedDate.weekday);
-        if (isCorrectWeekday && weeksBetween % interval == 0) {
-          final newStartDate = DateTime(selectedDate.year, selectedDate.month,
-              selectedDate.day, startDate.hour, startDate.minute);
-
-          return newStartDate;
-        }
-        return startDate;
-      case 'monthly':
-        final monthsBetween = startDate.monthsBetween(selectedDate);
-        final isCorrectDayOfMonth =
-            recurrencePattern.daysOfMonth.contains(selectedDate.day);
-        if (isCorrectDayOfMonth && monthsBetween % interval == 0) {
-          final newStartDate = DateTime(selectedDate.year, selectedDate.month,
-              selectedDate.day, startDate.hour, startDate.minute);
-
-          return newStartDate;
-        }
-        return startDate;
-      case 'yearly':
-        final yearsBetween = startDate.yearsBetween(selectedDate);
-        final isCorrectMonth =
-            recurrencePattern.monthsOfYear.contains(selectedDate.month);
-        final isCorrectDayOfMonth =
-            recurrencePattern.daysOfMonth.contains(selectedDate.day);
-        if (isCorrectMonth &&
-            isCorrectDayOfMonth &&
-            yearsBetween % interval == 0) {
-          final newStartDate = DateTime(selectedDate.year, selectedDate.month,
-              selectedDate.day, startDate.hour, startDate.minute);
-
-          return newStartDate;
-        }
-        return startDate;
-      default:
-        return startDate;
-    }
+    return startDate;
   }
 
   @override
