@@ -28,6 +28,13 @@ class DailyAppBarState extends State<DailyAppBar> {
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context, listen: true);
     final theme = Theme.of(context);
+    final now = DateTime.now();
+    final currentTime = DateTime(
+        widget.selectedDateTime.year,
+        widget.selectedDateTime.month,
+        widget.selectedDateTime.day,
+        now.hour,
+        now.minute);
 
     return AppBar(
       // title: const Text('Daily Schedule'),
@@ -78,8 +85,8 @@ class DailyAppBarState extends State<DailyAppBar> {
                 ),
                 padding: const EdgeInsets.fromLTRB(8, 8, 24, 8),
                 onPressed: () => Navigator.pushNamed(context, '/create-event',
-                    arguments: CreateEditScreenArgs(
-                        initalStartDate: widget.selectedDateTime)),
+                    arguments:
+                        CreateEditScreenArgs(initalStartDate: currentTime)),
               )
             ]
           : [],
