@@ -1,0 +1,754 @@
+// ignore_for_file: prefer_const_constructors
+
+import 'dart:convert';
+import 'dart:developer';
+import 'dart:io';
+
+import 'package:calendar/components/cards/primary_card.dart';
+import 'package:calendar/components/custom_text_form_field.dart';
+import 'package:calendar/components/expandable_widget.dart';
+import 'package:calendar/components/image_grid.dart';
+import 'package:calendar/components/text/paragraph.dart';
+import 'package:calendar/main.dart';
+import 'package:calendar/models/image_data_model.dart';
+import 'package:calendar/realm/init_realm.dart';
+import 'package:calendar/screens/create_edit_event/date_picker.dart';
+import 'package:calendar/screens/create_edit_event/image_picker.dart';
+import 'package:calendar/screens/create_edit_event/repeat_picker.dart';
+import 'package:calendar/screens/create_edit_event/task_list.dart';
+import 'package:calendar/state/app_state.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:calendar/models/event_model.dart';
+import 'package:calendar/realm/app_services.dart';
+import 'package:calendar/realm/schemas.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:realm/realm.dart';
+import 'package:http/http.dart' as http;
+import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
+import 'package:calendar/extensions/date_utils.dart';
+import 'package:calendar/extensions/string_utils.dart';
+import 'package:collection/collection.dart';
+
+Map<String, String> frequencyToRecurrenceType = {
+  'days': 'daily',
+  'weeks': 'weekly',
+  'months': 'monthly',
+  'years': 'yearly'
+};
+Map<String, String> recurrenceTypeToFrequency = {
+  'daily': 'days',
+  'weekly': 'weeks',
+  'monthly': 'months',
+  'yearly': 'years'
+};
+Map<String, int> weekdayToInt = {
+  'monday': 1,
+  'tuesday': 2,
+  'wednesday': 3,
+  'thursday': 4,
+  'friday': 5,
+  'saturday': 6,
+  'sunday': 7,
+};
+Map<int, String> intToWeekday = {
+  1: 'monday',
+  2: 'tuesday',
+  3: 'wednesday',
+  4: 'thursday',
+  5: 'friday',
+  6: 'saturday',
+  7: 'sunday',
+};
+
+class UploadImageData {
+  final ObjectId id;
+  final ObjectId? taskId;
+  final File image;
+
+  UploadImageData({required this.id, this.taskId, required this.image});
+}
+
+class CreateEditEvent extends StatefulWidget {
+  final EventModel? existingEvent;
+  final DateTime? initalStartDate;
+  final int? initalDuration;
+  final id = ObjectId();
+
+  CreateEditEvent(
+      {Key? key, this.existingEvent, this.initalStartDate, this.initalDuration})
+      : super(key: key);
+
+  @override
+  State<CreateEditEvent> createState() => _CreateEditEventState();
+}
+
+class _CreateEditEventState extends State<CreateEditEvent> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  List<EventTask> tasks = [];
+  final List<UploadImageData> pendingImages = [];
+  var didRemoveExisitngImage = false;
+  bool showDatePicker = false;
+  bool showTimePicker = false;
+  bool showDurationPicker = false;
+  bool showRepeatPicker = false;
+
+  bool isLoading = false;
+  String? error;
+
+  int selectedInterval = 0;
+  String selectedFrequency = 'days';
+  List<String> selectedWeekdays = [];
+  DateTime recurringEndDateTime = DateTime(9999);
+
+  String title = '';
+  String description = '';
+  DateTime? startDateTime;
+  int duration = 60;
+
+  String eventEndMode = 'duration';
+  DateTime endTime = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.existingEvent == null) {
+      if (widget.initalStartDate != null) {
+        startDateTime = widget.initalStartDate!.nearestFiveMins;
+        selectedWeekdays.add(intToWeekday[startDateTime!.weekday]!);
+      }
+      if (widget.initalDuration != null) {
+        duration = widget.initalDuration!;
+      }
+
+      endTime = startDateTime!.add(Duration(minutes: duration));
+
+      return;
+    }
+
+    widget.existingEvent!.sortTasks();
+
+    title = widget.existingEvent!.title;
+    description = widget.existingEvent!.description;
+    startDateTime = widget.existingEvent!.startDateTime.toLocal();
+    selectedWeekdays.add(intToWeekday[startDateTime!.weekday]!);
+    duration = widget.existingEvent!.duration;
+    tasks = widget.existingEvent!.tasks.toList();
+    endTime = startDateTime!.add(Duration(minutes: duration));
+
+    final recurrencePattern = widget.existingEvent!.recurrencePattern;
+
+    if (recurrencePattern == null) return;
+
+    selectedInterval = recurrencePattern.interval;
+    selectedFrequency =
+        recurrenceTypeToFrequency[recurrencePattern.recurrenceType]!;
+    selectedWeekdays =
+        recurrencePattern.daysOfWeek.map((e) => intToWeekday[e]!).toList();
+    recurringEndDateTime = recurrencePattern.endDateTime;
+  }
+
+  onStartDateChange(DateTime d) {
+    var newDate = DateTime(
+        d.year, d.month, d.day, startDateTime!.hour, startDateTime!.minute);
+    setState(() {
+      startDateTime = newDate;
+      selectedWeekdays.add(intToWeekday[startDateTime!.weekday]!);
+      endTime = newDate.add(Duration(minutes: duration));
+    });
+  }
+
+  onStartTimeChange(DateTime time) {
+    var newDate = DateTime(startDateTime!.year, startDateTime!.month,
+        startDateTime!.day, time.hour, time.minute);
+    setState(() {
+      startDateTime = newDate;
+      endTime = newDate.add(Duration(minutes: duration));
+    });
+  }
+
+  onEndTimeChange(DateTime time) {
+    var newDate = DateTime(startDateTime!.year, startDateTime!.month,
+        startDateTime!.day, time.hour, time.minute);
+
+    setState(() {
+      endTime = newDate;
+      if (newDate.isAfter(startDateTime!)) {
+        duration = newDate.difference(startDateTime!).inMinutes;
+      }
+    });
+  }
+
+  onEventEndModeChange(value) {
+    setState(() {
+      eventEndMode = value;
+    });
+  }
+
+  onDurationChange(Duration newDuration) {
+    setState(() {
+      duration = newDuration.inMinutes;
+      endTime = startDateTime!.add(Duration(minutes: newDuration.inMinutes));
+    });
+  }
+
+  toggleTimePicker() {
+    setState(() {
+      showTimePicker = !showTimePicker;
+    });
+  }
+
+  toggleDurationPicker() {
+    setState(() {
+      showDurationPicker = !showDurationPicker;
+    });
+  }
+
+  setSelectedInterval(int interval) {
+    setState(() {
+      selectedInterval = interval;
+    });
+  }
+
+  setSelectedFrequency(String frequency) {
+    setState(() {
+      selectedFrequency = frequency;
+    });
+  }
+
+  setSelectedWeekdays(List<String> weekdays) {
+    setState(() {
+      selectedWeekdays = weekdays;
+    });
+  }
+
+  setRecurringEndDateTime(DateTime d) {
+    setState(() {
+      recurringEndDateTime = d;
+    });
+  }
+
+  addEventImage(File i) {
+    setState(() {
+      pendingImages.add(UploadImageData(id: ObjectId(), image: i));
+    });
+  }
+
+  addTaskImage(UploadImageData i) {
+    setState(() {
+      pendingImages.add(i);
+    });
+  }
+
+  removeImage(ObjectId id) {
+    setState(() {
+      pendingImages.removeWhere((element) => element.id == id);
+    });
+  }
+
+  removeExistingImage() {
+    setState(() {
+      didRemoveExisitngImage = true;
+    });
+  }
+
+  stageAddTask(EventTask task) {
+    // if (tasks.isNotEmpty) {
+    //   final prevTask = tasks.last;
+    //   task.prevTaskId = prevTask.id;
+    //   prevTask.nextTaskId = task.id;
+
+    //   setState(() {
+    //     tasks.last = prevTask;
+    //   });
+    // }
+    setState(() {
+      tasks.add(task);
+    });
+  }
+
+  stageUpdateTask(EventTask task) {
+    var newTasks = tasks.map((origTask) {
+      if (task.id == origTask.id) return task;
+      return origTask;
+    }).toList();
+
+    setState(() {
+      tasks = newTasks;
+    });
+  }
+
+  stageReorderTask(int oldIndex, int newIndex) {
+    if (oldIndex < newIndex) {
+      // moving the item at oldIndex will shorten the list by 1.
+      newIndex -= 1;
+    }
+
+    tasks.move(oldIndex, newIndex);
+
+    setState(() {
+      tasks = tasks;
+    });
+  }
+
+  void stageRemoveTask(int i) {
+    pendingImages.removeWhere((image) => image.taskId == tasks[i].id);
+    tasks.removeAt(i);
+
+    setState(() {
+      tasks = tasks;
+    });
+  }
+
+  handleSaveEvent() async {
+    final appState = Provider.of<AppState?>(context, listen: false);
+    RealmManager realmManager =
+        Provider.of<RealmManager>(context, listen: false);
+    final currentUser =
+        Provider.of<AppServices>(context, listen: false).currentUser;
+    final isFormValid = _formKey.currentState!.validate();
+
+    var isEndTimeAfterStartTime = endTime.isAfter(startDateTime!);
+    if (eventEndMode == 'endTime' && !isEndTimeAfterStartTime) {
+      showDialog<void>(
+          context: context,
+          barrierDismissible: false, // user must tap button!
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('End time must be greater than start time'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Ok'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          });
+      return;
+    }
+
+    if (isFormValid) {
+      _formKey.currentState!.save();
+
+      try {
+        setState(() => isLoading = true);
+
+        ImageDataModel? eventImageData;
+
+        final pendingEventImage =
+            pendingImages.firstWhereOrNull((i) => i.taskId == null);
+        final pendingTaskImages = pendingImages.where((i) => i.taskId != null);
+
+        if (pendingEventImage != null) {
+          final imageId = await uploadImage(
+              image: pendingEventImage, currentUser: currentUser!);
+          eventImageData = ImageDataModel.create(
+              realmManager.realm!,
+              ImageData(ObjectId(), appState!.activeTeam!.id,
+                  ObjectId.fromHexString(currentUser.id), imageId, false,
+                  tags: title.getTags));
+        }
+
+        if (pendingTaskImages.isNotEmpty) {
+          for (var pendingImage in pendingTaskImages) {
+            final imageId = await uploadImage(
+                image: pendingImage, currentUser: currentUser!);
+            final imageModel = ImageDataModel.create(
+                realmManager.realm!,
+                ImageData(ObjectId(), appState!.activeTeam!.id,
+                    ObjectId.fromHexString(currentUser.id), imageId, false,
+                    tags: title.getTags));
+            if (imageModel == null) throw 'Error Uploading Image';
+            final t = tasks.firstWhere((task) {
+              return task.id == pendingImage.taskId;
+            });
+            t.image = imageModel.item;
+          }
+        }
+
+        var recurrencePattern = getRecurrencePattern();
+        // separate this and when editing, just update existingEvent.item
+
+        if (widget.existingEvent == null) {
+          var event = Event(
+              widget.id,
+              appState!.activeTeam!.id,
+              ObjectId.fromHexString(currentUser!.id),
+              title,
+              description,
+              startDateTime!.toUtc(),
+              duration,
+              recurrencePattern != null,
+              image: eventImageData?.item,
+              recurrencePattern: recurrencePattern);
+
+          EventModel.create(realmManager.realm!, event, tasks);
+        } else {
+          ImageData? image;
+
+          if (eventImageData != null) {
+            image = eventImageData.item;
+          } else if (!didRemoveExisitngImage) {
+            image = widget.existingEvent!.image;
+          }
+
+          widget.existingEvent!.update(
+              title: title,
+              description: description,
+              startDateTime: startDateTime,
+              duration: duration,
+              isRecurring: recurrencePattern != null,
+              image: image,
+              recurrencePattern: recurrencePattern,
+              tasks: tasks);
+        }
+
+        setState(() => isLoading = false);
+        Navigator.pop(context);
+      } on AppException catch (err) {
+        setState(() {
+          error = err.message;
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  RecurrencePattern? getRecurrencePattern() {
+    var type = frequencyToRecurrenceType[selectedFrequency];
+    var doesEnd = recurringEndDateTime.year != 9999;
+    var weekdayInts = selectedWeekdays.map((e) => weekdayToInt[e]!).toList();
+    List<int> daysOfWeek = [];
+    List<int> daysOfMonth = [];
+    List<int> weeksOfMonth = [];
+    List<int> monthsOfYear = [];
+
+    switch (type) {
+      case 'weekly':
+        daysOfWeek = weekdayInts;
+        break;
+      case 'monthly':
+        daysOfMonth = [startDateTime!.day]; // TODO: multiple days
+        break;
+      case 'yearly':
+        monthsOfYear = [startDateTime!.month]; // TODO: multiple months
+        daysOfMonth.add(startDateTime!.day);
+        break;
+      default:
+    }
+    var recurrencePattern = selectedInterval == 0
+        ? null
+        : RecurrencePattern(ObjectId(), type!, selectedInterval, startDateTime!,
+            recurringEndDateTime, doesEnd,
+            daysOfWeek: daysOfWeek,
+            daysOfMonth: daysOfMonth,
+            weeksOfMonth: weeksOfMonth,
+            monthsOfYear: monthsOfYear);
+
+    return recurrencePattern;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    var durationObj = Duration(minutes: duration);
+    var hours = durationObj.inHours;
+    var minutes = durationObj.inMinutes - 60 * hours;
+    var isEndTimeAfterStartTime = endTime.isAfter(startDateTime!);
+    var durationString =
+        '${hours > 0 ? '$hours' '${hours == 1 ? ' hour' : ' hours'}' : ''} ${minutes > 0 ? '$minutes' '${minutes == 1 ? ' minute' : ' minutes'}' : ''}';
+    var durationStrColor =
+        (eventEndMode == 'endTime' && !isEndTimeAfterStartTime)
+            ? Colors.red
+            : theme.textTheme.bodyLarge!.color;
+
+    return Stack(children: [
+      Scaffold(
+          backgroundColor: theme.backgroundColor,
+          appBar: AppBar(
+              title: Text(
+                widget.existingEvent != null ? 'Edit Event' : 'Create Event',
+                style: TextStyle(color: Colors.black.withOpacity(0.7)),
+              ),
+              foregroundColor: Color.fromRGBO(17, 182, 141, 1),
+              backgroundColor: theme.backgroundColor,
+              elevation: 0,
+              actions: [
+                TextButton(
+                    onPressed: handleSaveEvent,
+                    style: ElevatedButton.styleFrom(
+                        foregroundColor: Color.fromRGBO(17, 182, 141, 1),
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        textStyle: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
+                    child:
+                        Text(widget.existingEvent == null ? 'Create' : 'Save'))
+              ]),
+          body: SingleChildScrollView(
+              child: Container(
+            margin: EdgeInsets.only(top: 12),
+            child: Column(children: [
+              if (error != null)
+                Text(
+                  'Error: ${error!}',
+                  style: const TextStyle(color: Colors.red),
+                ),
+              const SizedBox(height: 16),
+              ImagePickerWidget(
+                existingImage:
+                    didRemoveExisitngImage ? null : widget.existingEvent?.image,
+                pendingImage: pendingImages
+                    .firstWhereOrNull((element) => element.taskId == null),
+                addImage: addEventImage,
+                removeImage: removeImage,
+                removeExistingImage: removeExistingImage,
+              ),
+              Form(
+                key: _formKey,
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CustomTextFormField(
+                        hintText: 'Title',
+                        initialValue: title,
+                        textInputAction: TextInputAction.next,
+                        onSaved: (String? value) {
+                          if (value == null) return;
+                          title = value;
+                        },
+                        validator: (String? value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a title';
+                          }
+                          return null;
+                        },
+                      ),
+                      CustomTextFormField(
+                        minLines: 4,
+                        maxLines: 4,
+                        hintText: 'Description',
+                        initialValue: description,
+                        onSaved: (String? value) {
+                          if (value == null) return;
+                          description = value;
+                        },
+                      ),
+                    ]),
+              ),
+              Container(height: 16),
+              DatePicker(
+                  dateTime: startDateTime!, setDateTime: onStartDateChange),
+              PrimaryCard(
+                  padding: EdgeInsets.zero,
+                  child: Column(children: [
+                    GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: toggleTimePicker,
+                        child: Container(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Start Time',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                  Text(DateFormat('h:mm a')
+                                      .format(startDateTime!))
+                                ]))),
+                    ExpandedableWidget(
+                        expand: showTimePicker,
+                        child: Column(children: [
+                          Container(
+                              margin: EdgeInsets.only(bottom: 16),
+                              height: 1,
+                              color: Colors.grey[200]),
+                          SizedBox(
+                              height: 200,
+                              width: 180,
+                              child: CupertinoDatePicker(
+                                mode: CupertinoDatePickerMode.time,
+                                initialDateTime: startDateTime,
+                                minuteInterval: 5,
+                                onDateTimeChanged: onStartTimeChange,
+                              ))
+                        ]))
+                  ])),
+              PrimaryCard(
+                  padding: EdgeInsets.zero,
+                  child: Column(children: [
+                    GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: toggleDurationPicker,
+                        child: Container(
+                            padding: const EdgeInsets.all(12),
+                            child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  // Text('Duration',
+                                  //     style: TextStyle(
+                                  //         fontWeight: FontWeight.bold)),
+                                  CupertinoSlidingSegmentedControl(
+                                    backgroundColor: theme.backgroundColor,
+                                    thumbColor: theme.primaryColor,
+                                    groupValue: eventEndMode,
+                                    onValueChanged: onEventEndModeChange,
+                                    children: const {
+                                      'duration': Padding(
+                                        padding:
+                                            EdgeInsets.symmetric(horizontal: 8),
+                                        child: Text(
+                                          'Duration',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color:
+                                                  Color.fromRGBO(0, 69, 77, 1)),
+                                        ),
+                                      ),
+                                      'endTime': Padding(
+                                        padding:
+                                            EdgeInsets.symmetric(horizontal: 8),
+                                        child: Text(
+                                          'End Time',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color:
+                                                  Color.fromRGBO(0, 69, 77, 1)),
+                                        ),
+                                      )
+                                    },
+                                  ),
+                                  Text(
+                                    eventEndMode == 'duration'
+                                        ? durationString
+                                        : DateFormat('h:mm a').format(endTime),
+                                    style: TextStyle(color: durationStrColor),
+                                  )
+                                ]))),
+                    ExpandedableWidget(
+                        expand: showDurationPicker,
+                        child: eventEndMode == 'duration'
+                            ? Column(children: [
+                                Container(
+                                    margin: EdgeInsets.only(bottom: 16),
+                                    height: 1,
+                                    color: Colors.grey[200]),
+                                SizedBox(
+                                    width: 220,
+                                    child: CupertinoTimerPicker(
+                                      mode: CupertinoTimerPickerMode.hm,
+                                      minuteInterval: 5,
+                                      initialTimerDuration:
+                                          Duration(minutes: duration),
+                                      onTimerDurationChanged: onDurationChange,
+                                    ))
+                              ])
+                            : Column(children: [
+                                Container(
+                                    margin: EdgeInsets.only(bottom: 16),
+                                    height: 1,
+                                    color: Colors.grey[200]),
+                                SizedBox(
+                                    height: 200,
+                                    width: 180,
+                                    child: CupertinoDatePicker(
+                                      mode: CupertinoDatePickerMode.time,
+                                      initialDateTime: endTime,
+                                      minuteInterval: 5,
+                                      onDateTimeChanged: onEndTimeChange,
+                                    ))
+                              ]))
+                  ])),
+              RepeatPicker(
+                  selectedInterval: selectedInterval,
+                  selectedFrequency: selectedFrequency,
+                  selectedWeekdays: selectedWeekdays,
+                  setSelectedInterval: setSelectedInterval,
+                  setSelectedFrequency: setSelectedFrequency,
+                  setSelectedWeekdays: setSelectedWeekdays,
+                  endDateTime: recurringEndDateTime,
+                  setEndDateTime: setRecurringEndDateTime),
+              Container(height: 16),
+              TaskList(
+                tasks: tasks,
+                images: pendingImages,
+                stageAddTask: stageAddTask,
+                stageUpdateTask: stageUpdateTask,
+                reorderTask: stageReorderTask,
+                removeTask: stageRemoveTask,
+                stageAddTaskImage: addTaskImage,
+                removeImage: removeImage,
+                eventId: (widget.existingEvent == null
+                        ? widget.id
+                        : widget.existingEvent!.id)
+                    .toString(),
+              ),
+              Container(height: 200),
+            ]),
+          ))),
+      if (isLoading)
+        Positioned(
+            top: 0,
+            left: 0,
+            height: MediaQuery.of(context).size.height,
+            right: 0,
+            child: Container(
+                color: Colors.black.withOpacity(0.5),
+                child: Flex(
+                  direction: Axis.vertical,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      height: 50,
+                      width: 50,
+                      child: CircularProgressIndicator(
+                        color: theme.primaryColor,
+                      ),
+                    )
+                  ],
+                )))
+    ]);
+  }
+}
+
+Future<String> uploadImage(
+    {required UploadImageData image, required User currentUser}) async {
+  // List<String> imageIds = [];
+
+  // for (var image in images) {
+  final res = await currentUser.functions.call('getImageUploadUrl');
+
+  if (!res['success']) throw res['error'];
+
+  final uploadUrl = res['results']['uploadURL'];
+
+  var request = http.MultipartRequest("POST", Uri.parse(uploadUrl));
+  var pic = await http.MultipartFile.fromPath("file", image.image.path);
+  request.files.add(pic);
+  var response = await request.send();
+  var responseData = await response.stream.toBytes();
+  var responseString = String.fromCharCodes(responseData);
+  var uploadRes = jsonDecode(responseString);
+
+  // // imageIds.add(uploadRes['result']['variants'][0]);
+  // // }
+  // inspect(responseObj);
+
+  return uploadRes['result']['id'];
+  // return responseObj['result']['variants'][0];
+}
+
+// EventModel.create(
+//             realm,
+//             Event(ObjectId(), currentUser!.id, 'title', 'description',
+//                 'time', 60 * 60,
+//                 isComplete: false, images: []));
+//       },

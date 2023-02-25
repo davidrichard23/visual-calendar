@@ -1,0 +1,148 @@
+{
+  "title": "Event",
+  "bsonType": "object",
+  "required": [
+    "_id",
+    "teamId",
+    "ownerId",
+    "title",
+    "description",
+    "duration",
+    "isRecurring",
+    "isFlexibleTime",
+    "isDeleted"
+  ],
+  "properties": {
+    "_id": {
+      "bsonType": "objectId"
+    },
+    "teamId": {
+      "bsonType": "string"
+    },
+    "ownerId": {
+      "bsonType": "string"
+    },
+    "parentEventId": {
+      "bsonType": "string"
+    },
+    "title": {
+      "bsonType": "string"
+    },
+    "description": {
+      "bsonType": "string"
+    },
+    "startDate": {
+      "bsonType": "date"
+    },
+    "startDateTime": {
+      "bsonType": "date"
+    },
+    "duration": {
+      "bsonType": "long"
+    },
+    "image": {
+      "bsonType": "string"
+    },
+    "isRecurring": {
+      "bsonType": "bool"
+    },
+    "isFlexibleTime": {
+      "bsonType": "bool"
+    },
+    "flexiblePrevEventId": {
+      "bsonType": "string"
+    },
+    "flexibleNextEventId": {
+      "bsonType": "string"
+    },
+    "createdAt": {
+      "bsonType": "date"
+    },
+    "updatedAt": {
+      "bsonType": "date"
+    },
+    "isDeleted": {
+      "bsonType": "bool"
+    }
+  }
+}
+
+{
+  "title": "Team",
+  "required": [
+    "_id",
+    "ownerId",
+    "title",
+    "dependentName",
+    "isDeleted"
+  ],
+  "properties": {
+    "_id": {
+      "bsonType": "objectId"
+    },
+    "ownerId": {
+      "bsonType": "string"
+    },
+    "adminIds": {
+      "bsonType": "array",
+      "items": {
+        "bsonType": "string"
+      }
+    },
+    "title": {
+      "bsonType": "string"
+    },
+    "dependentName": {
+      "bsonType": "string"
+    },
+    "isDeleted": {
+      "bsonType": "bool"
+    },
+    "createdAt": {
+      "bsonType": "date"
+    },
+    "updatedAt": {
+      "bsonType": "date"
+    }
+  }
+}
+
+{
+  "rules": {
+    "Team": [
+      {
+        "name": "owner-read-write",
+        "applyWhen": {},
+        "write": {
+          "$or": [
+            {
+              "ownerId": {
+                "%stringToOid": "%%user.id"
+              }
+            },
+            {
+              "_id": {
+                "$in": {
+                  "%oidToString": "%%user.custom_data.teamAdminIds"
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "defaultRoles": [
+    {
+      "name": "team-read-write",
+      "applyWhen": {},
+      "write": {
+        "teamId": {
+          "$in": {
+            "%stringToOid": "%%user.custom_data.teamAdminIds"
+          }
+        }
+      }
+    }
+  ]
+}
