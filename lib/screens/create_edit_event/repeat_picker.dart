@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:calendar/components/cards/primary_card.dart';
 import 'package:calendar/components/expandable_widget.dart';
+import 'package:calendar/screens/create_edit_event/create_edit_event.dart';
 import 'package:calendar/screens/create_edit_event/date_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,8 @@ var weekdayList = [
 ];
 
 class RepeatPicker extends StatefulWidget {
+  final bool isOpen;
+  final void Function(OpenPicker) setExpanded;
   final int selectedInterval;
   final String selectedFrequency;
   final List<String> selectedWeekdays;
@@ -33,6 +36,8 @@ class RepeatPicker extends StatefulWidget {
 
   const RepeatPicker(
       {Key? key,
+      required this.isOpen,
+      required this.setExpanded,
       required this.selectedInterval,
       required this.selectedFrequency,
       required this.selectedWeekdays,
@@ -48,13 +53,10 @@ class RepeatPicker extends StatefulWidget {
 }
 
 class _RepeatPickerState extends State<RepeatPicker> {
-  bool showRepeatPicker = false;
   bool showEndDatePicker = false;
 
   toggleRepeatPicker() {
-    setState(() {
-      showRepeatPicker = !showRepeatPicker;
-    });
+    widget.setExpanded(widget.isOpen ? OpenPicker.none : OpenPicker.repeat);
   }
 
   toggleEndDatePicker() {
@@ -100,7 +102,8 @@ class _RepeatPickerState extends State<RepeatPicker> {
                                 : '$repeatStr$weekdayStr$endDateStr'))
                       ]))),
           ExpandedableWidget(
-              expand: showRepeatPicker,
+              curve: Curves.easeInOut,
+              expand: widget.isOpen,
               child: Column(children: [
                 Container(
                     margin: const EdgeInsets.only(bottom: 16),

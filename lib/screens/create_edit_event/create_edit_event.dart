@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'dart:developer';
+
 import 'package:calendar/components/cards/primary_card.dart';
 import 'package:calendar/components/custom_text_form_field.dart';
 import 'package:calendar/components/expandable_widget.dart';
@@ -59,6 +61,14 @@ class StagedImageData {
   StagedImageData({this.taskId, this.image});
 }
 
+enum OpenPicker {
+  none,
+  startDate,
+  startTime,
+  duration,
+  repeat,
+}
+
 class CreateEditEvent extends StatefulWidget {
   final EventModel? existingEvent;
   final DateTime? initalStartDate;
@@ -77,10 +87,11 @@ class _CreateEditEventState extends State<CreateEditEvent> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   List<EventTask> tasks = [];
   final List<StagedImageData> stagedImages = [];
-  bool showDatePicker = false;
-  bool showTimePicker = false;
-  bool showDurationPicker = false;
-  bool showRepeatPicker = false;
+  // bool showDatePicker = false;
+  // bool showTimePicker = false;
+  // bool showDurationPicker = false;
+  // bool showRepeatPicker = false;
+  OpenPicker openPicker = OpenPicker.none;
 
   bool isLoading = false;
   String? error;
@@ -143,6 +154,12 @@ class _CreateEditEventState extends State<CreateEditEvent> {
     recurringEndDateTime = recurrencePattern.endDateTime;
   }
 
+  void toggleOpenPicker(OpenPicker picker) {
+    setState(
+        () => openPicker = openPicker == picker ? OpenPicker.none : picker);
+    FocusManager.instance.primaryFocus?.unfocus();
+  }
+
   onStartDateChange(DateTime d) {
     var newDate = DateTime(
         d.year, d.month, d.day, startDateTime!.hour, startDateTime!.minute);
@@ -184,18 +201,6 @@ class _CreateEditEventState extends State<CreateEditEvent> {
     setState(() {
       duration = newDuration.inMinutes;
       endTime = startDateTime!.add(Duration(minutes: newDuration.inMinutes));
-    });
-  }
-
-  toggleTimePicker() {
-    setState(() {
-      showTimePicker = !showTimePicker;
-    });
-  }
-
-  toggleDurationPicker() {
-    setState(() {
-      showDurationPicker = !showDurationPicker;
     });
   }
 
@@ -475,7 +480,7 @@ class _CreateEditEventState extends State<CreateEditEvent> {
                       CustomTextFormField(
                         hintText: 'Title',
                         initialValue: title,
-                        textInputAction: TextInputAction.next,
+                        textInputAction: TextInputAction.done,
                         onSaved: (String? value) {
                           if (value == null) return;
                           title = value;
@@ -501,13 +506,16 @@ class _CreateEditEventState extends State<CreateEditEvent> {
               ),
               Container(height: 16),
               DatePicker(
-                  dateTime: startDateTime!, setDateTime: onStartDateChange),
+                  isOpen: openPicker == OpenPicker.startDate,
+                  setExpanded: toggleOpenPicker,
+                  dateTime: startDateTime!,
+                  setDateTime: onStartDateChange),
               PrimaryCard(
                   padding: EdgeInsets.zero,
                   child: Column(children: [
                     GestureDetector(
                         behavior: HitTestBehavior.opaque,
-                        onTap: toggleTimePicker,
+                        onTap: () => toggleOpenPicker(OpenPicker.startTime),
                         child: Container(
                             padding: const EdgeInsets.all(16),
                             child: Row(
@@ -521,7 +529,8 @@ class _CreateEditEventState extends State<CreateEditEvent> {
                                       .format(startDateTime!))
                                 ]))),
                     ExpandedableWidget(
-                        expand: showTimePicker,
+                        expand: openPicker == OpenPicker.startTime,
+                        curve: Curves.easeInOut,
                         child: Column(children: [
                           Container(
                               margin: EdgeInsets.only(bottom: 16),
@@ -543,7 +552,7 @@ class _CreateEditEventState extends State<CreateEditEvent> {
                   child: Column(children: [
                     GestureDetector(
                         behavior: HitTestBehavior.opaque,
-                        onTap: toggleDurationPicker,
+                        onTap: () => toggleOpenPicker(OpenPicker.duration),
                         child: Container(
                             padding: const EdgeInsets.all(12),
                             child: Row(
@@ -591,7 +600,8 @@ class _CreateEditEventState extends State<CreateEditEvent> {
                                   )
                                 ]))),
                     ExpandedableWidget(
-                        expand: showDurationPicker,
+                        expand: openPicker == OpenPicker.duration,
+                        curve: Curves.easeInOut,
                         child: eventEndMode == 'duration'
                             ? Column(children: [
                                 Container(
@@ -625,6 +635,8 @@ class _CreateEditEventState extends State<CreateEditEvent> {
                               ]))
                   ])),
               RepeatPicker(
+                  isOpen: openPicker == OpenPicker.repeat,
+                  setExpanded: toggleOpenPicker,
                   selectedInterval: selectedInterval,
                   selectedFrequency: selectedFrequency,
                   selectedWeekdays: selectedWeekdays,

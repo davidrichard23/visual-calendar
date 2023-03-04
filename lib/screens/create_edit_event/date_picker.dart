@@ -1,15 +1,22 @@
 import 'package:calendar/components/cards/primary_card.dart';
 import 'package:calendar/components/expandable_widget.dart';
+import 'package:calendar/screens/create_edit_event/create_edit_event.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class DatePicker extends StatefulWidget {
+  final bool isOpen;
+  final Function(OpenPicker) setExpanded;
   final DateTime dateTime;
   final Function(DateTime) setDateTime;
 
   const DatePicker(
-      {Key? key, required this.dateTime, required this.setDateTime})
+      {Key? key,
+      required this.isOpen,
+      required this.setExpanded,
+      required this.dateTime,
+      required this.setDateTime})
       : super(key: key);
 
   @override
@@ -17,12 +24,8 @@ class DatePicker extends StatefulWidget {
 }
 
 class _DatePickerState extends State<DatePicker> {
-  bool showDatePicker = false;
-
   toggleDatePicker() {
-    setState(() {
-      showDatePicker = !showDatePicker;
-    });
+    widget.setExpanded(widget.isOpen ? OpenPicker.none : OpenPicker.startDate);
   }
 
   onDateChange(DateRangePickerSelectionChangedArgs args) {
@@ -48,7 +51,8 @@ class _DatePickerState extends State<DatePicker> {
                             DateFormat('EEE MMMM d, y').format(widget.dateTime))
                       ]))),
           ExpandedableWidget(
-              expand: showDatePicker,
+              curve: Curves.easeInOut,
+              expand: widget.isOpen,
               child: Column(children: [
                 Container(
                     margin: const EdgeInsets.only(bottom: 16),

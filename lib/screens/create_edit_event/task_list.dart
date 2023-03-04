@@ -87,51 +87,50 @@ class TaskListState extends State<TaskList> {
                     itemBuilder: (ctx, i) {
                       final task = widget.tasks[i];
 
-                      return GestureDetector(
-                          behavior: HitTestBehavior.translucent,
+                      return SizedBox(
                           key: Key(task.id.toString()),
-                          onTap: () => editTask(task),
-                          child: SizedBox(
-                              height: ROW_HEIGHT,
-                              child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                        height: 1, color: Colors.grey[200]),
-                                    Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 16),
-                                        child: Row(children: [
-                                          widget.tasks.length > 1
-                                              ? ReorderableDragStartListener(
-                                                  index: i,
-                                                  child: Icon(
-                                                    Icons.drag_indicator,
-                                                    color: Colors.grey[400],
-                                                  ),
-                                                )
-                                              : Container(),
-                                          Container(width: 8),
-                                          Expanded(
-                                              child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(task.title),
-                                              IconButton(
-                                                  visualDensity:
-                                                      VisualDensity.compact,
-                                                  icon: Icon(
-                                                    Icons
-                                                        .delete_outline_rounded,
-                                                    color: Colors.grey[400],
-                                                  ),
-                                                  onPressed: () =>
-                                                      widget.removeTask(i))
-                                            ],
-                                          ))
-                                        ]))
-                                  ])));
+                          height: ROW_HEIGHT,
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(height: 1, color: Colors.grey[200]),
+                                ReorderableDelayedDragStartListener(
+                                    index: i,
+                                    child: GestureDetector(
+                                        behavior: HitTestBehavior.translucent,
+                                        onTap: () => editTask(task),
+                                        child: Container(
+                                            color: Colors
+                                                .white, // needed for full width drag
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 16),
+                                            child: Row(children: [
+                                              Icon(
+                                                Icons.drag_indicator,
+                                                color: Colors.grey[400],
+                                              ),
+                                              Container(width: 8),
+                                              Expanded(
+                                                  child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(task.title),
+                                                  IconButton(
+                                                      visualDensity:
+                                                          VisualDensity.compact,
+                                                      icon: Icon(
+                                                        Icons
+                                                            .delete_outline_rounded,
+                                                        color: Colors.grey[400],
+                                                      ),
+                                                      onPressed: () =>
+                                                          widget.removeTask(i))
+                                                ],
+                                              ))
+                                            ]))))
+                              ]));
                     })),
           ])),
       GestureDetector(

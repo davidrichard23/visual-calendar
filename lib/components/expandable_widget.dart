@@ -4,12 +4,16 @@ class ExpandedableWidget extends StatefulWidget {
   final Widget child;
   final bool expand;
   final double axisAlignment;
+  final int miliseconds;
+  final Curve curve;
 
   const ExpandedableWidget(
       {Key? key,
       this.expand = false,
       required this.child,
-      this.axisAlignment = 0.0})
+      this.axisAlignment = 0.0,
+      this.miliseconds = 300,
+      this.curve = Curves.fastOutSlowIn})
       : super(key: key);
 
   @override
@@ -31,10 +35,10 @@ class _ExpandedableWidgetState extends State<ExpandedableWidget>
   ///Setting up the animation
   void prepareAnimations() {
     expandController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 500));
+        vsync: this, duration: Duration(milliseconds: widget.miliseconds));
     animation = CurvedAnimation(
       parent: expandController!,
-      curve: Curves.fastOutSlowIn,
+      curve: widget.curve,
     );
   }
 
