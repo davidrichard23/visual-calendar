@@ -42,6 +42,7 @@ class TaskListState extends State<TaskList> {
     final theme = Theme.of(context);
 
     void addNewTask() {
+      FocusManager.instance.primaryFocus?.unfocus();
       Navigator.pushNamed(context, '/create-edit-event-task',
           arguments: CreateEditTaskScreenArgs(
               stageAddTask: widget.stageAddTask,
@@ -52,6 +53,7 @@ class TaskListState extends State<TaskList> {
     }
 
     void editTask(EventTask task) {
+      FocusManager.instance.primaryFocus?.unfocus();
       Navigator.pushNamed(context, '/create-edit-event-task',
           arguments: CreateEditTaskScreenArgs(
               existingTask: task,
