@@ -18,6 +18,7 @@ class EventModel {
   ImageData? image;
   bool isRecurring;
   bool isCompleted = false;
+  bool isTemplate = false;
   RecurrencePattern? recurrencePattern;
   late DateTime createdAt;
   late DateTime updatedAt;
@@ -39,6 +40,7 @@ class EventModel {
       this.duration,
       this.tasks,
       this.isRecurring,
+      this.isTemplate,
       this.recurrencePattern);
   EventModel(Realm realm, Event item)
       : this._(
@@ -54,6 +56,7 @@ class EventModel {
             item.duration,
             item.tasks,
             item.isRecurring,
+            item.isTemplate,
             item.recurrencePattern);
 
   static EventModel? create(Realm realm, Event item, List<EventTask> tasks) {
@@ -99,6 +102,7 @@ class EventModel {
       int? duration,
       bool? isRecurring,
       ImageData? image,
+      bool? isTemplate,
       RecurrencePattern? recurrencePattern,
       List<EventTask>? tasks}) {
     try {
@@ -107,6 +111,7 @@ class EventModel {
         if (description != null) item.description = description;
         if (startDateTime != null) item.startDateTime = startDateTime;
         if (duration != null) item.duration = duration;
+        if (isTemplate != null) item.isTemplate = isTemplate;
         if (isRecurring != null) item.isRecurring = isRecurring;
         if (recurrencePattern != null) {
           item.recurrencePattern = recurrencePattern;
@@ -153,6 +158,14 @@ class EventModel {
     }
 
     tasks = sorted;
+  }
+
+  List<EventTask> duplicateTasks(ObjectId newEventId) {
+    return tasks
+        .map((task) => EventTask(ObjectId(), task.teamId, task.ownerId,
+            newEventId, task.title, task.description,
+            image: task.image))
+        .toList();
   }
 
   void setStartDateTime(DateTime newStartDateTime) {

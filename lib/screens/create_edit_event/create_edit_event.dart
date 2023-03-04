@@ -71,12 +71,17 @@ enum OpenPicker {
 
 class CreateEditEvent extends StatefulWidget {
   final EventModel? existingEvent;
+  final EventModel? templateEvent;
   final DateTime? initalStartDate;
   final int? initalDuration;
   final id = ObjectId();
 
   CreateEditEvent(
-      {Key? key, this.existingEvent, this.initalStartDate, this.initalDuration})
+      {Key? key,
+      this.existingEvent,
+      this.templateEvent,
+      this.initalStartDate,
+      this.initalDuration})
       : super(key: key);
 
   @override
@@ -87,10 +92,6 @@ class _CreateEditEventState extends State<CreateEditEvent> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   List<EventTask> tasks = [];
   final List<StagedImageData> stagedImages = [];
-  // bool showDatePicker = false;
-  // bool showTimePicker = false;
-  // bool showDurationPicker = false;
-  // bool showRepeatPicker = false;
   OpenPicker openPicker = OpenPicker.none;
 
   bool isLoading = false;
@@ -105,6 +106,7 @@ class _CreateEditEventState extends State<CreateEditEvent> {
   String description = '';
   DateTime? startDateTime;
   int duration = 60;
+  bool isTemplate = false;
 
   String eventEndMode = 'duration';
   DateTime endTime = DateTime.now();
@@ -124,6 +126,19 @@ class _CreateEditEventState extends State<CreateEditEvent> {
 
       endTime = startDateTime!.add(Duration(minutes: duration));
 
+      if (widget.templateEvent != null) {
+        widget.templateEvent!.sortTasks();
+
+        title = widget.templateEvent!.title;
+        description = widget.templateEvent!.description;
+        duration = widget.templateEvent!.duration;
+        tasks = widget.templateEvent!.duplicateTasks(widget.id);
+        stagedImages.add(StagedImageData(image: widget.templateEvent!.image));
+        for (var task in tasks) {
+          stagedImages.add(StagedImageData(taskId: task.id, image: task.image));
+        }
+      }
+
       return;
     }
 
@@ -136,6 +151,7 @@ class _CreateEditEventState extends State<CreateEditEvent> {
     duration = widget.existingEvent!.duration;
     tasks = widget.existingEvent!.tasks.toList();
     endTime = startDateTime!.add(Duration(minutes: duration));
+    isTemplate = widget.existingEvent!.isTemplate;
 
     stagedImages.add(StagedImageData(image: widget.existingEvent!.image));
     for (var task in tasks) {
@@ -360,6 +376,7 @@ class _CreateEditEventState extends State<CreateEditEvent> {
               duration,
               recurrencePattern != null,
               image: stagedEventImage?.image,
+              isTemplate: isTemplate,
               recurrencePattern: recurrencePattern);
 
           EventModel.create(realmManager.realm!, event, tasks);
@@ -371,12 +388,14 @@ class _CreateEditEventState extends State<CreateEditEvent> {
               duration: duration,
               isRecurring: recurrencePattern != null,
               image: stagedEventImage?.image,
+              isTemplate: isTemplate,
               recurrencePattern: recurrencePattern,
               tasks: tasks);
         }
 
         setState(() => isLoading = false);
-        Navigator.pop(context);
+        Navigator.popUntil(
+            context, (predicate) => predicate.settings.name == '/home');
       } on AppException catch (err) {
         setState(() {
           error = err.message;
@@ -441,7 +460,7 @@ class _CreateEditEventState extends State<CreateEditEvent> {
           backgroundColor: theme.backgroundColor,
           appBar: AppBar(
               title: Text(
-                widget.existingEvent != null ? 'Edit Event' : 'Create Event',
+                widget.existingEvent == null ? 'Create Event' : 'Edit Event',
                 style: TextStyle(color: Colors.black.withOpacity(0.7)),
               ),
               foregroundColor: Color.fromRGBO(17, 182, 141, 1),
@@ -504,6 +523,24 @@ class _CreateEditEventState extends State<CreateEditEvent> {
                       ),
                     ]),
               ),
+              Container(height: 16),
+              PrimaryCard(
+                  padding: EdgeInsets.zero,
+                  child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => setState(() => isTemplate = !isTemplate),
+                      child: Row(children: [
+                        Checkbox(
+                          checkColor: Colors.white,
+                          fillColor:
+                              MaterialStateProperty.all(theme.primaryColor),
+                          value: isTemplate,
+                          onChanged: (bool? value) =>
+                              setState(() => isTemplate = !isTemplate),
+                        ),
+                        Text('Save this event as a template?',
+                            style: TextStyle(fontWeight: FontWeight.bold))
+                      ]))),
               Container(height: 16),
               DatePicker(
                   isOpen: openPicker == OpenPicker.startDate,

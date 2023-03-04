@@ -46,6 +46,7 @@ class _Event {
   late _ImageData? image;
   late bool isRecurring;
   late bool isCompleted = false;
+  late bool isTemplate = false;
   late _RecurrencePattern? recurrencePattern;
   late DateTime? createdAt;
   late DateTime? updatedAt;

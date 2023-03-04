@@ -18,6 +18,7 @@ import 'package:calendar/screens/images_screen.dart';
 import 'package:calendar/screens/init.dart';
 import 'package:calendar/screens/join_team.dart';
 import 'package:calendar/screens/login/login_screen.dart';
+import 'package:calendar/screens/templates_screen.dart';
 import 'package:calendar/state/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
@@ -162,6 +163,7 @@ class App extends StatelessWidget {
               return MaterialExtendedPageRoute(
                   builder: (BuildContext newContext) => CreateEditEvent(
                         existingEvent: formattedArgs.existingEvent,
+                        templateEvent: formattedArgs.templateEvent,
                         initalStartDate: formattedArgs.initalStartDate,
                         initalDuration: formattedArgs.initalDuration,
                       ));
@@ -194,13 +196,17 @@ class App extends StatelessWidget {
           case '/images':
             {
               final args = settings.arguments;
-              inspect(args);
               final formattedArgs = args as ImagesScreenArgs;
 
               return MaterialExtendedPageRoute<void>(
                   builder: (BuildContext newContext) => ImagesScreen(
                         onSelectImage: formattedArgs.onSelectImage,
                       ));
+            }
+          case '/templates':
+            {
+              return MaterialExtendedPageRoute<void>(
+                  builder: (BuildContext newContext) => TemplatesScreen());
             }
         }
       },
@@ -210,11 +216,15 @@ class App extends StatelessWidget {
 
 class CreateEditScreenArgs {
   final EventModel? existingEvent;
+  final EventModel? templateEvent;
   final DateTime? initalStartDate;
   final int? initalDuration;
 
   CreateEditScreenArgs(
-      {this.existingEvent, this.initalStartDate, this.initalDuration});
+      {this.existingEvent,
+      this.templateEvent,
+      this.initalStartDate,
+      this.initalDuration});
 }
 
 class CreateEditTaskScreenArgs {

@@ -76,12 +76,6 @@ class _DailyScreenState extends State<DailyScreen> {
           .toList();
 
       sorted.sort((a, b) {
-        // final date = DateTime.now();
-        // final aStartTime = DateTime(date.year, date.month, date.day,
-        //     a.startDateTime.toLocal().hour, a.startDateTime.toLocal().minute);
-        // final bStartTime = DateTime(date.year, date.month, date.day,
-        //     b.startDateTime.toLocal().hour, b.startDateTime.toLocal().minute);
-
         return a.startDateTime.compareTo(b.startDateTime);
       });
 

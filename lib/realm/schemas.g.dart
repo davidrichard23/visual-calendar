@@ -228,6 +228,7 @@ class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
     ObjectId? parentEventId,
     ImageData? image,
     bool isCompleted = false,
+    bool isTemplate = false,
     RecurrencePattern? recurrencePattern,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -238,6 +239,7 @@ class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
     if (!_defaultsSet) {
       _defaultsSet = RealmObjectBase.setDefaults<Event>({
         'isCompleted': false,
+        'isTemplate': false,
         'isDeleted': false,
       });
     }
@@ -252,6 +254,7 @@ class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.set(this, 'image', image);
     RealmObjectBase.set(this, 'isRecurring', isRecurring);
     RealmObjectBase.set(this, 'isCompleted', isCompleted);
+    RealmObjectBase.set(this, 'isTemplate', isTemplate);
     RealmObjectBase.set(this, 'recurrencePattern', recurrencePattern);
     RealmObjectBase.set(this, 'createdAt', createdAt);
     RealmObjectBase.set(this, 'updatedAt', updatedAt);
@@ -340,6 +343,11 @@ class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
       RealmObjectBase.set(this, 'isCompleted', value);
 
   @override
+  bool get isTemplate => RealmObjectBase.get<bool>(this, 'isTemplate') as bool;
+  @override
+  set isTemplate(bool value) => RealmObjectBase.set(this, 'isTemplate', value);
+
+  @override
   RecurrencePattern? get recurrencePattern =>
       RealmObjectBase.get<RecurrencePattern>(this, 'recurrencePattern')
           as RecurrencePattern?;
@@ -401,6 +409,7 @@ class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
           optional: true, linkTarget: 'ImageData'),
       SchemaProperty('isRecurring', RealmPropertyType.bool),
       SchemaProperty('isCompleted', RealmPropertyType.bool),
+      SchemaProperty('isTemplate', RealmPropertyType.bool),
       SchemaProperty('recurrencePattern', RealmPropertyType.object,
           optional: true, linkTarget: 'RecurrencePattern'),
       SchemaProperty('createdAt', RealmPropertyType.timestamp, optional: true),

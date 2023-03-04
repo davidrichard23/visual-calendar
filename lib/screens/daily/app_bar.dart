@@ -78,15 +78,44 @@ class DailyAppBarState extends State<DailyAppBar> {
       ),
       actions: appState.teamUserType == 'caregiver'
           ? [
-              IconButton(
-                icon: const Icon(
+              PopupMenuButton(
+                icon: Icon(
                   Icons.add_circle_outline,
                   size: 35.0,
+                  color: theme.primaryColor,
                 ),
+                color: Colors.white,
                 padding: const EdgeInsets.fromLTRB(8, 8, 24, 8),
-                onPressed: () => Navigator.pushNamed(context, '/create-event',
-                    arguments:
-                        CreateEditScreenArgs(initalStartDate: currentTime)),
+                offset: const Offset(0, 48),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
+                onSelected: (value) {
+                  if (value == 'new') {
+                    Navigator.pushNamed(context, '/create-event',
+                        arguments:
+                            CreateEditScreenArgs(initalStartDate: currentTime));
+                  } else {
+                    Navigator.pushNamed(context, '/templates');
+                  }
+                },
+                itemBuilder: (BuildContext context) => [
+                  PopupMenuItem(
+                      value: 'new',
+                      child: Row(children: const [
+                        Padding(
+                            padding: EdgeInsets.only(right: 8),
+                            child: Icon(Icons.create_outlined)),
+                        Flexible(child: Text('Create New Event')),
+                      ])),
+                  PopupMenuItem(
+                      value: 'template',
+                      child: Row(children: const [
+                        Padding(
+                            padding: EdgeInsets.only(right: 8),
+                            child: Icon(Icons.copy)),
+                        Flexible(child: Text('Create Event From A Template')),
+                      ])),
+                ],
               )
             ]
           : [],
