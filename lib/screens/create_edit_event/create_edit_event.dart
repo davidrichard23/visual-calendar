@@ -1,16 +1,8 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'dart:convert';
-import 'dart:developer';
-import 'dart:io';
-
 import 'package:calendar/components/cards/primary_card.dart';
 import 'package:calendar/components/custom_text_form_field.dart';
 import 'package:calendar/components/expandable_widget.dart';
-import 'package:calendar/components/image_grid.dart';
-import 'package:calendar/components/text/paragraph.dart';
-import 'package:calendar/main.dart';
-import 'package:calendar/models/image_data_model.dart';
 import 'package:calendar/realm/init_realm.dart';
 import 'package:calendar/screens/create_edit_event/date_picker.dart';
 import 'package:calendar/screens/create_edit_event/image_picker.dart';
@@ -18,7 +10,6 @@ import 'package:calendar/screens/create_edit_event/repeat_picker.dart';
 import 'package:calendar/screens/create_edit_event/task_list.dart';
 import 'package:calendar/state/app_state.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:calendar/models/event_model.dart';
 import 'package:calendar/realm/app_services.dart';
 import 'package:calendar/realm/schemas.dart';
@@ -26,11 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
-import 'package:http/http.dart' as http;
-import 'package:syncfusion_flutter_calendar/calendar.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:calendar/extensions/date_utils.dart';
-import 'package:calendar/extensions/string_utils.dart';
+import 'package:http/http.dart' as http;
 import 'package:collection/collection.dart';
 
 Map<String, String> frequencyToRecurrenceType = {
@@ -64,12 +52,11 @@ Map<int, String> intToWeekday = {
   7: 'sunday',
 };
 
-class UploadImageData {
-  final ObjectId id;
+class StagedImageData {
   final ObjectId? taskId;
-  final File image;
+  final ImageData? image;
 
-  UploadImageData({required this.id, this.taskId, required this.image});
+  StagedImageData({this.taskId, this.image});
 }
 
 class CreateEditEvent extends StatefulWidget {
@@ -89,8 +76,7 @@ class CreateEditEvent extends StatefulWidget {
 class _CreateEditEventState extends State<CreateEditEvent> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   List<EventTask> tasks = [];
-  final List<UploadImageData> pendingImages = [];
-  var didRemoveExisitngImage = false;
+  final List<StagedImageData> stagedImages = [];
   bool showDatePicker = false;
   bool showTimePicker = false;
   bool showDurationPicker = false;
@@ -139,6 +125,11 @@ class _CreateEditEventState extends State<CreateEditEvent> {
     duration = widget.existingEvent!.duration;
     tasks = widget.existingEvent!.tasks.toList();
     endTime = startDateTime!.add(Duration(minutes: duration));
+
+    stagedImages.add(StagedImageData(image: widget.existingEvent!.image));
+    for (var task in tasks) {
+      stagedImages.add(StagedImageData(taskId: task.id, image: task.image));
+    }
 
     final recurrencePattern = widget.existingEvent!.recurrencePattern;
 
@@ -232,40 +223,41 @@ class _CreateEditEventState extends State<CreateEditEvent> {
     });
   }
 
-  addEventImage(File i) {
-    setState(() {
-      pendingImages.add(UploadImageData(id: ObjectId(), image: i));
-    });
+  setEventImage(ImageData? image) {
+    final existing =
+        stagedImages.firstWhereOrNull((element) => element.taskId == null);
+    if (existing == null) {
+      setState(() {
+        stagedImages.add(StagedImageData(taskId: null, image: image));
+      });
+    } else {
+      final index =
+          stagedImages.indexWhere((element) => element.taskId == null);
+      setState(() {
+        stagedImages.replaceRange(
+            index, index + 1, [StagedImageData(taskId: null, image: image)]);
+      });
+    }
   }
 
-  addTaskImage(UploadImageData i) {
-    setState(() {
-      pendingImages.add(i);
-    });
-  }
-
-  removeImage(ObjectId id) {
-    setState(() {
-      pendingImages.removeWhere((element) => element.id == id);
-    });
-  }
-
-  removeExistingImage() {
-    setState(() {
-      didRemoveExisitngImage = true;
-    });
+  setTaskImage(ObjectId taskId, ImageData? image) {
+    final existing =
+        stagedImages.firstWhereOrNull((element) => element.taskId == taskId);
+    if (existing == null) {
+      setState(() {
+        stagedImages.add(StagedImageData(taskId: taskId, image: image));
+      });
+    } else {
+      final index =
+          stagedImages.indexWhere((element) => element.taskId == taskId);
+      setState(() {
+        stagedImages.replaceRange(
+            index, index + 1, [StagedImageData(taskId: taskId, image: image)]);
+      });
+    }
   }
 
   stageAddTask(EventTask task) {
-    // if (tasks.isNotEmpty) {
-    //   final prevTask = tasks.last;
-    //   task.prevTaskId = prevTask.id;
-    //   prevTask.nextTaskId = task.id;
-
-    //   setState(() {
-    //     tasks.last = prevTask;
-    //   });
-    // }
     setState(() {
       tasks.add(task);
     });
@@ -296,7 +288,7 @@ class _CreateEditEventState extends State<CreateEditEvent> {
   }
 
   void stageRemoveTask(int i) {
-    pendingImages.removeWhere((image) => image.taskId == tasks[i].id);
+    stagedImages.removeWhere((image) => image.taskId == tasks[i].id);
     tasks.removeAt(i);
 
     setState(() {
@@ -339,41 +331,18 @@ class _CreateEditEventState extends State<CreateEditEvent> {
       try {
         setState(() => isLoading = true);
 
-        ImageDataModel? eventImageData;
+        final stagedEventImage =
+            stagedImages.firstWhereOrNull((i) => i.taskId == null);
+        final stagedTaskImages = stagedImages.where((i) => i.taskId != null);
 
-        final pendingEventImage =
-            pendingImages.firstWhereOrNull((i) => i.taskId == null);
-        final pendingTaskImages = pendingImages.where((i) => i.taskId != null);
-
-        if (pendingEventImage != null) {
-          final imageId = await uploadImage(
-              image: pendingEventImage, currentUser: currentUser!);
-          eventImageData = ImageDataModel.create(
-              realmManager.realm!,
-              ImageData(ObjectId(), appState!.activeTeam!.id,
-                  ObjectId.fromHexString(currentUser.id), imageId, false,
-                  tags: title.getTags));
-        }
-
-        if (pendingTaskImages.isNotEmpty) {
-          for (var pendingImage in pendingTaskImages) {
-            final imageId = await uploadImage(
-                image: pendingImage, currentUser: currentUser!);
-            final imageModel = ImageDataModel.create(
-                realmManager.realm!,
-                ImageData(ObjectId(), appState!.activeTeam!.id,
-                    ObjectId.fromHexString(currentUser.id), imageId, false,
-                    tags: title.getTags));
-            if (imageModel == null) throw 'Error Uploading Image';
-            final t = tasks.firstWhere((task) {
-              return task.id == pendingImage.taskId;
-            });
-            t.image = imageModel.item;
-          }
+        for (var stagedImage in stagedTaskImages) {
+          final t = tasks.firstWhere((task) {
+            return task.id == stagedImage.taskId;
+          });
+          t.image = stagedImage.image;
         }
 
         var recurrencePattern = getRecurrencePattern();
-        // separate this and when editing, just update existingEvent.item
 
         if (widget.existingEvent == null) {
           var event = Event(
@@ -385,26 +354,18 @@ class _CreateEditEventState extends State<CreateEditEvent> {
               startDateTime!.toUtc(),
               duration,
               recurrencePattern != null,
-              image: eventImageData?.item,
+              image: stagedEventImage?.image,
               recurrencePattern: recurrencePattern);
 
           EventModel.create(realmManager.realm!, event, tasks);
         } else {
-          ImageData? image;
-
-          if (eventImageData != null) {
-            image = eventImageData.item;
-          } else if (!didRemoveExisitngImage) {
-            image = widget.existingEvent!.image;
-          }
-
           widget.existingEvent!.update(
               title: title,
               description: description,
               startDateTime: startDateTime,
               duration: duration,
               isRecurring: recurrencePattern != null,
-              image: image,
+              image: stagedEventImage?.image,
               recurrencePattern: recurrencePattern,
               tasks: tasks);
         }
@@ -457,6 +418,8 @@ class _CreateEditEventState extends State<CreateEditEvent> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final stagedEventImage =
+        stagedImages.firstWhereOrNull((i) => i.taskId == null);
     var durationObj = Duration(minutes: duration);
     var hours = durationObj.inHours;
     var minutes = durationObj.inMinutes - 60 * hours;
@@ -501,13 +464,8 @@ class _CreateEditEventState extends State<CreateEditEvent> {
                 ),
               const SizedBox(height: 16),
               ImagePickerWidget(
-                existingImage:
-                    didRemoveExisitngImage ? null : widget.existingEvent?.image,
-                pendingImage: pendingImages
-                    .firstWhereOrNull((element) => element.taskId == null),
-                addImage: addEventImage,
-                removeImage: removeImage,
-                removeExistingImage: removeExistingImage,
+                image: stagedEventImage?.image,
+                setImage: setEventImage,
               ),
               Form(
                 key: _formKey,
@@ -678,13 +636,13 @@ class _CreateEditEventState extends State<CreateEditEvent> {
               Container(height: 16),
               TaskList(
                 tasks: tasks,
-                images: pendingImages,
+                images: stagedImages,
                 stageAddTask: stageAddTask,
                 stageUpdateTask: stageUpdateTask,
                 reorderTask: stageReorderTask,
                 removeTask: stageRemoveTask,
-                stageAddTaskImage: addTaskImage,
-                removeImage: removeImage,
+                setImage: setTaskImage,
+                // removeImage: removeImage,
                 eventId: (widget.existingEvent == null
                         ? widget.id
                         : widget.existingEvent!.id)
@@ -718,37 +676,3 @@ class _CreateEditEventState extends State<CreateEditEvent> {
     ]);
   }
 }
-
-Future<String> uploadImage(
-    {required UploadImageData image, required User currentUser}) async {
-  // List<String> imageIds = [];
-
-  // for (var image in images) {
-  final res = await currentUser.functions.call('getImageUploadUrl');
-
-  if (!res['success']) throw res['error'];
-
-  final uploadUrl = res['results']['uploadURL'];
-
-  var request = http.MultipartRequest("POST", Uri.parse(uploadUrl));
-  var pic = await http.MultipartFile.fromPath("file", image.image.path);
-  request.files.add(pic);
-  var response = await request.send();
-  var responseData = await response.stream.toBytes();
-  var responseString = String.fromCharCodes(responseData);
-  var uploadRes = jsonDecode(responseString);
-
-  // // imageIds.add(uploadRes['result']['variants'][0]);
-  // // }
-  // inspect(responseObj);
-
-  return uploadRes['result']['id'];
-  // return responseObj['result']['variants'][0];
-}
-
-// EventModel.create(
-//             realm,
-//             Event(ObjectId(), currentUser!.id, 'title', 'description',
-//                 'time', 60 * 60,
-//                 isComplete: false, images: []));
-//       },

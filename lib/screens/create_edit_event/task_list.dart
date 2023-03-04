@@ -12,13 +12,12 @@ const ROW_HEIGHT = 75.0;
 
 class TaskList extends StatefulWidget {
   final List<EventTask> tasks;
-  final List<UploadImageData> images;
+  final List<StagedImageData> images;
   final Function(EventTask) stageAddTask;
   final Function(EventTask) stageUpdateTask;
   final Function(int, int) reorderTask;
   final Function(int) removeTask;
-  final Function(UploadImageData) stageAddTaskImage;
-  final Function(ObjectId) removeImage;
+  final Function(ObjectId, ImageData?) setImage;
   final String eventId;
 
   const TaskList(
@@ -29,8 +28,7 @@ class TaskList extends StatefulWidget {
       required this.stageUpdateTask,
       required this.reorderTask,
       required this.removeTask,
-      required this.stageAddTaskImage,
-      required this.removeImage,
+      required this.setImage,
       required this.eventId})
       : super(key: key);
 
@@ -48,8 +46,8 @@ class TaskListState extends State<TaskList> {
           arguments: CreateEditTaskScreenArgs(
               stageAddTask: widget.stageAddTask,
               stageUpdateTask: widget.stageUpdateTask,
-              stageAddTaskImage: widget.stageAddTaskImage,
-              removeTaskImage: widget.removeImage,
+              stagedImages: widget.images,
+              setImage: widget.setImage,
               eventId: widget.eventId));
     }
 
@@ -57,12 +55,10 @@ class TaskListState extends State<TaskList> {
       Navigator.pushNamed(context, '/create-edit-event-task',
           arguments: CreateEditTaskScreenArgs(
               existingTask: task,
-              pendingImage: widget.images
-                  .firstWhereOrNull((image) => image.taskId == task.id),
+              stagedImages: widget.images,
               stageAddTask: widget.stageAddTask,
               stageUpdateTask: widget.stageUpdateTask,
-              stageAddTaskImage: widget.stageAddTaskImage,
-              removeTaskImage: widget.removeImage,
+              setImage: widget.setImage,
               eventId: widget.eventId));
     }
 

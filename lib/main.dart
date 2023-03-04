@@ -7,13 +7,6 @@
 import 'dart:async';
 import 'dart:developer';
 
-// import 'package:calendar/components/create_event_task.dart';
-// import 'package:calendar/components/lock_screen.dart';
-// import 'package:calendar/models/event_model.dart';
-// import 'package:calendar/models/event_task_model.dart';
-// import 'package:calendar/realm/schemas.dart';
-// import 'package:calendar/screens/event_screen.dart';
-// import 'package:calendar/screens/event_task_screen.dart';
 import 'package:calendar/components/global_error_display.dart';
 import 'package:calendar/screens/create_edit_event/create_edit_task.dart';
 import 'package:calendar/models/event_model.dart';
@@ -21,13 +14,11 @@ import 'package:calendar/realm/schemas.dart';
 import 'package:calendar/screens/create_edit_event/create_edit_event.dart';
 import 'package:calendar/screens/daily/daily_screen.dart';
 import 'package:calendar/screens/event_screen.dart';
-import 'package:calendar/screens/home_screen.dart';
-// import 'package:calendar/screens/home.dart';
+import 'package:calendar/screens/images_screen.dart';
 import 'package:calendar/screens/init.dart';
 import 'package:calendar/screens/join_team.dart';
 import 'package:calendar/screens/login/login_screen.dart';
 import 'package:calendar/state/app_state.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:realm/realm.dart';
@@ -183,11 +174,10 @@ class App extends StatelessWidget {
               return CupertinoSheetRoute<void>(
                   builder: (BuildContext newContext) => CreateEditTask(
                         existingTask: formattedArgs.existingTask,
-                        pendingImage: formattedArgs.pendingImage,
+                        stagedImages: formattedArgs.stagedImages,
                         stageAddTask: formattedArgs.stageAddTask,
                         stageUpdateTask: formattedArgs.stageUpdateTask,
-                        stageAddTaskImage: formattedArgs.stageAddTaskImage,
-                        removeTaskImage: formattedArgs.removeTaskImage,
+                        setImage: formattedArgs.setImage,
                         eventId: formattedArgs.eventId,
                       ));
             }
@@ -201,63 +191,21 @@ class App extends StatelessWidget {
                         eventId: formattedArgs.eventId,
                       ));
             }
+          case '/images':
+            {
+              final args = settings.arguments;
+              inspect(args);
+              final formattedArgs = args as ImagesScreenArgs;
+
+              return MaterialExtendedPageRoute<void>(
+                  builder: (BuildContext newContext) => ImagesScreen(
+                        onSelectImage: formattedArgs.onSelectImage,
+                      ));
+            }
         }
       },
     );
   }
-  // '/home': (context) => HomeScreen(),
-  // '/daily': (context) => DailyScreen(),
-  // '/login': (context) => Login(),
-  // '/join-team': (context) => JoinTeam(),
-  // '/create-event': (context) {
-  //   final args = ModalRoute.of(context)!.settings.arguments;
-  //   final formattedArgs = args == null
-  //       ? CreateEditScreenArgs()
-  //       : args as CreateEditScreenArgs;
-
-  //   return CupertinoPageRoute(builder: (_) => CreateEditEvent(
-  //     existingEvent: formattedArgs.existingEvent,
-  //     initalStartDate: formattedArgs.initalStartDate,
-  //     initalDuration: formattedArgs.initalDuration,
-  //   );
-  // },
-  // '/create-edit-event-task': (context) {
-  //   final args = Map<String, Object>.from(
-  //           ModalRoute.of(context)!.settings.arguments as Map)
-  //       .values;
-
-  //   return CreateEventTask(
-  //     stageAddTask: args.first as Function(EventTask),
-  //     eventId: args.elementAt(2) as String,
-  //     order: args.elementAt(3) as int,
-  //   );
-  // },
-  // '/event-item': (context) {
-  //   final args = Map<String, Object>.from(
-  //           ModalRoute.of(context)!.settings.arguments as Map)
-  //       .values;
-
-  //   return EventScreen(
-  //     eventId: args.first as ObjectId,
-  //   );
-  // },
-  // '/event-item-tasks': (context) {
-  //   final args = Map<String, Object>.from(
-  //           ModalRoute.of(context)!.settings.arguments as Map)
-  //       .values;
-
-  //   return EventTaskScreen(
-  //     event: args.first as EventModel,
-  //   );
-  // },
-  // }),
-  // appState.isShowingLockScreen
-  //     ? LockScreen((isValid) {
-  //         if (isValid) appState.unlockCaregiver();
-  //       })
-  //     : Container()
-  // ]));
-  // }
 }
 
 class CreateEditScreenArgs {
@@ -271,20 +219,18 @@ class CreateEditScreenArgs {
 
 class CreateEditTaskScreenArgs {
   final EventTask? existingTask;
-  final UploadImageData? pendingImage;
+  final List<StagedImageData> stagedImages;
   final Function(EventTask) stageAddTask;
   final Function(EventTask) stageUpdateTask;
-  final Function(UploadImageData) stageAddTaskImage;
-  final Function(ObjectId) removeTaskImage;
+  final Function(ObjectId, ImageData?) setImage;
   final String eventId;
 
   CreateEditTaskScreenArgs(
       {this.existingTask,
-      this.pendingImage,
+      required this.stagedImages,
       required this.stageAddTask,
       required this.stageUpdateTask,
-      required this.stageAddTaskImage,
-      required this.removeTaskImage,
+      required this.setImage,
       required this.eventId});
 }
 
@@ -292,4 +238,10 @@ class EventScreenArgs {
   final ObjectId eventId;
 
   EventScreenArgs({required this.eventId});
+}
+
+class ImagesScreenArgs {
+  final Function(ImageData) onSelectImage;
+
+  ImagesScreenArgs({required this.onSelectImage});
 }

@@ -127,9 +127,13 @@ class _EventScreenState extends State<EventScreen> {
                     borderRadius: BorderRadius.circular(8),
                     color: const Color.fromARGB(255, 161, 210, 198)),
                 child: CachedNetworkImage(
-                    progressIndicatorBuilder: (context, url,
-                            downloadProgress) =>
-                        CircularProgressIndicator(color: theme.primaryColor),
+                    progressIndicatorBuilder:
+                        (context, url, downloadProgress) => Center(
+                            child: SizedBox(
+                                width: 30,
+                                height: 30,
+                                child: CircularProgressIndicator(
+                                    color: theme.primaryColor))),
                     imageUrl:
                         getCloudflareImageUrl(pageItem!.image!.remoteImageId)),
               ),

@@ -3,11 +3,7 @@
 import 'dart:developer';
 import 'dart:io';
 
-// import 'package:calendar/components/create_calendar_item_button.dart';
-// import 'package:calendar/components/create_caregiver_profile.dart';
-// import 'package:calendar/components/create_dependent_profile.dart';
 import 'package:calendar/components/custom_text_form_field.dart';
-import 'package:calendar/components/list_events.dart';
 import 'package:calendar/realm/app_services.dart';
 import 'package:calendar/realm/schemas.dart';
 import 'package:calendar/screens/create_edit_event/create_edit_event.dart';
@@ -16,24 +12,23 @@ import 'package:calendar/state/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
+import 'package:collection/collection.dart';
 
 class CreateEditTask extends StatefulWidget {
   final EventTask? existingTask;
-  final UploadImageData? pendingImage;
+  final List<StagedImageData> stagedImages;
   final Function(EventTask) stageAddTask;
   final Function(EventTask) stageUpdateTask;
-  final Function(UploadImageData) stageAddTaskImage;
-  final Function(ObjectId) removeTaskImage;
+  final Function(ObjectId, ImageData?) setImage;
   final String eventId;
 
-  CreateEditTask(
+  const CreateEditTask(
       {Key? key,
       this.existingTask,
-      this.pendingImage,
+      required this.stagedImages,
       required this.stageAddTask,
       required this.stageUpdateTask,
-      required this.stageAddTaskImage,
-      required this.removeTaskImage,
+      required this.setImage,
       required this.eventId})
       : super(key: key);
 
@@ -46,8 +41,7 @@ class _CreateEditTaskState extends State<CreateEditTask> {
   late ObjectId id;
   String title = '';
   String description = '';
-  UploadImageData? selectedImage;
-  var didRemoveExisitngImage = false;
+  ImageData? selectedImage;
 
   @override
   void initState() {
@@ -59,27 +53,10 @@ class _CreateEditTaskState extends State<CreateEditTask> {
     id = widget.existingTask!.id;
     title = widget.existingTask!.title;
     description = widget.existingTask!.description;
+    selectedImage =
+        widget.stagedImages.firstWhereOrNull((i) => i.taskId == id)?.image;
 
     super.initState();
-  }
-
-  addImage(File i) {
-    final proto = UploadImageData(id: ObjectId(), taskId: id, image: i);
-    setState(() {
-      selectedImage = proto;
-    });
-  }
-
-  removeImage(ObjectId id) {
-    setState(() {
-      selectedImage = null;
-    });
-  }
-
-  removeExistingImage() {
-    setState(() {
-      didRemoveExisitngImage = true;
-    });
   }
 
   @override
@@ -93,8 +70,6 @@ class _CreateEditTaskState extends State<CreateEditTask> {
       if (_formKey.currentState!.validate()) {
         _formKey.currentState!.save();
 
-        if (selectedImage != null) widget.stageAddTaskImage(selectedImage!);
-
         EventTask task = EventTask(
             id,
             appState!.activeTeam!.id,
@@ -103,6 +78,7 @@ class _CreateEditTaskState extends State<CreateEditTask> {
             title,
             description);
         widget.stageAddTask(task);
+        widget.setImage(id, selectedImage);
         Navigator.pop(context);
       }
     }
@@ -111,43 +87,28 @@ class _CreateEditTaskState extends State<CreateEditTask> {
       if (_formKey.currentState!.validate()) {
         _formKey.currentState!.save();
 
-        if (selectedImage != null) {
-          if (widget.pendingImage == null) {
-            widget.stageAddTaskImage(selectedImage!);
-          } else if (widget.pendingImage!.id != selectedImage!.id) {
-            widget.removeTaskImage(widget.pendingImage!.id);
-            widget.stageAddTaskImage(selectedImage!);
-          }
-        }
-        // else if (widget.pendingImage != null) {
-        //   widget.removeTaskImage(widget.pendingImage!.id);
-        // }
-
-        ImageData? image;
-        if (widget.existingTask!.image != null &&
-            !didRemoveExisitngImage &&
-            selectedImage == null) {
-          image = widget.existingTask!.image;
-        }
         EventTask task = EventTask(
             id,
             appState!.activeTeam!.id,
             ObjectId.fromHexString(currentUser!.id),
             ObjectId.fromHexString(widget.eventId),
             title,
-            description,
-            image: image);
+            description);
 
         widget.stageUpdateTask(task);
+        inspect(selectedImage);
+        widget.setImage(id, selectedImage);
         Navigator.pop(context);
       }
+    }
+
+    void handleSetImage(ImageData? image) {
+      setState(() => selectedImage = image);
     }
 
     return Scaffold(
         backgroundColor: theme.backgroundColor,
         appBar: AppBar(
-            // title: Text(
-            //     widget.existingEvent != null ? 'Edit Event' : 'Create Event'),
             title: Text(
               widget.existingTask == null ? 'Add Task' : 'Update Task',
               style: TextStyle(color: Colors.black.withOpacity(0.7)),
@@ -172,14 +133,7 @@ class _CreateEditTaskState extends State<CreateEditTask> {
           padding: EdgeInsets.only(bottom: 48),
           child: Column(
             children: [
-              ImagePickerWidget(
-                  existingImage: didRemoveExisitngImage
-                      ? null
-                      : widget.existingTask?.image,
-                  pendingImage: selectedImage ?? widget.pendingImage,
-                  addImage: addImage,
-                  removeImage: removeImage,
-                  removeExistingImage: removeExistingImage),
+              ImagePickerWidget(image: selectedImage, setImage: handleSetImage),
               Form(
                   key: _formKey,
                   child: Column(
@@ -216,10 +170,3 @@ class _CreateEditTaskState extends State<CreateEditTask> {
         )));
   }
 }
-
-// EventModel.create(
-//             realm,
-//             Event(ObjectId(), currentUser!.id, 'title', 'description',
-//                 'time', 60 * 60,
-//                 isComplete: false, images: []));
-//       },
