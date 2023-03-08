@@ -41,6 +41,7 @@ class EventModel {
       this.tasks,
       this.isRecurring,
       this.isTemplate,
+      this.isDeleted,
       this.recurrencePattern);
   EventModel(Realm realm, Event item)
       : this._(
@@ -57,6 +58,7 @@ class EventModel {
             item.tasks,
             item.isRecurring,
             item.isTemplate,
+            item.isDeleted,
             item.recurrencePattern);
 
   static EventModel? create(Realm realm, Event item, List<EventTask> tasks) {

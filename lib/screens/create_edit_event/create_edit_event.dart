@@ -2,6 +2,7 @@
 
 import 'dart:developer';
 
+import 'package:calendar/components/buttons/primary_button.dart';
 import 'package:calendar/components/cards/primary_card.dart';
 import 'package:calendar/components/custom_text_form_field.dart';
 import 'package:calendar/components/expandable_widget.dart';
@@ -315,6 +316,40 @@ class _CreateEditEventState extends State<CreateEditEvent> {
     setState(() {
       tasks = tasks;
     });
+  }
+
+  handleDelete() async {
+    bool result = await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Are you sure?'),
+          content: Text('Do you want to delete this event?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true)
+                    .pop(false); // dismisses only the dialog and returns false
+              },
+              child: Text('No'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true)
+                    .pop(true); // dismisses only the dialog and returns true
+              },
+              child: Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result) {
+      widget.existingEvent!.delete();
+      Navigator.popUntil(
+          context, (predicate) => predicate.settings.name == '/home');
+    }
   }
 
   handleSaveEvent() async {
@@ -697,6 +732,14 @@ class _CreateEditEventState extends State<CreateEditEvent> {
                         : widget.existingEvent!.id)
                     .toString(),
               ),
+              if (widget.existingEvent != null)
+                Padding(
+                    padding: EdgeInsets.all(16),
+                    child: PrimaryButton(
+                        medium: true,
+                        onPressed: handleDelete,
+                        color: const Color.fromARGB(255, 255, 117, 107),
+                        child: const Text('Delete'))),
               Container(height: 200),
             ]),
           ))),

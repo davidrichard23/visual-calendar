@@ -98,7 +98,7 @@ class _DailyScreenState extends State<DailyScreen> {
 
     var queryName = 'listEventTasks-$startDateStr-${appState.activeTeam!.id}';
     var queryString =
-        '(startDateTime BETWEEN {$startDateStr,$endDateStr} OR (startDateTime <= $startDateStr AND isRecurring == true)) AND teamId == \$0';
+        '(startDateTime BETWEEN {$startDateStr,$endDateStr} OR (startDateTime <= $startDateStr AND isRecurring == true)) AND isDeleted == false AND teamId == \$0';
     var queryArgs = [appState.activeTeam!.id];
 
     return Scaffold(
