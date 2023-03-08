@@ -118,8 +118,7 @@ class _RealmQueryBuilderState<T extends RealmObject>
         realmManager.realm!.subscriptions.findByName(widget.queryName);
     if (userItemSub == null) {
       realmManager.realm!.subscriptions.update((mutableSubscriptions) {
-        mutableSubscriptions.add(realmManager.realm!.all<T>(),
-            name: widget.queryName);
+        mutableSubscriptions.add(query!, name: widget.queryName);
       });
     }
 
