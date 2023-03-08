@@ -89,10 +89,11 @@ class _CaregiverViewState extends State<CaregiverView> {
                         // mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Paragraph(
+                          Flexible(
+                              child: Paragraph(
                             details.appointments.first.title,
                             small: true,
-                          )
+                          ))
                         ]));
               },
             )));

@@ -141,17 +141,20 @@ class App extends StatelessWidget {
       onGenerateRoute: (RouteSettings settings) {
         switch (settings.name) {
           case '/':
-            return MaterialPageRoute(builder: (context) => Init());
+            return MaterialPageRoute(
+                settings: settings, builder: (context) => Init());
           case '/login':
-            return MaterialPageRoute(builder: (context) => LoginScreen());
+            return MaterialPageRoute(
+                settings: settings, builder: (context) => LoginScreen());
           // case '/home':
           //   return MaterialExtendedPageRoute(
           //       builder: (context) => HomeScreen());
           case '/home':
             return MaterialExtendedPageRoute(
-                builder: (context) => DailyScreen());
+                settings: settings, builder: (context) => DailyScreen());
           case '/join-team':
             return CupertinoSheetRoute<void>(
+                settings: settings,
                 builder: (BuildContext newContext) => JoinTeam());
           case '/create-event':
             {
@@ -161,6 +164,7 @@ class App extends StatelessWidget {
                   : args as CreateEditScreenArgs;
 
               return MaterialExtendedPageRoute(
+                  settings: settings,
                   builder: (BuildContext newContext) => CreateEditEvent(
                         existingEvent: formattedArgs.existingEvent,
                         templateEvent: formattedArgs.templateEvent,
@@ -174,6 +178,7 @@ class App extends StatelessWidget {
               final formattedArgs = args as CreateEditTaskScreenArgs;
 
               return CupertinoSheetRoute<void>(
+                  settings: settings,
                   builder: (BuildContext newContext) => CreateEditTask(
                         existingTask: formattedArgs.existingTask,
                         stagedImages: formattedArgs.stagedImages,
@@ -189,6 +194,7 @@ class App extends StatelessWidget {
               final formattedArgs = args as EventScreenArgs;
 
               return MaterialExtendedPageRoute(
+                  settings: settings,
                   builder: (BuildContext newContext) => EventScreen(
                         eventId: formattedArgs.eventId,
                       ));
@@ -199,6 +205,7 @@ class App extends StatelessWidget {
               final formattedArgs = args as ImagesScreenArgs;
 
               return MaterialExtendedPageRoute<void>(
+                  settings: settings,
                   builder: (BuildContext newContext) => ImagesScreen(
                         onSelectImage: formattedArgs.onSelectImage,
                       ));
@@ -206,6 +213,7 @@ class App extends StatelessWidget {
           case '/templates':
             {
               return MaterialExtendedPageRoute<void>(
+                  settings: settings,
                   builder: (BuildContext newContext) => TemplatesScreen());
             }
         }
