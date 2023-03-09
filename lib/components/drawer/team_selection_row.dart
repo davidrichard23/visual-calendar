@@ -49,7 +49,7 @@ class TeamSelectionRow extends StatelessWidget {
                         color: const Color.fromRGBO(0, 69, 77, 1)
                             .withOpacity(isActive ? 1 : 0.6))),
                 Text(
-                  team.title,
+                  '${team.dependentName}\'s Team',
                   style: TextStyle(
                       color: const Color.fromRGBO(0, 69, 77, 1)
                           .withOpacity(isActive ? 1 : 0.6),

@@ -17,7 +17,7 @@ class TeamSelection extends StatefulWidget {
 }
 
 class TeamSelectionState extends State<TeamSelection> {
-  bool isOpen = false;
+  bool isOpen = true;
 
   @override
   Widget build(BuildContext context) {
@@ -138,8 +138,9 @@ class TeamSelectionState extends State<TeamSelection> {
                       backgroundColor: theme.primaryColor,
                       foregroundColor: Colors.white,
                       radius: 30,
-                      child:
-                          Text(appState.activeTeam?.title.getInitials() ?? ''),
+                      child: Text(
+                          appState.activeTeam?.dependentName.getInitials() ??
+                              ''),
                     ))),
             Positioned(
               top: 0,
@@ -149,7 +150,10 @@ class TeamSelectionState extends State<TeamSelection> {
               child: Flex(
                   direction: Axis.horizontal,
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [Paragraph(appState.activeTeam?.title ?? '')]),
+                  children: [
+                    Paragraph(
+                        '${appState.activeTeam?.dependentName ?? ''}\'s Team')
+                  ]),
             ),
           ]),
           // const SizedBox(height: 16),
