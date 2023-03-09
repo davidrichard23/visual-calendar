@@ -26,34 +26,33 @@ class _DependentViewState extends State<DependentView> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Expanded(
-        child: Container(
-            color: theme.backgroundColor,
-            child: ListView.builder(
-                itemCount: widget.events.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    return MaxWidth(
-                        maxWidth: maxWidth,
-                        child: Column(children: [
-                          DateHeader(date: widget.activeDate),
-                          if (!widget.events.isNotEmpty)
-                            const PrimaryCard(
-                                child: H1('You Have No Events Today!',
-                                    center: true)),
-                        ]));
-                  }
+    return Container(
+        color: theme.backgroundColor,
+        child: ListView.builder(
+            itemCount: widget.events.length + 1,
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return MaxWidth(
+                    maxWidth: maxWidth,
+                    child: Column(children: [
+                      DateHeader(date: widget.activeDate),
+                      if (!widget.events.isNotEmpty)
+                        const PrimaryCard(
+                            child:
+                                H1('You Have No Events Today!', center: true)),
+                    ]));
+              }
 
-                  index -= 1;
+              index -= 1;
 
-                  var event = widget.events[index];
-                  // nextCalItemIndex
-                  return MaxWidth(
-                      maxWidth: maxWidth,
-                      child: EventRow(
-                          event: event,
-                          events: widget.events,
-                          nextCalItemIndex: 0));
-                })));
+              var event = widget.events[index];
+              // nextCalItemIndex
+              return MaxWidth(
+                  maxWidth: maxWidth,
+                  child: EventRow(
+                      event: event,
+                      events: widget.events,
+                      nextCalItemIndex: 0));
+            }));
   }
 }

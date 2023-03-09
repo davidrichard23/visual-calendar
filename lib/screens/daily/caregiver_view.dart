@@ -1,7 +1,9 @@
 import 'package:calendar/components/text/paragraph.dart';
 import 'package:calendar/main.dart';
 import 'package:calendar/models/event_model.dart';
+import 'package:calendar/screens/daily/dependent_view.dart';
 import 'package:calendar/util/get_adjusted_recurring_start_date.dart';
+import 'package:calendar/util/responsive_layout_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:realm/realm.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -11,9 +13,15 @@ import 'package:calendar/extensions/date_utils.dart';
 class CaregiverView extends StatefulWidget {
   final CalendarController calendarController;
   final EventCalendarDataSource? calendarDataSource;
+  final List<EventModel> events;
+  final DateTime activeDate;
 
   const CaregiverView(
-      {Key? key, required this.calendarController, this.calendarDataSource})
+      {Key? key,
+      required this.calendarController,
+      this.calendarDataSource,
+      required this.events,
+      required this.activeDate})
       : super(key: key);
 
   @override
@@ -54,49 +62,58 @@ class _CaregiverViewState extends State<CaregiverView> {
     }
 
     return Expanded(
-        child: SfCalendarTheme(
-            data: SfCalendarThemeData(selectionBorderColor: theme.cardColor),
-            child: SfCalendar(
-              controller: widget.calendarController,
-              view: CalendarView.day,
-              dataSource: widget.calendarDataSource,
-              viewHeaderHeight: 0,
-              headerHeight: 0,
-              allowAppointmentResize: true,
-              allowDragAndDrop: true,
-              dragAndDropSettings:
-                  const DragAndDropSettings(showTimeIndicator: false),
-              viewNavigationMode: ViewNavigationMode.none,
-              onTap: onEventSelectionChange,
-              onDragEnd: onDragEnd,
-              todayHighlightColor: theme.cardColor,
-              appointmentBuilder: (context, details) {
-                return Container(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
-                    decoration: BoxDecoration(
-                        color: theme.primaryColor,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            spreadRadius: 0,
-                            blurRadius: 5,
-                            offset: const Offset(0, 1),
-                          ),
-                        ]),
-                    child: Row(
-                        // mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Flexible(
-                              child: Paragraph(
-                            details.appointments.first.title,
-                            small: true,
-                          ))
-                        ]));
-              },
-            )));
+        child: Row(children: [
+      Expanded(
+          flex: 6,
+          child: SfCalendarTheme(
+              data: SfCalendarThemeData(selectionBorderColor: theme.cardColor),
+              child: SfCalendar(
+                controller: widget.calendarController,
+                view: CalendarView.day,
+                dataSource: widget.calendarDataSource,
+                viewHeaderHeight: 0,
+                headerHeight: 0,
+                allowAppointmentResize: true,
+                allowDragAndDrop: true,
+                dragAndDropSettings:
+                    const DragAndDropSettings(showTimeIndicator: false),
+                viewNavigationMode: ViewNavigationMode.none,
+                onTap: onEventSelectionChange,
+                onDragEnd: onDragEnd,
+                todayHighlightColor: theme.cardColor,
+                appointmentBuilder: (context, details) {
+                  return Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 0, horizontal: 8),
+                      decoration: BoxDecoration(
+                          color: theme.primaryColor,
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              spreadRadius: 0,
+                              blurRadius: 5,
+                              offset: const Offset(0, 1),
+                            ),
+                          ]),
+                      child: Row(
+                          // mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Flexible(
+                                child: Paragraph(
+                              details.appointments.first.title,
+                              small: true,
+                            ))
+                          ]));
+                },
+              ))),
+      if (!ResponsiveLayoutHelper.isMobile(context))
+        Expanded(
+            flex: 4,
+            child: DependentView(
+                events: widget.events, activeDate: widget.activeDate))
+    ]));
   }
 }
 

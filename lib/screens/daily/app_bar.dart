@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:calendar/main.dart';
 import 'package:calendar/state/app_state.dart';
+import 'package:calendar/util/responsive_layout_helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -47,35 +48,37 @@ class DailyAppBarState extends State<DailyAppBar> {
             color: Colors.black.withOpacity(0.1),
             height: 1,
           )),
-      title: CupertinoSlidingSegmentedControl(
-        backgroundColor: theme.backgroundColor,
-        thumbColor: theme.primaryColor,
-        groupValue: selectedView,
-        onValueChanged: (value) {
-          if (value != null) {
-            widget.changeViewType(value);
-            setState(() => selectedView = value);
-          }
-        },
-        children: const {
-          'manage': Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              'Manage',
-              style:
-                  TextStyle(fontSize: 14, color: Color.fromRGBO(0, 69, 77, 1)),
-            ),
-          ),
-          'view': Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              'View',
-              style:
-                  TextStyle(fontSize: 14, color: Color.fromRGBO(0, 69, 77, 1)),
-            ),
-          )
-        },
-      ),
+      title: ResponsiveLayoutHelper.isMobile(context)
+          ? CupertinoSlidingSegmentedControl(
+              backgroundColor: theme.backgroundColor,
+              thumbColor: theme.primaryColor,
+              groupValue: selectedView,
+              onValueChanged: (value) {
+                if (value != null) {
+                  widget.changeViewType(value);
+                  setState(() => selectedView = value);
+                }
+              },
+              children: const {
+                'manage': Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'Manage',
+                    style: TextStyle(
+                        fontSize: 14, color: Color.fromRGBO(0, 69, 77, 1)),
+                  ),
+                ),
+                'view': Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'View',
+                    style: TextStyle(
+                        fontSize: 14, color: Color.fromRGBO(0, 69, 77, 1)),
+                  ),
+                )
+              },
+            )
+          : const Text(''),
       actions: appState.teamUserType == 'caregiver'
           ? [
               PopupMenuButton(

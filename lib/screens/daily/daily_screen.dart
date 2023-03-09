@@ -125,10 +125,13 @@ class _DailyScreenState extends State<DailyScreen> {
                         selectedView == 'manage') {
                       return CaregiverView(
                           calendarController: calendarController,
-                          calendarDataSource: calendarDataSource);
+                          calendarDataSource: calendarDataSource,
+                          events: events,
+                          activeDate: selectedDate);
                     } else {
-                      return DependentView(
-                          events: events, activeDate: selectedDate);
+                      return Expanded(
+                          child: DependentView(
+                              events: events, activeDate: selectedDate));
                     }
                   })))
             ],
