@@ -19,8 +19,8 @@ class AppState extends ChangeNotifier {
   // needed to keep the garbage collector from clearing the stream
   late StreamSubscription<RealmResultsChanges<Team>> stream;
 
-  init(Realm realm) {
-    _getTeams(realm);
+  init(Realm realm) async {
+    await _getTeams(realm);
     didInit = true;
     notifyListeners();
   }
@@ -30,11 +30,13 @@ class AppState extends ChangeNotifier {
     teamUserType = realm.syncSession.user.customData['teamUserTypes']
         [activeTeam!.id.toString()];
     _appStorage.setItem('active-team-id', newActiveTeam.id.toString());
+
     notifyListeners();
   }
 
-  void _getTeams(Realm realm) {
+  Future<void> _getTeams(Realm realm) async {
     final query = realm.all<Team>();
+    await _appStorage.ready;
     var savedActiveTeamId = _appStorage.getItem('active-team-id');
 
     if (savedActiveTeamId != null) {

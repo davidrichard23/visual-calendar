@@ -18,6 +18,12 @@
 			"type": "dart",
 			"deviceId": "iPhone 14 Pro"
 		},
+		{
+			"name": "iPadPro",
+			"request": "launch",
+			"type": "dart",
+			"deviceId": "iPad Pro (12.9-inch)"
+		},
 	],
 	"compounds": [
 		{

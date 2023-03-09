@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:calendar/realm/app_services.dart';
 import 'package:calendar/state/app_state.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +16,8 @@ class Init extends HookWidget {
     final appState = Provider.of<AppState>(context, listen: true);
 
     useEffect(() {
-      if (!app.didInit && !appState.didInit) return;
+      if (!app.didInit || !appState.didInit) return;
+
       Future.delayed(Duration.zero, () {
         if (currentUser == null || appState.activeTeam == null) {
           Navigator.pushReplacementNamed(context, '/login');
