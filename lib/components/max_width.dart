@@ -9,10 +9,14 @@ class MaxWidth extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(mainAxisSize: MainAxisSize.min, children: [
-      Flexible(
-          child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: maxWidth), child: child))
-    ]);
+    return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Flexible(
+              child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: maxWidth),
+                  child: child))
+        ]);
   }
 }

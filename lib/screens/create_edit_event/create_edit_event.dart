@@ -6,11 +6,13 @@ import 'package:calendar/components/buttons/primary_button.dart';
 import 'package:calendar/components/cards/primary_card.dart';
 import 'package:calendar/components/custom_text_form_field.dart';
 import 'package:calendar/components/expandable_widget.dart';
+import 'package:calendar/components/max_width.dart';
 import 'package:calendar/realm/init_realm.dart';
 import 'package:calendar/screens/create_edit_event/date_picker.dart';
 import 'package:calendar/screens/create_edit_event/image_picker.dart';
 import 'package:calendar/screens/create_edit_event/repeat_picker.dart';
 import 'package:calendar/screens/create_edit_event/task_list.dart';
+import 'package:calendar/screens/login/login_screen.dart';
 import 'package:calendar/state/app_state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:calendar/models/event_model.dart';
@@ -514,235 +516,249 @@ class _CreateEditEventState extends State<CreateEditEvent> {
               ]),
           body: SingleChildScrollView(
               child: Container(
-            margin: EdgeInsets.only(top: 12),
-            child: Column(children: [
-              if (error != null)
-                Text(
-                  'Error: ${error!}',
-                  style: const TextStyle(color: Colors.red),
-                ),
-              const SizedBox(height: 16),
-              ImagePickerWidget(
-                image: stagedEventImage?.image,
-                setImage: setEventImage,
-              ),
-              Form(
-                key: _formKey,
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CustomTextFormField(
-                        hintText: 'Title',
-                        initialValue: title,
-                        textInputAction: TextInputAction.done,
-                        onSaved: (String? value) {
-                          if (value == null) return;
-                          title = value;
-                        },
-                        validator: (String? value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a title';
-                          }
-                          return null;
-                        },
-                      ),
-                      CustomTextFormField(
-                        minLines: 4,
-                        maxLines: 4,
-                        hintText: 'Description',
-                        initialValue: description,
-                        onSaved: (String? value) {
-                          if (value == null) return;
-                          description = value;
-                        },
-                      ),
-                    ]),
-              ),
-              Container(height: 16),
-              PrimaryCard(
-                  padding: EdgeInsets.zero,
-                  child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => setState(() => isTemplate = !isTemplate),
-                      child: Row(children: [
-                        Checkbox(
-                          checkColor: Colors.white,
-                          fillColor:
-                              MaterialStateProperty.all(theme.primaryColor),
-                          value: isTemplate,
-                          onChanged: (bool? value) =>
-                              setState(() => isTemplate = !isTemplate),
+                  margin: EdgeInsets.only(top: 12),
+                  width: double.infinity,
+                  child: MaxWidth(
+                    maxWidth: maxWidth,
+                    child: Column(children: [
+                      if (error != null)
+                        Text(
+                          'Error: ${error!}',
+                          style: const TextStyle(color: Colors.red),
                         ),
-                        Text('Save this event as a template?',
-                            style: TextStyle(fontWeight: FontWeight.bold))
-                      ]))),
-              Container(height: 16),
-              DatePicker(
-                  isOpen: openPicker == OpenPicker.startDate,
-                  setExpanded: toggleOpenPicker,
-                  dateTime: startDateTime!,
-                  setDateTime: onStartDateChange),
-              PrimaryCard(
-                  padding: EdgeInsets.zero,
-                  child: Column(children: [
-                    GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => toggleOpenPicker(OpenPicker.startTime),
-                        child: Container(
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Start Time',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                  Text(DateFormat('h:mm a')
-                                      .format(startDateTime!))
-                                ]))),
-                    ExpandedableWidget(
-                        expand: openPicker == OpenPicker.startTime,
-                        curve: Curves.easeInOut,
-                        child: Column(children: [
-                          Container(
-                              margin: EdgeInsets.only(bottom: 16),
-                              height: 1,
-                              color: Colors.grey[200]),
-                          SizedBox(
-                              height: 200,
-                              width: 180,
-                              child: CupertinoDatePicker(
-                                mode: CupertinoDatePickerMode.time,
-                                initialDateTime: startDateTime,
-                                minuteInterval: 5,
-                                onDateTimeChanged: onStartTimeChange,
-                              ))
-                        ]))
-                  ])),
-              PrimaryCard(
-                  padding: EdgeInsets.zero,
-                  child: Column(children: [
-                    GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => toggleOpenPicker(OpenPicker.duration),
-                        child: Container(
-                            padding: const EdgeInsets.all(12),
-                            child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  // Text('Duration',
-                                  //     style: TextStyle(
-                                  //         fontWeight: FontWeight.bold)),
-                                  CupertinoSlidingSegmentedControl(
-                                    backgroundColor: theme.backgroundColor,
-                                    thumbColor: theme.primaryColor,
-                                    groupValue: eventEndMode,
-                                    onValueChanged: onEventEndModeChange,
-                                    children: const {
-                                      'duration': Padding(
-                                        padding:
-                                            EdgeInsets.symmetric(horizontal: 8),
-                                        child: Text(
-                                          'Duration',
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color:
-                                                  Color.fromRGBO(0, 69, 77, 1)),
-                                        ),
-                                      ),
-                                      'endTime': Padding(
-                                        padding:
-                                            EdgeInsets.symmetric(horizontal: 8),
-                                        child: Text(
-                                          'End Time',
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color:
-                                                  Color.fromRGBO(0, 69, 77, 1)),
-                                        ),
-                                      )
-                                    },
-                                  ),
-                                  Text(
-                                    eventEndMode == 'duration'
-                                        ? durationString
-                                        : DateFormat('h:mm a').format(endTime),
-                                    style: TextStyle(color: durationStrColor),
-                                  )
-                                ]))),
-                    ExpandedableWidget(
-                        expand: openPicker == OpenPicker.duration,
-                        curve: Curves.easeInOut,
-                        child: eventEndMode == 'duration'
-                            ? Column(children: [
-                                Container(
-                                    margin: EdgeInsets.only(bottom: 16),
-                                    height: 1,
-                                    color: Colors.grey[200]),
-                                SizedBox(
-                                    width: 220,
-                                    child: CupertinoTimerPicker(
-                                      mode: CupertinoTimerPickerMode.hm,
-                                      minuteInterval: 5,
-                                      initialTimerDuration:
-                                          Duration(minutes: duration),
-                                      onTimerDurationChanged: onDurationChange,
-                                    ))
-                              ])
-                            : Column(children: [
-                                Container(
-                                    margin: EdgeInsets.only(bottom: 16),
-                                    height: 1,
-                                    color: Colors.grey[200]),
-                                SizedBox(
-                                    height: 200,
-                                    width: 180,
-                                    child: CupertinoDatePicker(
-                                      mode: CupertinoDatePickerMode.time,
-                                      initialDateTime: endTime,
-                                      minuteInterval: 5,
-                                      onDateTimeChanged: onEndTimeChange,
-                                    ))
-                              ]))
-                  ])),
-              RepeatPicker(
-                  isOpen: openPicker == OpenPicker.repeat,
-                  setExpanded: toggleOpenPicker,
-                  selectedInterval: selectedInterval,
-                  selectedFrequency: selectedFrequency,
-                  selectedWeekdays: selectedWeekdays,
-                  setSelectedInterval: setSelectedInterval,
-                  setSelectedFrequency: setSelectedFrequency,
-                  setSelectedWeekdays: setSelectedWeekdays,
-                  endDateTime: recurringEndDateTime,
-                  setEndDateTime: setRecurringEndDateTime),
-              Container(height: 16),
-              TaskList(
-                tasks: tasks,
-                images: stagedImages,
-                stageAddTask: stageAddTask,
-                stageUpdateTask: stageUpdateTask,
-                reorderTask: stageReorderTask,
-                removeTask: stageRemoveTask,
-                setImage: setTaskImage,
-                // removeImage: removeImage,
-                eventId: (widget.existingEvent == null
-                        ? widget.id
-                        : widget.existingEvent!.id)
-                    .toString(),
-              ),
-              if (widget.existingEvent != null)
-                Padding(
-                    padding: EdgeInsets.all(16),
-                    child: PrimaryButton(
-                        medium: true,
-                        onPressed: handleDelete,
-                        color: const Color.fromARGB(255, 255, 117, 107),
-                        child: const Text('Delete'))),
-              Container(height: 200),
-            ]),
-          ))),
+                      const SizedBox(height: 16),
+                      ImagePickerWidget(
+                        image: stagedEventImage?.image,
+                        setImage: setEventImage,
+                      ),
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CustomTextFormField(
+                                hintText: 'Title',
+                                initialValue: title,
+                                textInputAction: TextInputAction.done,
+                                onSaved: (String? value) {
+                                  if (value == null) return;
+                                  title = value;
+                                },
+                                validator: (String? value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter a title';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              CustomTextFormField(
+                                minLines: 4,
+                                maxLines: 4,
+                                hintText: 'Description',
+                                initialValue: description,
+                                onSaved: (String? value) {
+                                  if (value == null) return;
+                                  description = value;
+                                },
+                              ),
+                            ]),
+                      ),
+                      Container(height: 16),
+                      PrimaryCard(
+                          padding: EdgeInsets.zero,
+                          child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () =>
+                                  setState(() => isTemplate = !isTemplate),
+                              child: Row(children: [
+                                Checkbox(
+                                  checkColor: Colors.white,
+                                  fillColor: MaterialStateProperty.all(
+                                      theme.primaryColor),
+                                  value: isTemplate,
+                                  onChanged: (bool? value) =>
+                                      setState(() => isTemplate = !isTemplate),
+                                ),
+                                Text('Save this event as a template?',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold))
+                              ]))),
+                      Container(height: 16),
+                      DatePicker(
+                          isOpen: openPicker == OpenPicker.startDate,
+                          setExpanded: toggleOpenPicker,
+                          dateTime: startDateTime!,
+                          setDateTime: onStartDateChange),
+                      PrimaryCard(
+                          padding: EdgeInsets.zero,
+                          child: Column(children: [
+                            GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () =>
+                                    toggleOpenPicker(OpenPicker.startTime),
+                                child: Container(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text('Start Time',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold)),
+                                          Text(DateFormat('h:mm a')
+                                              .format(startDateTime!))
+                                        ]))),
+                            ExpandedableWidget(
+                                expand: openPicker == OpenPicker.startTime,
+                                curve: Curves.easeInOut,
+                                child: Column(children: [
+                                  Container(
+                                      margin: EdgeInsets.only(bottom: 16),
+                                      height: 1,
+                                      color: Colors.grey[200]),
+                                  SizedBox(
+                                      height: 200,
+                                      width: 180,
+                                      child: CupertinoDatePicker(
+                                        mode: CupertinoDatePickerMode.time,
+                                        initialDateTime: startDateTime,
+                                        minuteInterval: 5,
+                                        onDateTimeChanged: onStartTimeChange,
+                                      ))
+                                ]))
+                          ])),
+                      PrimaryCard(
+                          padding: EdgeInsets.zero,
+                          child: Column(children: [
+                            GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () =>
+                                    toggleOpenPicker(OpenPicker.duration),
+                                child: Container(
+                                    padding: const EdgeInsets.all(12),
+                                    child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          // Text('Duration',
+                                          //     style: TextStyle(
+                                          //         fontWeight: FontWeight.bold)),
+                                          CupertinoSlidingSegmentedControl(
+                                            backgroundColor:
+                                                theme.backgroundColor,
+                                            thumbColor: theme.primaryColor,
+                                            groupValue: eventEndMode,
+                                            onValueChanged:
+                                                onEventEndModeChange,
+                                            children: const {
+                                              'duration': Padding(
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 8),
+                                                child: Text(
+                                                  'Duration',
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: Color.fromRGBO(
+                                                          0, 69, 77, 1)),
+                                                ),
+                                              ),
+                                              'endTime': Padding(
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 8),
+                                                child: Text(
+                                                  'End Time',
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: Color.fromRGBO(
+                                                          0, 69, 77, 1)),
+                                                ),
+                                              )
+                                            },
+                                          ),
+                                          Text(
+                                            eventEndMode == 'duration'
+                                                ? durationString
+                                                : DateFormat('h:mm a')
+                                                    .format(endTime),
+                                            style: TextStyle(
+                                                color: durationStrColor),
+                                          )
+                                        ]))),
+                            ExpandedableWidget(
+                                expand: openPicker == OpenPicker.duration,
+                                curve: Curves.easeInOut,
+                                child: eventEndMode == 'duration'
+                                    ? Column(children: [
+                                        Container(
+                                            margin: EdgeInsets.only(bottom: 16),
+                                            height: 1,
+                                            color: Colors.grey[200]),
+                                        SizedBox(
+                                            width: 220,
+                                            child: CupertinoTimerPicker(
+                                              mode: CupertinoTimerPickerMode.hm,
+                                              minuteInterval: 5,
+                                              initialTimerDuration:
+                                                  Duration(minutes: duration),
+                                              onTimerDurationChanged:
+                                                  onDurationChange,
+                                            ))
+                                      ])
+                                    : Column(children: [
+                                        Container(
+                                            margin: EdgeInsets.only(bottom: 16),
+                                            height: 1,
+                                            color: Colors.grey[200]),
+                                        SizedBox(
+                                            height: 200,
+                                            width: 180,
+                                            child: CupertinoDatePicker(
+                                              mode:
+                                                  CupertinoDatePickerMode.time,
+                                              initialDateTime: endTime,
+                                              minuteInterval: 5,
+                                              onDateTimeChanged:
+                                                  onEndTimeChange,
+                                            ))
+                                      ]))
+                          ])),
+                      RepeatPicker(
+                          isOpen: openPicker == OpenPicker.repeat,
+                          setExpanded: toggleOpenPicker,
+                          selectedInterval: selectedInterval,
+                          selectedFrequency: selectedFrequency,
+                          selectedWeekdays: selectedWeekdays,
+                          setSelectedInterval: setSelectedInterval,
+                          setSelectedFrequency: setSelectedFrequency,
+                          setSelectedWeekdays: setSelectedWeekdays,
+                          endDateTime: recurringEndDateTime,
+                          setEndDateTime: setRecurringEndDateTime),
+                      Container(height: 16),
+                      TaskList(
+                        tasks: tasks,
+                        images: stagedImages,
+                        stageAddTask: stageAddTask,
+                        stageUpdateTask: stageUpdateTask,
+                        reorderTask: stageReorderTask,
+                        removeTask: stageRemoveTask,
+                        setImage: setTaskImage,
+                        // removeImage: removeImage,
+                        eventId: (widget.existingEvent == null
+                                ? widget.id
+                                : widget.existingEvent!.id)
+                            .toString(),
+                      ),
+                      if (widget.existingEvent != null)
+                        Padding(
+                            padding: EdgeInsets.all(16),
+                            child: PrimaryButton(
+                                medium: true,
+                                onPressed: handleDelete,
+                                color: const Color.fromARGB(255, 255, 117, 107),
+                                child: const Text('Delete'))),
+                      Container(height: 200),
+                    ]),
+                  )))),
       if (isLoading)
         Positioned(
             top: 0,

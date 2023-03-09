@@ -4,10 +4,12 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:calendar/components/custom_text_form_field.dart';
+import 'package:calendar/components/max_width.dart';
 import 'package:calendar/realm/app_services.dart';
 import 'package:calendar/realm/schemas.dart';
 import 'package:calendar/screens/create_edit_event/create_edit_event.dart';
 import 'package:calendar/screens/create_edit_event/image_picker.dart';
+import 'package:calendar/screens/login/login_screen.dart';
 import 'package:calendar/state/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -129,44 +131,48 @@ class _CreateEditTaskState extends State<CreateEditTask> {
             ]),
         body: SingleChildScrollView(
             child: Container(
-          margin: EdgeInsets.only(top: 12),
-          padding: EdgeInsets.only(bottom: 48),
-          child: Column(
-            children: [
-              ImagePickerWidget(image: selectedImage, setImage: handleSetImage),
-              Form(
-                  key: _formKey,
+                margin: EdgeInsets.only(top: 12),
+                padding: EdgeInsets.only(bottom: 48),
+                width: double.infinity,
+                child: MaxWidth(
+                  maxWidth: maxWidth,
                   child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomTextFormField(
-                          hintText: 'Title',
-                          initialValue: title,
-                          textInputAction: TextInputAction.next,
-                          onSaved: (String? value) {
-                            if (value == null) return;
-                            title = value;
-                          },
-                          validator: (String? value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a title';
-                            }
-                            return null;
-                          },
-                        ),
-                        CustomTextFormField(
-                          minLines: 4,
-                          maxLines: 4,
-                          hintText: 'Description',
-                          initialValue: description,
-                          onSaved: (String? value) {
-                            if (value == null) return;
-                            description = value;
-                          },
-                        ),
-                      ])),
-            ],
-          ),
-        )));
+                    children: [
+                      ImagePickerWidget(
+                          image: selectedImage, setImage: handleSetImage),
+                      Form(
+                          key: _formKey,
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CustomTextFormField(
+                                  hintText: 'Title',
+                                  initialValue: title,
+                                  textInputAction: TextInputAction.next,
+                                  onSaved: (String? value) {
+                                    if (value == null) return;
+                                    title = value;
+                                  },
+                                  validator: (String? value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter a title';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                CustomTextFormField(
+                                  minLines: 4,
+                                  maxLines: 4,
+                                  hintText: 'Description',
+                                  initialValue: description,
+                                  onSaved: (String? value) {
+                                    if (value == null) return;
+                                    description = value;
+                                  },
+                                ),
+                              ])),
+                    ],
+                  ),
+                ))));
   }
 }
