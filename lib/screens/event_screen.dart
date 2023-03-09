@@ -6,12 +6,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:calendar/components/buttons/primary_button.dart';
 import 'package:calendar/components/cards/primary_card.dart';
 import 'package:calendar/components/completed.dart';
+import 'package:calendar/components/max_width.dart';
 import 'package:calendar/components/text/h1.dart';
 import 'package:calendar/components/text/paragraph.dart';
 import 'package:calendar/models/event_model.dart';
 import 'package:calendar/models/event_task_model.dart';
 import 'package:calendar/realm/init_realm.dart';
 import 'package:calendar/realm/schemas.dart';
+import 'package:calendar/screens/login/login_screen.dart';
 import 'package:calendar/state/app_state.dart';
 import 'package:calendar/util/get_cloudflare_image_url.dart';
 import 'package:confetti/confetti.dart';
@@ -118,75 +120,85 @@ class _EventScreenState extends State<EventScreen> {
       return SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: padding),
           child: SafeArea(
-              child: Column(children: [
-            if (pageItem!.image != null)
-              Container(
-                // margin: const EdgeInsets.symmetric(horizontal: 16),
-                clipBehavior: Clip.hardEdge,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: const Color.fromARGB(255, 161, 210, 198)),
-                child: CachedNetworkImage(
-                    progressIndicatorBuilder:
-                        (context, url, downloadProgress) => Center(
-                            child: SizedBox(
-                                width: 30,
-                                height: 30,
-                                child: CircularProgressIndicator(
-                                    color: theme.primaryColor))),
-                    imageUrl:
-                        getCloudflareImageUrl(pageItem!.image!.remoteImageId)),
-              ),
-            Container(
-                margin: const EdgeInsets.fromLTRB(0, 16, 0, 24),
-                child: Column(
-                  children: [
-                    PrimaryCard(
-                        margin: EdgeInsets.zero,
-                        child: Column(children: [
-                          Container(
-                            margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
-                            child: Center(child: H1(pageItem!.title)),
-                          ),
-                          Paragraph(pageItem!.description),
-                        ])),
-                    event != null /* && !event!.isComplete */
-                        ? Container(
-                            margin: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                            child: PrimaryButton(
-                                onPressed: () {
-                                  if (tasks != null && tasks!.isNotEmpty) {
-                                    _pageController.nextPage(
-                                      duration:
-                                          const Duration(milliseconds: 400),
-                                      curve: Curves.easeInOut,
-                                    );
-                                  } else {
-                                    showCompleted();
-                                  }
-                                },
-                                child: Text(tasks != null && tasks!.isNotEmpty
-                                    ? 'Start!'
-                                    : 'Finish!')))
-                        : Container(
-                            margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                            child: PrimaryButton(
-                                onPressed: () {
-                                  if (taskIndex == tasks!.length - 1) {
-                                    showCompleted();
-                                    return;
-                                  }
-                                  _pageController.nextPage(
-                                    duration: const Duration(milliseconds: 400),
-                                    curve: Curves.easeInOut,
-                                  );
-                                },
-                                child: Text(taskIndex == tasks!.length - 1
-                                    ? 'Finish!'
-                                    : 'Complete!')))
-                  ],
-                ))
-          ])));
+              child: MaxWidth(
+                  maxWidth: maxWidth,
+                  child: Column(children: [
+                    if (pageItem!.image != null)
+                      Container(
+                        // margin: const EdgeInsets.symmetric(horizontal: 16),
+                        clipBehavior: Clip.hardEdge,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: const Color.fromARGB(255, 161, 210, 198)),
+                        child: CachedNetworkImage(
+                            progressIndicatorBuilder:
+                                (context, url, downloadProgress) => Center(
+                                    child: SizedBox(
+                                        width: 30,
+                                        height: 30,
+                                        child: CircularProgressIndicator(
+                                            color: theme.primaryColor))),
+                            imageUrl: getCloudflareImageUrl(
+                                pageItem!.image!.remoteImageId,
+                                width: 800)),
+                      ),
+                    Container(
+                        margin: const EdgeInsets.fromLTRB(0, 16, 0, 24),
+                        child: Column(
+                          children: [
+                            PrimaryCard(
+                                margin: EdgeInsets.zero,
+                                child: Column(children: [
+                                  Container(
+                                    margin:
+                                        const EdgeInsets.fromLTRB(0, 0, 0, 16),
+                                    child: Center(child: H1(pageItem!.title)),
+                                  ),
+                                  Paragraph(pageItem!.description),
+                                ])),
+                            event != null /* && !event!.isComplete */
+                                ? Container(
+                                    margin:
+                                        const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                                    child: PrimaryButton(
+                                        onPressed: () {
+                                          if (tasks != null &&
+                                              tasks!.isNotEmpty) {
+                                            _pageController.nextPage(
+                                              duration: const Duration(
+                                                  milliseconds: 400),
+                                              curve: Curves.easeInOut,
+                                            );
+                                          } else {
+                                            showCompleted();
+                                          }
+                                        },
+                                        child: Text(
+                                            tasks != null && tasks!.isNotEmpty
+                                                ? 'Start!'
+                                                : 'Finish!')))
+                                : Container(
+                                    margin:
+                                        const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                                    child: PrimaryButton(
+                                        onPressed: () {
+                                          if (taskIndex == tasks!.length - 1) {
+                                            showCompleted();
+                                            return;
+                                          }
+                                          _pageController.nextPage(
+                                            duration: const Duration(
+                                                milliseconds: 400),
+                                            curve: Curves.easeInOut,
+                                          );
+                                        },
+                                        child: Text(
+                                            taskIndex == tasks!.length - 1
+                                                ? 'Finish!'
+                                                : 'Complete!')))
+                          ],
+                        ))
+                  ]))));
     }
 
     final pages = [page(event: event)];
