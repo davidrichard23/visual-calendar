@@ -83,36 +83,54 @@ class _CaregiverViewState extends State<CaregiverView> {
                 todayHighlightColor: theme.cardColor,
                 appointmentBuilder: (context, details) {
                   return Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 0, horizontal: 8),
+                      clipBehavior: Clip.hardEdge,
                       decoration: BoxDecoration(
-                          color: theme.primaryColor,
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              spreadRadius: 0,
-                              blurRadius: 5,
-                              offset: const Offset(0, 1),
-                            ),
-                          ]),
-                      child: Row(
-                          // mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Flexible(
-                                child: Paragraph(
-                              details.appointments.first.title,
-                              small: true,
-                            ))
-                          ]));
+                        color: theme.backgroundColor,
+                        borderRadius: BorderRadius.circular(8),
+                        // gradient: LinearGradient(stops: const [
+                        //   0.01,
+                        //   0.01
+                        // ], colors: [
+                        //   theme.primaryColor,
+                        //   theme.backgroundColor
+                        // ]),
+                        // boxShadow: [
+                        //   BoxShadow(
+                        //     color: Colors.black.withOpacity(0.1),
+                        //     spreadRadius: 0,
+                        //     blurRadius: 5,
+                        //     offset: const Offset(0, 1),
+                        //   ),
+                      ),
+                      child: Container(
+                          padding: const EdgeInsets.only(left: 16, right: 8),
+                          decoration: BoxDecoration(
+                            border: Border(
+                                left: BorderSide(
+                                    width: 8, color: theme.primaryColor)),
+                          ),
+                          child: Row(
+                              // mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Flexible(
+                                    child: Paragraph(
+                                  details.appointments.first.title,
+                                  small: true,
+                                ))
+                              ])));
                 },
               ))),
       if (!ResponsiveLayoutHelper.isMobile(context))
         Expanded(
             flex: 4,
-            child: DependentView(
-                events: widget.events, activeDate: widget.activeDate))
+            child: Container(
+                decoration: BoxDecoration(
+                    border: Border(
+                        left: BorderSide(
+                            color: Colors.black.withOpacity(0.2), width: 1))),
+                child: DependentView(
+                    events: widget.events, activeDate: widget.activeDate)))
     ]));
   }
 }
