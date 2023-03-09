@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:calendar/components/max_width.dart';
 import 'package:calendar/components/text/h1.dart';
 import 'package:calendar/components/text/paragraph.dart';
 import 'package:calendar/realm/app_services.dart';
@@ -26,46 +27,49 @@ class _ScenarioSelectionState extends State<ScenarioSelection> {
     final currentUser = app.currentUser;
 
     return SingleChildScrollView(
-        child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 32),
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const H1(
-                    'Welcome',
-                    large: true,
-                  ),
-                  const Paragraph(
-                    'Lets Get Started. Select a scenario below.',
-                    center: true,
-                  ),
-                  const SizedBox(height: 48),
-                  LoginScreenButton(
-                      icon: Icons.add_circle_outline,
-                      onTap: () => widget.setLoginType(LoginType.createTeam),
-                      text:
-                          'I am caretaker and want to setup a calendar for my dependent.'),
-                  LoginScreenButton(
-                      icon: Icons.people_outline,
-                      onTap: () => widget.setLoginType(LoginType.joinTeam),
-                      text:
-                          'I am caretaker and want to join a team already created for a dependent.'),
-                  if (currentUser == null ||
-                      currentUser.provider == AuthProviderType.anonymous)
-                    LoginScreenButton(
-                        icon: Icons.tablet_mac_outlined,
-                        onTap: () =>
-                            widget.setLoginType(LoginType.setupDependent),
-                        text:
-                            'I am caretaker and am setting up my dependent\'s device.'),
-                  const SizedBox(height: 32),
-                  TextButton(
-                      style: ButtonStyle(
-                          overlayColor: MaterialStateProperty.all<Color>(
-                              const Color.fromARGB(100, 195, 255, 239))),
-                      onPressed: () => widget.setLoginType(LoginType.login),
-                      child: const Paragraph('Login'))
-                ])));
+        child: MaxWidth(
+            maxWidth: maxWidth,
+            child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 32),
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const H1(
+                        'Welcome',
+                        large: true,
+                      ),
+                      const Paragraph(
+                        'Lets Get Started. Select a scenario below.',
+                        center: true,
+                      ),
+                      const SizedBox(height: 24),
+                      LoginScreenButton(
+                          icon: Icons.add_circle_outline,
+                          onTap: () =>
+                              widget.setLoginType(LoginType.createTeam),
+                          text:
+                              'I am caretaker and want to setup a calendar for my dependent.'),
+                      LoginScreenButton(
+                          icon: Icons.people_outline,
+                          onTap: () => widget.setLoginType(LoginType.joinTeam),
+                          text:
+                              'I am caretaker and want to join a team already created for a dependent.'),
+                      if (currentUser == null ||
+                          currentUser.provider == AuthProviderType.anonymous)
+                        LoginScreenButton(
+                            icon: Icons.tablet_mac_outlined,
+                            onTap: () =>
+                                widget.setLoginType(LoginType.setupDependent),
+                            text:
+                                'I am caretaker and am setting up my dependent\'s device.'),
+                      const SizedBox(height: 32),
+                      TextButton(
+                          style: ButtonStyle(
+                              overlayColor: MaterialStateProperty.all<Color>(
+                                  const Color.fromARGB(100, 195, 255, 239))),
+                          onPressed: () => widget.setLoginType(LoginType.login),
+                          child: const Paragraph('Login'))
+                    ]))));
   }
 }

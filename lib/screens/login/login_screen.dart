@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:calendar/components/max_width.dart';
 import 'package:calendar/models/team_model.dart';
 import 'package:calendar/realm/app_services.dart';
 import 'package:calendar/realm/init_realm.dart';
@@ -12,6 +13,8 @@ import 'package:calendar/state/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:realm/realm.dart';
+
+const double maxWidth = 500;
 
 enum LoginType {
   login,
@@ -73,11 +76,14 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     }
 
-    createTeam(String teamName, String dependentName) async {
+    createTeam(String dependentName) async {
       try {
         var team = TeamModel.create(
             realmManager.realm!,
-            Team(ObjectId(), ObjectId.fromHexString(currentUser!.id), teamName,
+            Team(
+                ObjectId(),
+                ObjectId.fromHexString(currentUser!.id),
+                '', // teamname is no longer required
                 dependentName));
 
         await Future.delayed(const Duration(milliseconds: 1000), () async {
@@ -130,9 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     return Scaffold(
-        // drawer: const DrawerComponent(),
         backgroundColor: theme.primaryColor,
-        // appBar: const DailyAppBar(),
         body: Builder(builder: ((context) {
           return SafeArea(
             bottom: false,
@@ -140,37 +144,54 @@ class _LoginScreenState extends State<LoginScreen> {
                 physics: const NeverScrollableScrollPhysics(),
                 controller: _pageController,
                 children: [
+                  // Error
                   if (error != null)
-                    Text(
-                      'Error: ${error!}',
-                      style: const TextStyle(color: Colors.red),
-                    ),
+                    MaxWidth(
+                        maxWidth: maxWidth,
+                        child: Text(
+                          'Error: ${error!}',
+                          style: const TextStyle(color: Colors.red),
+                        )),
+
+                  // Scenario
                   ScenarioSelection(setLoginType: setLoginType),
+
+                  // Dependent
                   if (loginType == LoginType.setupDependent)
                     InviteToken(
                         hideBackButton: true,
                         pageController: _pageController,
                         onSubmit: joinTeam),
+
+                  // Create Team
                   if (loginType == LoginType.createTeam)
                     if (currentUser == null)
                       EmailPassword(
                           pageController: _pageController,
-                          onSubmit: createAccount)
+                          onSubmit: createAccount,
+                          submitText: 'Create Account')
                     else
                       CreateTeam(
                           onSubmit: createTeam,
                           pageController: _pageController),
+
+                  // Join Team
                   if (loginType == LoginType.joinTeam)
                     if (currentUser == null)
                       EmailPassword(
                           pageController: _pageController,
-                          onSubmit: createAccount)
+                          onSubmit: createAccount,
+                          submitText: 'Create Account')
                     else
                       InviteToken(
                           onSubmit: joinTeam, pageController: _pageController),
+
+                  // Login
                   if (loginType == LoginType.login)
                     EmailPassword(
-                        pageController: _pageController, onSubmit: login)
+                        pageController: _pageController,
+                        onSubmit: login,
+                        submitText: 'Login')
                 ]),
           );
         })));
