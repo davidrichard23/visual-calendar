@@ -54,7 +54,9 @@ class _DailyScreenState extends State<DailyScreen> {
     final appState = Provider.of<AppState>(context, listen: true);
 
     // find a better way?
-    if (appState.activeTeam == null) return Container();
+    if (appState.activeTeam == null || realmManager.realm == null) {
+      return Container();
+    }
 
     void onUpdate<T extends RealmObject>(RealmResults<T> newTasks) {
       final idsToFilter = [];
