@@ -17,7 +17,7 @@ class AppState extends ChangeNotifier {
   final LocalStorage _appStorage = LocalStorage('app');
 
   // needed to keep the garbage collector from clearing the stream
-  late StreamSubscription<RealmResultsChanges<Team>> stream;
+  StreamSubscription<RealmResultsChanges<Team>>? stream;
 
   init(Realm? realm) async {
     if (realm != null) await _getTeams(realm);
@@ -59,6 +59,8 @@ class AppState extends ChangeNotifier {
     }
 
     allTeams = [];
+
+    if (stream != null) await stream!.cancel();
 
     stream = query.changes.listen((changes) {
       for (final deletionIndex in changes.deleted) {

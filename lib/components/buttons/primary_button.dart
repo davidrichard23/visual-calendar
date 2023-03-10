@@ -9,6 +9,7 @@ class PrimaryButton extends StatelessWidget {
   bool isDisabled;
   bool medium;
   bool small;
+  bool outlined;
   Color? color;
 
   PrimaryButton({
@@ -19,6 +20,7 @@ class PrimaryButton extends StatelessWidget {
     this.isDisabled = false,
     this.medium = false,
     this.small = false,
+    this.outlined = false,
     this.color,
   }) : super(key: key);
 
@@ -34,18 +36,23 @@ class PrimaryButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: isDisabled || isLoading ? null : onPressed,
       style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all(isDisabled || isLoading
-              ? Colors.grey[300]
-              : color ?? theme.primaryColor),
+          elevation: MaterialStateProperty.all(outlined ? 0 : 2),
+          side: outlined
+              ? MaterialStateProperty.all(
+                  BorderSide(color: theme.primaryColor, width: 2))
+              : null,
+          backgroundColor: MaterialStateProperty.all(outlined
+              ? Colors.white
+              : isDisabled || isLoading
+                  ? Colors.grey[300]
+                  : color ?? theme.primaryColor),
           minimumSize: MaterialStateProperty.all(Size.fromHeight(height)),
           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
               RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           )),
-          textStyle: MaterialStateProperty.all(const TextStyle(
-            fontWeight: FontWeight.bold,
-            letterSpacing: 3,
-          ))),
+          textStyle: MaterialStateProperty.all(
+              const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 3))),
       child: isLoading
           ? SizedBox(
               height: 25,

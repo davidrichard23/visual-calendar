@@ -4,6 +4,7 @@ import 'package:calendar/components/date_slider.dart';
 import 'package:calendar/components/drawer/drawer.dart';
 import 'package:calendar/data/realm_query_builder.dart';
 import 'package:calendar/models/event_model.dart';
+import 'package:calendar/realm/app_services.dart';
 import 'package:calendar/realm/init_realm.dart';
 import 'package:calendar/realm/schemas.dart';
 import 'package:calendar/screens/daily/app_bar.dart';
@@ -109,7 +110,7 @@ class _DailyScreenState extends State<DailyScreen> {
           selectedDateTime: selectedDate,
           changeViewType: (e) => setState(() => selectedView = e),
         ),
-        drawer: appState.teamUserType == 'caregiver'
+        drawer: appState.teamUserType != 'dependent'
             ? const DrawerComponent()
             : null,
         body: Builder(builder: ((context) {

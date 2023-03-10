@@ -130,7 +130,7 @@ class RealmManager with ChangeNotifier {
         break;
       }
 
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 1000));
       retryCount += 1;
     }
 

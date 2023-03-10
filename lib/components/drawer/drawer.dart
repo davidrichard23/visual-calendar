@@ -52,7 +52,7 @@ class DrawerComponentState extends State<DrawerComponent> {
                         const SizedBox(height: 48),
                         DrawerRow(
                           icon: Icons.add_circle_outline,
-                          text: 'Create Invite',
+                          text: 'Generate Invite Token',
                           onTap: toggleCreateInvite,
                         ),
                         CreateInvite(isOpen: isCreatingInvite),

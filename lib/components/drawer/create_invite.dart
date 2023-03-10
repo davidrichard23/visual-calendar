@@ -116,7 +116,7 @@ class CreateInviteState extends State<CreateInvite> {
                     PrimaryButton(
                         small: true,
                         onPressed: handleCreate,
-                        child: const Paragraph('Create Invite', small: true)),
+                        child: const Paragraph('Generate Invite', small: true)),
                   ],
                 ))));
   }
