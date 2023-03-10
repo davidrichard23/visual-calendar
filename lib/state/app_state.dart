@@ -29,6 +29,7 @@ class AppState extends ChangeNotifier {
     activeTeam = newActiveTeam;
     teamUserType = realm.syncSession.user.customData['teamUserTypes']
         [activeTeam!.id.toString()];
+
     _appStorage.setItem('active-team-id', newActiveTeam.id.toString());
 
     notifyListeners();

@@ -98,7 +98,6 @@ class _CreateEditTaskState extends State<CreateEditTask> {
             description);
 
         widget.stageUpdateTask(task);
-        inspect(selectedImage);
         widget.setImage(id, selectedImage);
         Navigator.pop(context);
       }

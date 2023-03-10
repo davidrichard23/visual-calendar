@@ -100,7 +100,7 @@ class _TokenInputState extends State<TokenInput> {
           const SizedBox(height: 16),
           SizedBox(
             height: 90,
-            width: 300,
+            width: 320,
             child: Stack(
               children: <Widget>[
                 Opacity(

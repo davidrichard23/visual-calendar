@@ -68,12 +68,11 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     }
 
-    void loginAnon() async {
+    Future<void> loginAnon() async {
       if (currentUser != null) return;
 
       try {
         await app.logInAnon();
-        await appState.init(realmManager.realm);
       } catch (err) {
         rethrow;
       }
@@ -102,14 +101,23 @@ class _LoginScreenState extends State<LoginScreen> {
 
     joinTeam(String token) async {
       try {
-        await currentUser!.functions.call('joinTeam', [token.toLowerCase()]);
+        await app.currentUser!.functions
+            .call('joinTeam', [token.toLowerCase()]);
+
+        final realmManager = Provider.of<RealmManager>(context, listen: false);
 
         await realmManager.waitForTeamPermissionsUpdate();
+        await appState.init(realmManager.realm);
 
         Navigator.pushReplacementNamed(context, '/home');
       } catch (err) {
         rethrow;
       }
+    }
+
+    setupDependent(String token) async {
+      if (currentUser == null) await loginAnon();
+      await joinTeam(token);
     }
 
     setLoginType(LoginType type, {bool noAnim = false}) {
@@ -125,17 +133,12 @@ class _LoginScreenState extends State<LoginScreen> {
             curve: Curves.easeInOut);
       }
 
-      try {
-        if (type == LoginType.setupDependent) loginAnon();
-      } on AppException catch (err) {
-        setState((() => error = err.message));
+      // prevent anon accounts from being caregivers
+      if ((type == LoginType.createTeam || type == LoginType.joinTeam) &&
+          currentUser != null &&
+          currentUser.provider == AuthProviderType.anonymous) {
+        app.logOutUser();
       }
-    }
-
-    if (loginType != LoginType.setupDependent &&
-        currentUser?.provider == AuthProviderType.anonymous) {
-      Timer(const Duration(milliseconds: 100),
-          () => setLoginType(LoginType.setupDependent, noAnim: true));
     }
 
     return Scaffold(
@@ -162,9 +165,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Dependent
                   if (loginType == LoginType.setupDependent)
                     InviteToken(
-                        hideBackButton: true,
                         pageController: _pageController,
-                        onSubmit: joinTeam),
+                        onSubmit: setupDependent),
 
                   // Create Team
                   if (loginType == LoginType.createTeam)
