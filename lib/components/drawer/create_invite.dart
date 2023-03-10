@@ -7,7 +7,6 @@ import 'package:calendar/components/text/paragraph.dart';
 import 'package:calendar/models/team_invite_model.dart';
 import 'package:calendar/realm/init_realm.dart';
 import 'package:calendar/realm/schemas.dart';
-import 'package:calendar/screens/login/invite_token.dart';
 import 'package:calendar/state/app_state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -111,7 +110,8 @@ class CreateInviteState extends State<CreateInvite> {
                     Paragraph(inviteTypeDescriptions[selectedInviteType]!,
                         small: true, dense: true),
                     if (newInvite != null) const SizedBox(height: 16),
-                    if (newInvite != null) H1(newInvite!.token.toUpperCase()),
+                    if (newInvite != null)
+                      H1(newInvite!.token.toUpperCase(), isSelectable: true),
                     const SizedBox(height: 16),
                     PrimaryButton(
                         small: true,
