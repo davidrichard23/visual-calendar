@@ -49,6 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       try {
         await app.registerUserEmailPw(email, password);
+        await appState.init(realmManager.realm);
       } catch (err) {
         rethrow;
       }
@@ -59,6 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       try {
         await app.logInUserEmailPw(email, password);
+        await appState.init(realmManager.realm);
 
         Navigator.pushReplacementNamed(context, '/home');
       } catch (err) {
@@ -71,6 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       try {
         await app.logInAnon();
+        await appState.init(realmManager.realm);
       } catch (err) {
         rethrow;
       }
