@@ -65,9 +65,10 @@ void main() async {
             ChangeNotifierProxyProvider<RealmManager, AppState>(
                 create: (context) => AppState(),
                 update: (context, realmManager, appState) {
-                  if (realmManager.realm == null) return AppState();
+                  if (appState != null && appState.didInit) return appState;
+
                   var state = AppState();
-                  state.init(realmManager.realm!);
+                  state.init(realmManager.realm);
                   return state;
                 })
           ], child: App())));
@@ -85,7 +86,7 @@ class App extends StatelessWidget {
         Provider.of<AppServices>(context, listen: true).currentUser;
     RealmManager realmManager =
         Provider.of<RealmManager>(context, listen: true);
-    final appState = Provider.of<AppState?>(context, listen: true);
+    final appState = Provider.of<AppState>(context, listen: true);
 
     // if (currentUser != null && !realmManager.isSynced) return Container();
     // final app = Provider.of<AppServices>(context);
@@ -124,7 +125,6 @@ class App extends StatelessWidget {
     //   return Container();
     // }
     // return Container();
-
     return MaterialApp(
       title: 'Welcome to Flutter',
       theme: ThemeData(

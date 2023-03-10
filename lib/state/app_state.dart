@@ -19,8 +19,8 @@ class AppState extends ChangeNotifier {
   // needed to keep the garbage collector from clearing the stream
   late StreamSubscription<RealmResultsChanges<Team>> stream;
 
-  init(Realm realm) async {
-    await _getTeams(realm);
+  init(Realm? realm) async {
+    if (realm != null) await _getTeams(realm);
     didInit = true;
     notifyListeners();
   }

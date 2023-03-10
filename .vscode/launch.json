@@ -7,22 +7,28 @@
 			"type": "dart"
 		},
 		{
-			"name": "iPhoneProMax",
+			"name": "iPhone 14 ProMax",
 			"request": "launch",
 			"type": "dart",
 			"deviceId": "iPhone 14 Pro Max"
 		},
 		{
-			"name": "iPhonePro",
+			"name": "iPhone 14 Pro",
 			"request": "launch",
 			"type": "dart",
 			"deviceId": "iPhone 14 Pro"
 		},
 		{
-			"name": "iPadPro",
+			"name": "iPad Pro",
 			"request": "launch",
 			"type": "dart",
 			"deviceId": "iPad Pro (12.9-inch)"
+		},
+		{
+			"name": "iPad Mini",
+			"request": "launch",
+			"type": "dart",
+			"deviceId": "iPad mini (6th generation)"
 		},
 	],
 	"compounds": [
