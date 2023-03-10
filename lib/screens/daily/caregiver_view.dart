@@ -81,26 +81,14 @@ class _CaregiverViewState extends State<CaregiverView> {
                 onTap: onEventSelectionChange,
                 onDragEnd: onDragEnd,
                 todayHighlightColor: theme.cardColor,
+                timeSlotViewSettings:
+                    const TimeSlotViewSettings(timeIntervalHeight: -1),
                 appointmentBuilder: (context, details) {
                   return Container(
                       clipBehavior: Clip.hardEdge,
                       decoration: BoxDecoration(
                         color: theme.backgroundColor,
                         borderRadius: BorderRadius.circular(8),
-                        // gradient: LinearGradient(stops: const [
-                        //   0.01,
-                        //   0.01
-                        // ], colors: [
-                        //   theme.primaryColor,
-                        //   theme.backgroundColor
-                        // ]),
-                        // boxShadow: [
-                        //   BoxShadow(
-                        //     color: Colors.black.withOpacity(0.1),
-                        //     spreadRadius: 0,
-                        //     blurRadius: 5,
-                        //     offset: const Offset(0, 1),
-                        //   ),
                       ),
                       child: Container(
                           padding: const EdgeInsets.only(left: 16, right: 8),
