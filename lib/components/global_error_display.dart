@@ -53,6 +53,7 @@ class _GlobalErrorDisplayState extends State<GlobalErrorDisplay> {
                               child: Paragraph(
                             'Error: ${error!}',
                             color: Colors.white,
+                            small: true,
                           )),
                           IconButton(
                               onPressed: () => setState(() => error = null),
