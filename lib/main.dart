@@ -8,6 +8,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:calendar/components/global_error_display.dart';
+import 'package:calendar/components/realm_sync_status.dart';
 import 'package:calendar/screens/create_edit_event/create_edit_task.dart';
 import 'package:calendar/models/event_model.dart';
 import 'package:calendar/realm/schemas.dart';
@@ -137,7 +138,11 @@ class App extends StatelessWidget {
       // initialRoute: '/',
       navigatorKey: navigatorKey,
       builder: (BuildContext context, Widget? child) {
-        return GlobalErrorDisplay(context: context, child: child);
+        return Stack(children: [
+          if (child != null) child,
+          RealmSyncStatus(context: context),
+          GlobalErrorDisplay(context: context),
+        ]);
       },
       onGenerateRoute: (RouteSettings settings) {
         switch (settings.name) {

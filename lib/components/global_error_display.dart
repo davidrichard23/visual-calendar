@@ -6,12 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class GlobalErrorDisplay extends StatefulWidget {
-  final Widget? child;
   final BuildContext context;
 
-  const GlobalErrorDisplay(
-      {Key? key, required this.child, required this.context})
-      : super(key: key);
+  const GlobalErrorDisplay({Key? key, required this.context}) : super(key: key);
 
   @override
   State<GlobalErrorDisplay> createState() => _GlobalErrorDisplayState();
@@ -25,41 +22,42 @@ class _GlobalErrorDisplayState extends State<GlobalErrorDisplay> {
     FlutterError.onError = (details) {
       FlutterError.presentError(details);
       Timer(const Duration(milliseconds: 100), () {
-        setState(() => error = details.summary.toString());
+        if (mounted) setState(() => error = details.summary.toString());
       });
       // myErrorsHandler.onErrorDetails(details);
     };
     PlatformDispatcher.instance.onError = (error, stack) {
       // myErrorsHandler.onError(error, stack);
       Timer(const Duration(milliseconds: 100), () {
-        setState(() => error = error.toString());
+        if (mounted) setState(() => error = error.toString());
       });
       return true;
     };
 
-    return Stack(children: [
-      widget.child!,
-      if (error != null)
-        Container(
-            color: const Color.fromARGB(255, 255, 117, 107),
-            width: double.infinity,
-            child: SafeArea(
-                child: Material(
-                    color: Colors.transparent,
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                              child: Paragraph(
-                            'Error: ${error!}',
-                            color: Colors.white,
-                            small: true,
-                          )),
-                          IconButton(
-                              onPressed: () => setState(() => error = null),
-                              icon: const Icon(Icons.cancel_outlined,
-                                  color: Colors.white, size: 35))
-                        ]))))
-    ]);
+    if (error != null) {
+      return Material(
+          color: const Color.fromARGB(255, 255, 117, 107),
+          child: SafeArea(
+              bottom: false,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                        child: Padding(
+                            padding: const EdgeInsets.only(
+                                left: 16, right: 16, bottom: 8),
+                            child: Paragraph(
+                              'Error: ${error!}',
+                              color: Colors.white,
+                              small: true,
+                            ))),
+                    IconButton(
+                        onPressed: () => setState(() => error = null),
+                        icon: const Icon(Icons.cancel_outlined,
+                            color: Colors.white, size: 25))
+                  ])));
+    }
+
+    return Container();
   }
 }
