@@ -42,8 +42,13 @@ class ImagesScreenState extends State<ImagesScreen> {
     final theme = Theme.of(context);
 
     void onUpdate<T extends RealmObject>(RealmResults<T> newImageData) {
+      var sorted = newImageData.toList() as List<ImageData>;
+      sorted.sort((a, b) {
+        return b.createdAt!.compareTo(a.createdAt!);
+      });
+      // log(sorted.length.toString());
       setState(() {
-        images = newImageData.map((e) => e as ImageData).toList();
+        images = sorted;
       });
     }
 
@@ -96,7 +101,7 @@ class ImagesScreenState extends State<ImagesScreen> {
     }
 
     var queryName = 'listImages-${appState.activeTeam!.id}';
-    var queryString = "teamId == \$0 SORT(createdAt DESC)";
+    var queryString = "teamId == \$0";
     var queryArgs = [appState.activeTeam!.id];
 
     return Scaffold(
@@ -109,17 +114,6 @@ class ImagesScreenState extends State<ImagesScreen> {
           foregroundColor: theme.primaryColor,
           backgroundColor: Colors.white,
           elevation: 0,
-          // actions: [
-          //   TextButton(
-          //       onPressed:
-          //           widget.existingTask == null ? handleAdd : handleUpdate,
-          //       style: ElevatedButton.styleFrom(
-          //           foregroundColor: Color.fromRGBO(17, 182, 141, 1),
-          //           padding: EdgeInsets.symmetric(horizontal: 16),
-          //           textStyle:
-          //               TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          //       child: Text(widget.existingTask == null ? 'Add' : 'Update'))
-          // ]),
         ),
         body: Builder(builder: ((context) {
           return ListView(children: [

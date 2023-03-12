@@ -39,7 +39,7 @@ class RealmQueryBuilder<T extends RealmObject> extends StatefulWidget {
 
 class _RealmQueryBuilderState<T extends RealmObject>
     extends State<RealmQueryBuilder> {
-  RealmResults<T>? _prevItems;
+  int _prevItemCount = 0;
   late RealmResults<T>? query;
 
   // fixes hot reload issue
@@ -47,7 +47,7 @@ class _RealmQueryBuilderState<T extends RealmObject>
   void reassemble() {
     super.reassemble();
     setState(() {
-      _prevItems = null;
+      _prevItemCount = 0;
       query = null;
     });
   }
@@ -66,7 +66,7 @@ class _RealmQueryBuilderState<T extends RealmObject>
     if (oldWidget.queryString == widget.queryString &&
         oldWidget.queryName == widget.queryName &&
         oldWidget.queryType == widget.queryType) return;
-
+    log('update');
     initQuery();
   }
 
@@ -79,7 +79,7 @@ class _RealmQueryBuilderState<T extends RealmObject>
         final newQuery = realmManager.realm!.all<T>();
         setState(() {
           query = newQuery;
-          _prevItems = query;
+          _prevItemCount = query!.length;
         });
         Timer(const Duration(milliseconds: 10), () {
           widget.onUpdate<T>(query!);
@@ -96,7 +96,7 @@ class _RealmQueryBuilderState<T extends RealmObject>
         }
         setState(() {
           query = newQuery;
-          _prevItems = query;
+          _prevItemCount = query!.length;
         });
         Timer(const Duration(milliseconds: 10), () {
           widget.onUpdate<T>(query!);
@@ -139,7 +139,7 @@ class _RealmQueryBuilderState<T extends RealmObject>
           }
 
           handleUpdate(RealmResults<T> items) {
-            _prevItems = items;
+            _prevItemCount = items.length;
 
             Timer(const Duration(milliseconds: 10), () {
               widget.onUpdate<T>(items);
@@ -150,9 +150,8 @@ class _RealmQueryBuilderState<T extends RealmObject>
             // this line triggers the hot reload error that is caught below so other
             // widgets dont have to deal with it
             data.results.isEmpty;
-            // inspect(data);
 
-            if (_prevItems == null ||
+            if (_prevItemCount != data.results.length ||
                 data.inserted.isNotEmpty ||
                 data.modified.isNotEmpty ||
                 data.deleted.isNotEmpty ||
