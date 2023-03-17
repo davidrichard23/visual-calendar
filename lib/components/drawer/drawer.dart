@@ -50,6 +50,16 @@ class DrawerComponentState extends State<DrawerComponent> {
                             onTap: () => Navigator.pushNamed(
                                 context, '/generate-invite')),
                         DrawerRow(
+                            icon: Icons.login_rounded,
+                            text: 'Join A Team',
+                            onTap: () =>
+                                Navigator.pushNamed(context, '/join-team')),
+                        DrawerRow(
+                            icon: Icons.add_circle_outline,
+                            text: 'Create New Team',
+                            onTap: () =>
+                                Navigator.pushNamed(context, '/create-team')),
+                        DrawerRow(
                           icon: Icons.people_alt_outlined,
                           text: 'Manage Team (coming soon)',
                           color: Colors.black.withOpacity(0.3),

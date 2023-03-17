@@ -26,14 +26,6 @@ class TeamSelectionState extends State<TeamSelection> {
     final appState = Provider.of<AppState>(context, listen: true);
     final theme = Theme.of(context);
 
-    handleJoinTeam() {
-      Navigator.pushNamed(context, '/join-team');
-    }
-
-    handleCreateTeam() {
-      Navigator.pushNamed(context, '/create-team');
-    }
-
     handleChangeActiveTeam(TeamModel team) {
       appState.setActiveTeam(realmManager.realm!, team);
     }
@@ -70,39 +62,6 @@ class TeamSelectionState extends State<TeamSelection> {
                                     isActive:
                                         team.id == appState.activeTeam?.id))
                                 .toList(),
-                            const SizedBox(height: 16),
-                            PrimaryButton(
-                                onPressed: handleJoinTeam,
-                                small: true,
-                                // outlined: true,
-                                child: Row(
-                                    // mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
-                                      Padding(
-                                          padding: EdgeInsets.only(right: 8),
-                                          child: Icon(Icons.login_rounded,
-                                              color: Color.fromRGBO(
-                                                  0, 69, 77, 1))),
-                                      Expanded(
-                                          child: Paragraph('Join Team',
-                                              small: true))
-                                    ])),
-                            PrimaryButton(
-                                onPressed: handleCreateTeam,
-                                small: true,
-                                // outlined: true,
-                                child: Row(
-                                    // mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
-                                      Padding(
-                                          padding: EdgeInsets.only(right: 8),
-                                          child: Icon(Icons.add_circle_outline,
-                                              color: Color.fromRGBO(
-                                                  0, 69, 77, 1))),
-                                      Expanded(
-                                          child: Paragraph('Create New Team',
-                                              small: true))
-                                    ]))
                           ],
                         )),
                     const SizedBox(height: 25),
