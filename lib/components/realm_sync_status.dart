@@ -22,6 +22,8 @@ class _RealmSyncStatusState extends State<RealmSyncStatus> {
   void initState() {
     RealmManager realmManager =
         Provider.of<RealmManager>(context, listen: false);
+    if (realmManager.realm == null) return;
+
     final syncSession = realmManager.realm!.syncSession;
 
     // connection
@@ -63,6 +65,7 @@ class _RealmSyncStatusState extends State<RealmSyncStatus> {
     RealmManager realmManager =
         Provider.of<RealmManager>(context, listen: false);
 
+    if (realmManager.realm == null) return;
     if (realmManager.realm!.syncSession.state.name == 'active') {
       if (sessionAlert != null) setState(() => sessionAlert = null);
     }

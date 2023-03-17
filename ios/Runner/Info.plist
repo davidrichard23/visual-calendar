@@ -27,11 +27,14 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Description</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Description</string>
+	<string>We use your camera to add photos to events.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Description</string>
+	<string>We use your photo library to add photos to events.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>We use bluetooth to enable you to easily share invite codes to nearby devices.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>We use bluetooth to enable you to easily share invite codes to nearby devices.</string>
+  
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -53,7 +56,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-  <key>NSCameraUsageDescription</key>
-  <string>Explanation on why the camera access is needed.</string>
 </dict>
 </plist>

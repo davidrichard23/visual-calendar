@@ -67,7 +67,12 @@ dependencies:
   path_provider: ^2.0.13
   camera: ^0.10.3+2
   path: ^1.8.2
-  device_info_plus: ^8.1.0
+  flutter_reactive_ble: ^5.0.3
+  share_plus: ^6.3.1
+  permission_handler: ^10.2.0
+  frccblue:
+    git:
+      url: https://github.com/frcc00/frccblue
 
 dev_dependencies:
   flutter_test:

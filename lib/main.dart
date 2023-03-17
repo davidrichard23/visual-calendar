@@ -16,6 +16,7 @@ import 'package:calendar/screens/create_edit_event/create_edit_event.dart';
 import 'package:calendar/screens/create_team_modal.dart';
 import 'package:calendar/screens/daily/daily_screen.dart';
 import 'package:calendar/screens/event_screen.dart';
+import 'package:calendar/screens/generate_invite.dart';
 import 'package:calendar/screens/images_screen.dart';
 import 'package:calendar/screens/init.dart';
 import 'package:calendar/screens/join_team.dart';
@@ -166,6 +167,10 @@ class App extends StatelessWidget {
             return CupertinoSheetRoute<void>(
                 settings: settings,
                 builder: (BuildContext newContext) => CreateTeamModal());
+          case '/generate-invite':
+            return CupertinoSheetRoute<void>(
+                settings: settings,
+                builder: (BuildContext newContext) => GenerateInvite());
           case '/create-event':
             {
               final args = settings.arguments;

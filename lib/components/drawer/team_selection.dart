@@ -18,7 +18,7 @@ class TeamSelection extends StatefulWidget {
 }
 
 class TeamSelectionState extends State<TeamSelection> {
-  bool isOpen = true;
+  bool isOpen = false;
 
   @override
   Widget build(BuildContext context) {

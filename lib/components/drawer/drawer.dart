@@ -14,16 +14,10 @@ class DrawerComponent extends StatefulWidget {
 }
 
 class DrawerComponentState extends State<DrawerComponent> {
-  bool isCreatingInvite = false;
-
   @override
   Widget build(BuildContext context) {
     final app = Provider.of<AppServices>(context);
     final theme = Theme.of(context);
-
-    void toggleCreateInvite() {
-      setState(() => isCreatingInvite = !isCreatingInvite);
-    }
 
     void handleLogout() {
       // app.deleteUser(realmManager.realm!);
@@ -51,11 +45,10 @@ class DrawerComponentState extends State<DrawerComponent> {
                             child: TeamSelection()),
                         const SizedBox(height: 48),
                         DrawerRow(
-                          icon: Icons.add_circle_outline,
-                          text: 'Generate Invite Token',
-                          onTap: toggleCreateInvite,
-                        ),
-                        CreateInvite(isOpen: isCreatingInvite),
+                            icon: Icons.add_circle_outline,
+                            text: 'Generate Invite Token',
+                            onTap: () => Navigator.pushNamed(
+                                context, '/generate-invite')),
                         DrawerRow(
                           icon: Icons.people_alt_outlined,
                           text: 'Manage Team (coming soon)',

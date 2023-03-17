@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:calendar/components/token_input.dart';
 import 'package:calendar/realm/init_realm.dart';
 import 'package:calendar/state/app_state.dart';
