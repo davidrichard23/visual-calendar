@@ -10,7 +10,8 @@
 			"name": "iPhone 14 ProMax",
 			"request": "launch",
 			"type": "dart",
-			"deviceId": "iPhone 14 Pro Max"
+			"deviceId": "iPhone 14 Pro Max",
+      "args": ["--no-sound-null-safety"]
 		},
 		{
 			"name": "iPhone 14 Pro",

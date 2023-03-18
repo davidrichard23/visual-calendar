@@ -49,7 +49,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
       try {
         await app.registerUserEmailPw(email, password);
-        await appState.init(realmManager.realm);
       } catch (err) {
         rethrow;
       }
@@ -60,6 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       try {
         await app.logInUserEmailPw(email, password);
+        final realmManager = Provider.of<RealmManager>(context, listen: false);
         await appState.init(realmManager.realm);
 
         Navigator.pushReplacementNamed(context, '/home');
@@ -89,8 +89,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 dependentName));
 
         await Future.delayed(const Duration(milliseconds: 1000), () async {
-          appState.setActiveTeam(realmManager.realm!, team!);
+          final realmManager =
+              Provider.of<RealmManager>(context, listen: false);
           await realmManager.waitForTeamPermissionsUpdate();
+          await appState.init(realmManager.realm);
 
           Navigator.pushReplacementNamed(context, '/home');
         });
