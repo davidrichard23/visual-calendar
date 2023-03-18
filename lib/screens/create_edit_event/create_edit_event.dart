@@ -579,9 +579,26 @@ class _CreateEditEventState extends State<CreateEditEvent> {
                                   onChanged: (bool? value) =>
                                       setState(() => isTemplate = !isTemplate),
                                 ),
-                                Text('Save this event as a template?',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold))
+                                Flexible(
+                                    child: Padding(
+                                        padding: EdgeInsets.only(
+                                            top: 8, bottom: 8, right: 8),
+                                        child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: const [
+                                              Text(
+                                                  'Save this event as a template?',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold)),
+                                              Flexible(
+                                                  child: Text(
+                                                      'A template allows you to quickly create a copy of this event in the future. This is useful for irregular repeating events.',
+                                                      style: TextStyle(
+                                                          fontSize: 11))),
+                                            ])))
                               ]))),
                       Container(height: 16),
                       DatePicker(
