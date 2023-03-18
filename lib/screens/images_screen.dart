@@ -4,11 +4,15 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:calendar/components/buttons/primary_button.dart';
+import 'package:calendar/components/max_width.dart';
+import 'package:calendar/components/text/h1.dart';
+import 'package:calendar/components/text/paragraph.dart';
 import 'package:calendar/data/realm_query_builder.dart';
 import 'package:calendar/models/image_data_model.dart';
 import 'package:calendar/realm/app_services.dart';
 import 'package:calendar/realm/init_realm.dart';
 import 'package:calendar/realm/schemas.dart';
+import 'package:calendar/screens/login/login_screen.dart';
 import 'package:calendar/state/app_state.dart';
 import 'package:calendar/util/get_cloudflare_image_url.dart';
 import 'package:flutter/material.dart';
@@ -117,14 +121,37 @@ class ImagesScreenState extends State<ImagesScreen> {
         ),
         body: Builder(builder: ((context) {
           return ListView(children: [
-            PrimaryButton(
-                onPressed: () => handleAddImage(ImageSource.gallery),
-                child: const Text('Add From Gallery')),
-            const SizedBox(height: 8),
-            PrimaryButton(
-                child: const Text('Add From Camera'),
-                onPressed: () => handleAddImage(ImageSource.camera)),
-            const SizedBox(height: 8),
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: MaxWidth(
+                    maxWidth: maxWidth,
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Flexible(
+                          child: PrimaryButton(
+                              onPressed: () =>
+                                  handleAddImage(ImageSource.gallery),
+                              child: const Text(
+                                'Add From Gallery',
+                                textAlign: TextAlign.center,
+                              ))),
+                      const SizedBox(width: 16),
+                      Flexible(
+                          child: PrimaryButton(
+                              child: const Text(
+                                'Add From Camera',
+                                textAlign: TextAlign.center,
+                              ),
+                              onPressed: () =>
+                                  handleAddImage(ImageSource.camera))),
+                    ]))),
+            const SizedBox(height: 24),
+            const H1('Choose an Image:', center: true),
+            const SizedBox(height: 24),
+            if (images.isEmpty)
+              const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Paragraph(
+                      'You have not added any images to your team. Please add one using the buttons above.')),
             RealmQueryBuilder<ImageData>(
                 onUpdate: onUpdate,
                 queryName: queryName,
