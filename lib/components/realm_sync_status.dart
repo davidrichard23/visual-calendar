@@ -98,24 +98,25 @@ class _RealmSyncStatusState extends State<RealmSyncStatus> {
                           color: Colors.black.withOpacity(0.6), fontSize: 10),
                     ))),
           ));
-    } else if (connectionAlert != null) {
-      return Material(
-          color: const Color.fromARGB(255, 255, 245, 106),
-          child: SafeArea(
-            bottom: false,
-            child: SizedBox(
-                width: double.infinity,
-                child: Padding(
-                    padding:
-                        const EdgeInsets.only(left: 16, right: 16, bottom: 8),
-                    child: Text(
-                      connectionAlert!,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Colors.black.withOpacity(0.6), fontSize: 10),
-                    ))),
-          ));
     }
+    // else if (connectionAlert != null) {
+    //   return Material(
+    //       color: const Color.fromARGB(255, 255, 245, 106),
+    //       child: SafeArea(
+    //         bottom: false,
+    //         child: SizedBox(
+    //             width: double.infinity,
+    //             child: Padding(
+    //                 padding:
+    //                     const EdgeInsets.only(left: 16, right: 16, bottom: 8),
+    //                 child: Text(
+    //                   connectionAlert!,
+    //                   textAlign: TextAlign.center,
+    //                   style: TextStyle(
+    //                       color: Colors.black.withOpacity(0.6), fontSize: 10),
+    //                 ))),
+    //       ));
+    // }
 
     return Container();
   }
