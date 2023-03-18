@@ -4,7 +4,8 @@
 		{
 			"name": "Current Device",
 			"request": "launch",
-			"type": "dart"
+			"type": "dart",
+      "args": ["--no-sound-null-safety"]
 		},
 		{
 			"name": "iPhone 14 ProMax",
@@ -14,22 +15,25 @@
       "args": ["--no-sound-null-safety"]
 		},
 		{
-			"name": "iPhone 14 Pro",
+      "name": "iPhone 14 Pro",
 			"request": "launch",
 			"type": "dart",
-			"deviceId": "iPhone 14 Pro"
+			"deviceId": "iPhone 14 Pro",
+      "args": ["--no-sound-null-safety"]
 		},
 		{
 			"name": "iPad Pro",
 			"request": "launch",
 			"type": "dart",
-			"deviceId": "iPad Pro (12.9-inch)"
+			"deviceId": "iPad Pro (12.9-inch)",
+      "args": ["--no-sound-null-safety"]
 		},
 		{
 			"name": "iPad Mini",
 			"request": "launch",
 			"type": "dart",
-			"deviceId": "iPad mini (6th generation)"
+			"deviceId": "iPad mini (6th generation)",
+      "args": ["--no-sound-null-safety"]
 		},
 	],
 	"compounds": [
