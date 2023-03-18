@@ -46,17 +46,17 @@ class DrawerComponentState extends State<DrawerComponent> {
                         const SizedBox(height: 48),
                         DrawerRow(
                             icon: Icons.add_circle_outline,
-                            text: 'Generate Invite Token',
+                            text: 'Invite To Team',
                             onTap: () => Navigator.pushNamed(
                                 context, '/generate-invite')),
                         DrawerRow(
                             icon: Icons.login_rounded,
-                            text: 'Join A Team',
+                            text: 'Join Team',
                             onTap: () =>
                                 Navigator.pushNamed(context, '/join-team')),
                         DrawerRow(
                             icon: Icons.add_circle_outline,
-                            text: 'Create New Team',
+                            text: 'Create Team',
                             onTap: () =>
                                 Navigator.pushNamed(context, '/create-team')),
                         DrawerRow(

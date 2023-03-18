@@ -204,8 +204,9 @@ class _GenerateInviteState extends State<GenerateInvite> {
                   if (newInvite == null)
                     Column(children: [
                       const H1(
-                        'Generate Invite',
+                        'Create Invite Token',
                         large: true,
+                        center: true,
                       ),
                       const SizedBox(height: 24),
                       SizedBox(
@@ -248,8 +249,8 @@ class _GenerateInviteState extends State<GenerateInvite> {
                       const SizedBox(height: 16),
                       PrimaryButton(
                           onPressed: handleCreate,
-                          child:
-                              const Paragraph('Generate Invite', small: true)),
+                          child: const Paragraph('Create Invite Token',
+                              small: true)),
                     ]),
                   if (newInvite != null)
                     Column(
