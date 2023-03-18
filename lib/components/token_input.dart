@@ -32,7 +32,7 @@ class _TokenInputState extends State<TokenInput> {
   bool isLoading = false;
 
   final flutterReactiveBle = FlutterReactiveBle();
-  late StreamSubscription<BleStatus> bleStatusListener;
+  StreamSubscription<BleStatus>? bleStatusListener;
   BleStatus? bleStatus;
   String? bleErrorStatusStr;
 
@@ -47,7 +47,7 @@ class _TokenInputState extends State<TokenInput> {
   @override
   void dispose() {
     Frccblue.stopPeripheral();
-    bleStatusListener.cancel();
+    bleStatusListener?.cancel();
     super.dispose();
   }
 
