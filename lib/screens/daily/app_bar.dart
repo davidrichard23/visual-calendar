@@ -48,7 +48,8 @@ class DailyAppBarState extends State<DailyAppBar> {
             color: Colors.black.withOpacity(0.1),
             height: 1,
           )),
-      title: ResponsiveLayoutHelper.isMobile(context)
+      title: ResponsiveLayoutHelper.isMobile(context) &&
+              appState.teamUserType == 'caregiver'
           ? CupertinoSlidingSegmentedControl(
               backgroundColor: theme.backgroundColor,
               thumbColor: theme.primaryColor,
@@ -78,7 +79,8 @@ class DailyAppBarState extends State<DailyAppBar> {
                 )
               },
             )
-          : const Text(''),
+          : const Text('Visual Calendar',
+              style: TextStyle(color: Color.fromRGBO(0, 69, 77, 1))),
       actions: appState.teamUserType == 'caregiver'
           ? [
               PopupMenuButton(
