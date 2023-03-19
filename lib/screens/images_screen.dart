@@ -55,8 +55,7 @@ class ImagesScreenState extends State<ImagesScreen> {
       sorted.sort((a, b) {
         return b.createdAt!.compareTo(a.createdAt!);
       });
-      // log(sorted.length.toString());
-      inspect(sorted);
+
       setState(() {
         images = sorted;
       });
@@ -149,48 +148,65 @@ class ImagesScreenState extends State<ImagesScreen> {
         backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text(
-            'Images',
+            'Team Images',
             style: TextStyle(color: Colors.black.withOpacity(0.7)),
           ),
           foregroundColor: theme.primaryColor,
           backgroundColor: Colors.white,
           elevation: 0,
+          actions: [
+            PopupMenuButton(
+              icon: Icon(
+                Icons.add_circle_outline,
+                size: 35.0,
+                color: theme.primaryColor,
+              ),
+              color: Colors.white,
+              padding: const EdgeInsets.fromLTRB(8, 8, 24, 8),
+              offset: const Offset(0, 48),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              onSelected: (value) {
+                if (value == 'gallery') {
+                  handleAddImage(ImageSource.gallery);
+                } else if (value == 'camera') {
+                  handleAddImage(ImageSource.camera);
+                }
+              },
+              itemBuilder: (BuildContext context) => [
+                PopupMenuItem(
+                    value: 'gallery',
+                    child: Row(children: const [
+                      Padding(
+                          padding: EdgeInsets.only(right: 8),
+                          child: Icon(Icons.create_outlined)),
+                      Flexible(child: Text('Add From Gallery')),
+                    ])),
+                PopupMenuItem(
+                    value: 'camera',
+                    child: Row(children: const [
+                      Padding(
+                          padding: EdgeInsets.only(right: 8),
+                          child: Icon(Icons.copy)),
+                      Flexible(child: Text('Add From Camera')),
+                    ])),
+              ],
+            )
+          ],
         ),
         body: Builder(builder: ((context) {
           return SafeArea(
               bottom: false,
               child: ListView(children: [
-                Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: MaxWidth(
-                        maxWidth: maxWidth,
-                        child: Row(mainAxisSize: MainAxisSize.min, children: [
-                          Flexible(
-                              child: PrimaryButton(
-                                  onPressed: () =>
-                                      handleAddImage(ImageSource.gallery),
-                                  child: const Text(
-                                    'Add From Gallery',
-                                    textAlign: TextAlign.center,
-                                  ))),
-                          const SizedBox(width: 16),
-                          Flexible(
-                              child: PrimaryButton(
-                                  child: const Text(
-                                    'Add From Camera',
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  onPressed: () =>
-                                      handleAddImage(ImageSource.camera))),
-                        ]))),
                 const SizedBox(height: 24),
-                const H1('Choose an Image:', center: true),
-                const SizedBox(height: 24),
+                if (images.isNotEmpty)
+                  const H1('Choose an existing image', center: true),
+                if (images.isNotEmpty) const SizedBox(height: 24),
                 if (images.isEmpty)
                   const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16),
                       child: Paragraph(
-                          'You have not added any images to your team. Please add one using the buttons above.')),
+                          'You have not added any images to your team. Please add one using the plus button above.')),
                 RealmQueryBuilder<ImageData>(
                     onUpdate: onUpdate,
                     queryName: queryName,
