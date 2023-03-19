@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:calendar/components/cards/primary_card.dart';
 import 'package:calendar/components/text/h1.dart';
@@ -5,6 +7,7 @@ import 'package:calendar/components/text/h2.dart';
 import 'package:calendar/components/text/paragraph.dart';
 import 'package:calendar/main.dart';
 import 'package:calendar/models/event_model.dart';
+import 'package:calendar/util/generate_invite_token%20copy.dart';
 import 'package:calendar/util/get_cloudflare_image_url.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -31,7 +34,7 @@ class EventRow extends StatelessWidget {
         DateFormat('hh:mm a').format(event.startDateTime.toLocal());
     // String endTime = DateFormat('hh:mm a').format(
     //     event.startDateTime.toLocal().add(Duration(minutes: event.duration)));
-
+    inspect(event);
     return GestureDetector(
         onTap: () {
           Navigator.pushNamed(context, '/event',
@@ -60,6 +63,7 @@ class EventRow extends StatelessWidget {
                       color: Color.fromARGB(255, 161, 210, 198)),
                   child: CachedNetworkImage(
                       fit: BoxFit.cover,
+                      alignment: focalPointToAlignment(event.image?.focalPoint),
                       // progressIndicatorBuilder: (context, url,
                       //         downloadProgress) =>
                       //     CircularProgressIndicator(color: theme.primaryColor),

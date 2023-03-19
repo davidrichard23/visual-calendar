@@ -609,6 +609,8 @@ class ImageData extends _ImageData
     String remoteImageId,
     bool isPublic, {
     String? title,
+    double? aspectRatio,
+    FocalPoint? focalPoint,
     DateTime? createdAt,
     DateTime? updatedAt,
     bool isDeleted = false,
@@ -624,6 +626,8 @@ class ImageData extends _ImageData
     RealmObjectBase.set(this, 'ownerId', ownerId);
     RealmObjectBase.set(this, 'title', title);
     RealmObjectBase.set(this, 'remoteImageId', remoteImageId);
+    RealmObjectBase.set(this, 'aspectRatio', aspectRatio);
+    RealmObjectBase.set(this, 'focalPoint', focalPoint);
     RealmObjectBase.set(this, 'isPublic', isPublic);
     RealmObjectBase.set(this, 'createdAt', createdAt);
     RealmObjectBase.set(this, 'updatedAt', updatedAt);
@@ -662,6 +666,20 @@ class ImageData extends _ImageData
   @override
   set remoteImageId(String value) =>
       RealmObjectBase.set(this, 'remoteImageId', value);
+
+  @override
+  double? get aspectRatio =>
+      RealmObjectBase.get<double>(this, 'aspectRatio') as double?;
+  @override
+  set aspectRatio(double? value) =>
+      RealmObjectBase.set(this, 'aspectRatio', value);
+
+  @override
+  FocalPoint? get focalPoint =>
+      RealmObjectBase.get<FocalPoint>(this, 'focalPoint') as FocalPoint?;
+  @override
+  set focalPoint(covariant FocalPoint? value) =>
+      RealmObjectBase.set(this, 'focalPoint', value);
 
   @override
   RealmList<String> get tags =>
@@ -712,12 +730,56 @@ class ImageData extends _ImageData
       SchemaProperty('ownerId', RealmPropertyType.objectid),
       SchemaProperty('title', RealmPropertyType.string, optional: true),
       SchemaProperty('remoteImageId', RealmPropertyType.string),
+      SchemaProperty('aspectRatio', RealmPropertyType.double, optional: true),
+      SchemaProperty('focalPoint', RealmPropertyType.object,
+          optional: true, linkTarget: 'FocalPoint'),
       SchemaProperty('tags', RealmPropertyType.string,
           collectionType: RealmCollectionType.list),
       SchemaProperty('isPublic', RealmPropertyType.bool),
       SchemaProperty('createdAt', RealmPropertyType.timestamp, optional: true),
       SchemaProperty('updatedAt', RealmPropertyType.timestamp, optional: true),
       SchemaProperty('isDeleted', RealmPropertyType.bool),
+    ]);
+  }
+}
+
+class FocalPoint extends _FocalPoint
+    with RealmEntity, RealmObjectBase, EmbeddedObject {
+  FocalPoint(
+    double x,
+    double y,
+  ) {
+    RealmObjectBase.set(this, 'x', x);
+    RealmObjectBase.set(this, 'y', y);
+  }
+
+  FocalPoint._();
+
+  @override
+  double get x => RealmObjectBase.get<double>(this, 'x') as double;
+  @override
+  set x(double value) => RealmObjectBase.set(this, 'x', value);
+
+  @override
+  double get y => RealmObjectBase.get<double>(this, 'y') as double;
+  @override
+  set y(double value) => RealmObjectBase.set(this, 'y', value);
+
+  @override
+  Stream<RealmObjectChanges<FocalPoint>> get changes =>
+      RealmObjectBase.getChanges<FocalPoint>(this);
+
+  @override
+  FocalPoint freeze() => RealmObjectBase.freezeObject<FocalPoint>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(FocalPoint._);
+    return const SchemaObject(
+        ObjectType.embeddedObject, FocalPoint, 'FocalPoint', [
+      SchemaProperty('x', RealmPropertyType.double),
+      SchemaProperty('y', RealmPropertyType.double),
     ]);
   }
 }

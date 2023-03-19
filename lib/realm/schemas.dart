@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:realm/realm.dart';
 
 part 'schemas.g.dart';
@@ -84,11 +86,19 @@ class _ImageData {
   late ObjectId ownerId;
   late String? title;
   late String remoteImageId;
+  late double? aspectRatio;
+  late _FocalPoint? focalPoint;
   late List<String> tags;
   late bool isPublic;
   late DateTime? createdAt;
   late DateTime? updatedAt;
   bool isDeleted = false;
+}
+
+@RealmModel(ObjectType.embeddedObject)
+class _FocalPoint {
+  late double x;
+  late double y;
 }
 
 enum RecurrenceType {

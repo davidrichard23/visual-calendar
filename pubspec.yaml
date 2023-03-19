@@ -73,6 +73,7 @@ dependencies:
   frccblue:
     git:
       url: https://github.com/frcc00/frccblue
+  image_size_getter: ^2.1.2
 
 dev_dependencies:
   flutter_test:

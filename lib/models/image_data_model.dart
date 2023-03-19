@@ -12,6 +12,8 @@ class ImageDataModel {
   String? title;
   String remoteImageId;
   List<String> tags = [];
+  late double? aspectRatio;
+  late FocalPoint? focalPoint;
   bool isPublic;
   bool isDeleted = false;
   late DateTime createdAt;
@@ -20,11 +22,33 @@ class ImageDataModel {
   late ImageData item;
   final Realm realm;
 
-  ImageDataModel._(this.realm, this.item, this.id, this.teamId, this.ownerId,
-      this.title, this.remoteImageId, this.tags, this.isPublic, this.isDeleted);
+  ImageDataModel._(
+      this.realm,
+      this.item,
+      this.id,
+      this.teamId,
+      this.ownerId,
+      this.title,
+      this.remoteImageId,
+      this.tags,
+      this.aspectRatio,
+      this.focalPoint,
+      this.isPublic,
+      this.isDeleted);
   ImageDataModel(Realm realm, ImageData item)
-      : this._(realm, item, item.id, item.teamId, item.ownerId, item.title,
-            item.remoteImageId, item.tags, item.isPublic, item.isDeleted);
+      : this._(
+            realm,
+            item,
+            item.id,
+            item.teamId,
+            item.ownerId,
+            item.title,
+            item.remoteImageId,
+            item.tags,
+            item.aspectRatio,
+            item.focalPoint,
+            item.isPublic,
+            item.isDeleted);
 
   static ImageDataModel? create(Realm realm, ImageData item) {
     try {
