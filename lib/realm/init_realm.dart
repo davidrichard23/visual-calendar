@@ -21,6 +21,7 @@ class RealmManager with ChangeNotifier {
         EventTask.schema,
         RecurrencePattern.schema,
         ImageData.schema,
+        LocationData.schema,
         FocalPoint.schema,
       ],
       clientResetHandler: RecoverOrDiscardUnsyncedChangesHandler(

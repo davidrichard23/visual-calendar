@@ -46,6 +46,7 @@ class _Event {
   late int duration;
   late List<_EventTask> tasks = [];
   late _ImageData? image;
+  late _LocationData? location;
   late bool isRecurring;
   late bool isCompleted = false;
   late bool isTemplate = false;
@@ -54,6 +55,15 @@ class _Event {
   late DateTime? updatedAt;
   late DateTime? completedAt;
   bool isDeleted = false;
+}
+
+@RealmModel(ObjectType.embeddedObject)
+class _LocationData {
+  late String name;
+  late String address;
+  late double lat;
+  late double long;
+  late String? googlePlaceId;
 }
 
 @RealmModel()

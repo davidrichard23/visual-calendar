@@ -16,6 +16,7 @@ class EventModel {
   int duration;
   List<EventTask> tasks;
   ImageData? image;
+  LocationData? location;
   bool isRecurring;
   bool isCompleted = false;
   bool isTemplate = false;
@@ -37,6 +38,7 @@ class EventModel {
       this.description,
       this.startDateTime,
       this.image,
+      this.location,
       this.duration,
       this.tasks,
       this.isRecurring,
@@ -54,6 +56,7 @@ class EventModel {
             item.description,
             item.startDateTime,
             item.image,
+            item.location,
             item.duration,
             item.tasks,
             item.isRecurring,
@@ -104,6 +107,7 @@ class EventModel {
       int? duration,
       bool? isRecurring,
       ImageData? image,
+      LocationData? location,
       bool? isTemplate,
       RecurrencePattern? recurrencePattern,
       List<EventTask>? tasks}) {
@@ -114,6 +118,7 @@ class EventModel {
         if (startDateTime != null) item.startDateTime = startDateTime;
         if (duration != null) item.duration = duration;
         if (isTemplate != null) item.isTemplate = isTemplate;
+        if (location != null) item.location = location;
         if (isRecurring != null) item.isRecurring = isRecurring;
         if (recurrencePattern != null) {
           item.recurrencePattern = recurrencePattern;

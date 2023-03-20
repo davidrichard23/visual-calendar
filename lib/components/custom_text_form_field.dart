@@ -18,8 +18,10 @@ class CustomTextFormField extends StatelessWidget {
   final String? Function(String?)? validator;
   final TextInputAction? textInputAction;
   final Function(String)? onSubmitted;
+  final Function(String)? onChanged;
   final TextCapitalization textCapitalization;
   final TextInputType keyboardType;
+  final EdgeInsets? margin;
 
   const CustomTextFormField(
       {this.hintText,
@@ -35,15 +37,17 @@ class CustomTextFormField extends StatelessWidget {
       this.validator,
       this.textInputAction,
       this.onSubmitted,
+      this.onChanged,
       this.textCapitalization = TextCapitalization.sentences,
       this.keyboardType = TextInputType.text,
+      this.margin = const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       Key? key})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+        margin: margin,
         clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
           boxShadow: boxShadow,
@@ -67,6 +71,7 @@ class CustomTextFormField extends StatelessWidget {
             validator: validator,
             textInputAction: textInputAction,
             onFieldSubmitted: onSubmitted,
+            onChanged: onChanged,
             textCapitalization: textCapitalization,
             keyboardType: keyboardType));
   }

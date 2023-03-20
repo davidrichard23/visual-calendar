@@ -227,6 +227,7 @@ class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
     bool isRecurring, {
     ObjectId? parentEventId,
     ImageData? image,
+    LocationData? location,
     bool isCompleted = false,
     bool isTemplate = false,
     RecurrencePattern? recurrencePattern,
@@ -252,6 +253,7 @@ class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.set(this, 'startDateTime', startDateTime);
     RealmObjectBase.set(this, 'duration', duration);
     RealmObjectBase.set(this, 'image', image);
+    RealmObjectBase.set(this, 'location', location);
     RealmObjectBase.set(this, 'isRecurring', isRecurring);
     RealmObjectBase.set(this, 'isCompleted', isCompleted);
     RealmObjectBase.set(this, 'isTemplate', isTemplate);
@@ -327,6 +329,13 @@ class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
   @override
   set image(covariant ImageData? value) =>
       RealmObjectBase.set(this, 'image', value);
+
+  @override
+  LocationData? get location =>
+      RealmObjectBase.get<LocationData>(this, 'location') as LocationData?;
+  @override
+  set location(covariant LocationData? value) =>
+      RealmObjectBase.set(this, 'location', value);
 
   @override
   bool get isRecurring =>
@@ -407,6 +416,8 @@ class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
           linkTarget: 'EventTask', collectionType: RealmCollectionType.list),
       SchemaProperty('image', RealmPropertyType.object,
           optional: true, linkTarget: 'ImageData'),
+      SchemaProperty('location', RealmPropertyType.object,
+          optional: true, linkTarget: 'LocationData'),
       SchemaProperty('isRecurring', RealmPropertyType.bool),
       SchemaProperty('isCompleted', RealmPropertyType.bool),
       SchemaProperty('isTemplate', RealmPropertyType.bool),
@@ -417,6 +428,73 @@ class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
       SchemaProperty('completedAt', RealmPropertyType.timestamp,
           optional: true),
       SchemaProperty('isDeleted', RealmPropertyType.bool),
+    ]);
+  }
+}
+
+class LocationData extends _LocationData
+    with RealmEntity, RealmObjectBase, EmbeddedObject {
+  LocationData(
+    String name,
+    String address,
+    double lat,
+    double long, {
+    String? googlePlaceId,
+  }) {
+    RealmObjectBase.set(this, 'name', name);
+    RealmObjectBase.set(this, 'address', address);
+    RealmObjectBase.set(this, 'lat', lat);
+    RealmObjectBase.set(this, 'long', long);
+    RealmObjectBase.set(this, 'googlePlaceId', googlePlaceId);
+  }
+
+  LocationData._();
+
+  @override
+  String get name => RealmObjectBase.get<String>(this, 'name') as String;
+  @override
+  set name(String value) => RealmObjectBase.set(this, 'name', value);
+
+  @override
+  String get address => RealmObjectBase.get<String>(this, 'address') as String;
+  @override
+  set address(String value) => RealmObjectBase.set(this, 'address', value);
+
+  @override
+  double get lat => RealmObjectBase.get<double>(this, 'lat') as double;
+  @override
+  set lat(double value) => RealmObjectBase.set(this, 'lat', value);
+
+  @override
+  double get long => RealmObjectBase.get<double>(this, 'long') as double;
+  @override
+  set long(double value) => RealmObjectBase.set(this, 'long', value);
+
+  @override
+  String? get googlePlaceId =>
+      RealmObjectBase.get<String>(this, 'googlePlaceId') as String?;
+  @override
+  set googlePlaceId(String? value) =>
+      RealmObjectBase.set(this, 'googlePlaceId', value);
+
+  @override
+  Stream<RealmObjectChanges<LocationData>> get changes =>
+      RealmObjectBase.getChanges<LocationData>(this);
+
+  @override
+  LocationData freeze() => RealmObjectBase.freezeObject<LocationData>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(LocationData._);
+    return const SchemaObject(
+        ObjectType.embeddedObject, LocationData, 'LocationData', [
+      SchemaProperty('name', RealmPropertyType.string),
+      SchemaProperty('address', RealmPropertyType.string),
+      SchemaProperty('lat', RealmPropertyType.double),
+      SchemaProperty('long', RealmPropertyType.double),
+      SchemaProperty('googlePlaceId', RealmPropertyType.string, optional: true),
     ]);
   }
 }

@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
-import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:calendar/components/buttons/primary_button.dart';
@@ -10,18 +8,14 @@ import 'package:calendar/components/max_width.dart';
 import 'package:calendar/components/text/h1.dart';
 import 'package:calendar/components/text/paragraph.dart';
 import 'package:calendar/models/event_model.dart';
-import 'package:calendar/models/event_task_model.dart';
 import 'package:calendar/realm/init_realm.dart';
 import 'package:calendar/realm/schemas.dart';
 import 'package:calendar/screens/login/login_screen.dart';
-import 'package:calendar/state/app_state.dart';
 import 'package:calendar/util/get_cloudflare_image_url.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:realm/realm.dart';
 
 class EventScreen extends StatefulWidget {
@@ -34,6 +28,8 @@ class EventScreen extends StatefulWidget {
 }
 
 class _EventScreenState extends State<EventScreen> {
+  final Completer<GoogleMapController> gMapsController =
+      Completer<GoogleMapController>();
   final PageController _pageController = PageController(
     viewportFraction: 0.89,
   );
@@ -116,6 +112,8 @@ class _EventScreenState extends State<EventScreen> {
     Widget page({EventModel? event, EventTask? task, int? taskIndex}) {
       final dynamic pageItem = event ?? task;
       final padding = tasks == null || tasks!.isEmpty ? 0.0 : 12.0;
+      final latLng =
+          LatLng(event?.location?.lat ?? 0, event?.location?.long ?? 0);
 
       return SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: padding),
@@ -156,6 +154,36 @@ class _EventScreenState extends State<EventScreen> {
                                   ),
                                   Paragraph(pageItem!.description),
                                 ])),
+                            if (event != null && event.location != null)
+                              PrimaryCard(
+                                  padding: EdgeInsets.zero,
+                                  margin: const EdgeInsets.only(
+                                      top: 16, bottom: 0, left: 0, right: 0),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.2),
+                                      spreadRadius: 1,
+                                      blurRadius: 5,
+                                      offset: const Offset(0, 1),
+                                    ),
+                                  ],
+                                  child: SizedBox(
+                                      height: 200,
+                                      child: GoogleMap(
+                                        myLocationButtonEnabled: false,
+                                        markers: {
+                                          Marker(
+                                              markerId:
+                                                  MarkerId(event.id.toString()),
+                                              position: latLng)
+                                        },
+                                        initialCameraPosition: CameraPosition(
+                                            zoom: 14, target: latLng),
+                                        onMapCreated:
+                                            (GoogleMapController controller) {
+                                          gMapsController.complete(controller);
+                                        },
+                                      ))),
                             event != null /* && !event!.isComplete */
                                 ? Container(
                                     margin:

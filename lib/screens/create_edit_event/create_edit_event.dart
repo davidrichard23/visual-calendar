@@ -10,6 +10,7 @@ import 'package:calendar/components/max_width.dart';
 import 'package:calendar/realm/init_realm.dart';
 import 'package:calendar/screens/create_edit_event/date_picker.dart';
 import 'package:calendar/screens/create_edit_event/image_picker.dart';
+import 'package:calendar/screens/create_edit_event/location_picker.dart';
 import 'package:calendar/screens/create_edit_event/repeat_picker.dart';
 import 'package:calendar/screens/create_edit_event/task_list.dart';
 import 'package:calendar/screens/login/login_screen.dart';
@@ -66,6 +67,7 @@ class StagedImageData {
 
 enum OpenPicker {
   none,
+  location,
   startDate,
   startTime,
   duration,
@@ -107,6 +109,7 @@ class _CreateEditEventState extends State<CreateEditEvent> {
 
   String title = '';
   String description = '';
+  LocationData? location;
   DateTime? startDateTime;
   int duration = 60;
   bool isTemplate = false;
@@ -134,6 +137,7 @@ class _CreateEditEventState extends State<CreateEditEvent> {
 
         title = widget.templateEvent!.title;
         description = widget.templateEvent!.description;
+        location = widget.templateEvent!.location;
         duration = widget.templateEvent!.duration;
         tasks = widget.templateEvent!.duplicateTasks(widget.id);
         stagedImages.add(StagedImageData(image: widget.templateEvent!.image));
@@ -146,9 +150,9 @@ class _CreateEditEventState extends State<CreateEditEvent> {
     }
 
     widget.existingEvent!.sortTasks();
-
     title = widget.existingEvent!.title;
     description = widget.existingEvent!.description;
+    location = widget.existingEvent!.location;
     startDateTime = widget.existingEvent!.startDateTime.toLocal();
     selectedWeekdays.add(intToWeekday[startDateTime!.weekday]!);
     duration = widget.existingEvent!.duration;
@@ -177,6 +181,11 @@ class _CreateEditEventState extends State<CreateEditEvent> {
     setState(
         () => openPicker = openPicker == picker ? OpenPicker.none : picker);
     FocusManager.instance.primaryFocus?.unfocus();
+  }
+
+  onLocationChange(LocationData locationData) {
+    inspect(locationData);
+    setState(() => location = locationData);
   }
 
   onStartDateChange(DateTime d) {
@@ -413,6 +422,7 @@ class _CreateEditEventState extends State<CreateEditEvent> {
               duration,
               recurrencePattern != null,
               image: stagedEventImage?.image,
+              location: location,
               isTemplate: isTemplate,
               recurrencePattern: recurrencePattern);
 
@@ -425,6 +435,7 @@ class _CreateEditEventState extends State<CreateEditEvent> {
               duration: duration,
               isRecurring: recurrencePattern != null,
               image: stagedEventImage?.image,
+              location: location,
               isTemplate: isTemplate,
               recurrencePattern: recurrencePattern,
               tasks: tasks);
@@ -563,6 +574,11 @@ class _CreateEditEventState extends State<CreateEditEvent> {
                               ),
                             ]),
                       ),
+                      LocationPicker(
+                          isOpen: openPicker == OpenPicker.location,
+                          setExpanded: toggleOpenPicker,
+                          selectedLocation: location,
+                          setLocation: onLocationChange),
                       Container(height: 16),
                       PrimaryCard(
                           padding: EdgeInsets.zero,

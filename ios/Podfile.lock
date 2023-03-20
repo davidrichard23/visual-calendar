@@ -10,6 +10,14 @@ PODS:
   - FMDB/standard (2.7.5)
   - frccblue (0.0.1):
     - Flutter
+  - google_maps_flutter_ios (0.0.1):
+    - Flutter
+    - GoogleMaps
+  - GoogleMaps (6.2.1):
+    - GoogleMaps/Maps (= 6.2.1)
+  - GoogleMaps/Base (6.2.1)
+  - GoogleMaps/Maps (6.2.1):
+    - GoogleMaps/Base
   - image_picker_ios (0.0.1):
     - Flutter
   - package_info_plus (0.4.5):
@@ -44,6 +52,7 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - frccblue (from `.symlinks/plugins/frccblue/ios`)
+  - google_maps_flutter_ios (from `.symlinks/plugins/google_maps_flutter_ios/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/ios`)
@@ -57,6 +66,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - FMDB
+    - GoogleMaps
     - Protobuf
     - Sentry
     - SwiftProtobuf
@@ -71,6 +81,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/fluttertoast/ios"
   frccblue:
     :path: ".symlinks/plugins/frccblue/ios"
+  google_maps_flutter_ios:
+    :path: ".symlinks/plugins/google_maps_flutter_ios/ios"
   image_picker_ios:
     :path: ".symlinks/plugins/image_picker_ios/ios"
   package_info_plus:
@@ -96,6 +108,8 @@ SPEC CHECKSUMS:
   fluttertoast: eb263d302cc92e04176c053d2385237e9f43fad0
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   frccblue: f37697fd2bcb0ce5f55077d0e69aa2b71b51ea7c
+  google_maps_flutter_ios: 3e0b99383a8003b8169d06e7e324170bd0424105
+  GoogleMaps: 20d7b12be49a14287f797e88e0e31bc4156aaeb4
   image_picker_ios: b786a5dcf033a8336a657191401bfdf12017dabb
   package_info_plus: 6c92f08e1f853dc01228d6f553146438dafcd14e
   path_provider_foundation: 37748e03f12783f9de2cb2c4eadfaa25fe6d4852
@@ -110,6 +124,6 @@ SPEC CHECKSUMS:
   SwiftProtobuf: afced68785854575756db965e9da52bbf3dc45e7
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
 
-PODFILE CHECKSUM: 1cc8bcc073ec6eea9af1f3a8a300c408819051ea
+PODFILE CHECKSUM: c36831407da05a73916ba61dcb888a6f2ac46cde
 
 COCOAPODS: 1.11.3
