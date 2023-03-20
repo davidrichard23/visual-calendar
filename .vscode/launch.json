@@ -8,7 +8,7 @@
       "args": ["--no-sound-null-safety"]
 		},
 		{
-			"name": "iPhone 14 ProMax",
+			"name": "iPhone 14 Pro Max",
 			"request": "launch",
 			"type": "dart",
 			"deviceId": "iPhone 14 Pro Max",
@@ -33,6 +33,13 @@
 			"request": "launch",
 			"type": "dart",
 			"deviceId": "iPad mini (6th generation)",
+      "args": ["--no-sound-null-safety"]
+		},
+		{
+			"name": "iPhone SE",
+			"request": "launch",
+			"type": "dart",
+			"deviceId": "iPhone SE (3rd generation)",
       "args": ["--no-sound-null-safety"]
 		},
 	],

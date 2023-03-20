@@ -65,16 +65,18 @@ class DailyAppBarState extends State<DailyAppBar> {
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
                     'Manage',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                        fontSize: 14, color: Color.fromRGBO(0, 69, 77, 1)),
+                        fontSize: 12, color: Color.fromRGBO(0, 69, 77, 1)),
                   ),
                 ),
                 'view': Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
-                    'View',
+                    'Dependent View',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                        fontSize: 14, color: Color.fromRGBO(0, 69, 77, 1)),
+                        fontSize: 12, color: Color.fromRGBO(0, 69, 77, 1)),
                   ),
                 )
               },
