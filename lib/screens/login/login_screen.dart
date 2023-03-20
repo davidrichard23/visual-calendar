@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'dart:developer';
 import 'package:calendar/components/max_width.dart';
@@ -59,10 +61,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
       try {
         await app.logInUserEmailPw(email, password);
-        final realmManager = Provider.of<RealmManager>(context, listen: false);
-        await appState.init(realmManager.realm);
 
-        Navigator.pushReplacementNamed(context, '/home');
+        // need a small delay for realmmanager to init
+        await Future.delayed(const Duration(milliseconds: 500), () async {
+          final realmManager =
+              Provider.of<RealmManager>(context, listen: false);
+          inspect(realmManager.realm);
+          await appState.init(realmManager.realm);
+
+          Navigator.pushReplacementNamed(context, '/home');
+        });
       } catch (err) {
         rethrow;
       }
