@@ -66,7 +66,7 @@ class _RealmQueryBuilderState<T extends RealmObject>
     if (oldWidget.queryString == widget.queryString &&
         oldWidget.queryName == widget.queryName &&
         oldWidget.queryType == widget.queryType) return;
-    log('update');
+
     initQuery();
   }
 

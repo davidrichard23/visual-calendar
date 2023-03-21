@@ -181,7 +181,10 @@ class _EventScreenState extends State<EventScreen> {
                                             zoom: 14, target: latLng),
                                         onMapCreated:
                                             (GoogleMapController controller) {
-                                          gMapsController.complete(controller);
+                                          if (!gMapsController.isCompleted) {
+                                            gMapsController
+                                                .complete(controller);
+                                          }
                                         },
                                       ))),
                             event != null /* && !event!.isComplete */

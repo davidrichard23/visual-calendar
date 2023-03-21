@@ -25,15 +25,16 @@ class EventRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final theme = Theme.of(context);
+    final theme = Theme.of(context);
     // var isNextCalItem = nextCalItemIndex == -1
     //     ? false
     //     : events[nextCalItemIndex].id == event.id;
     String startTime =
-        DateFormat('hh:mm a').format(event.startDateTime.toLocal());
+        DateFormat('hh:mm').format(event.startDateTime.toLocal());
+    String amPm = DateFormat('a').format(event.startDateTime.toLocal());
     // String endTime = DateFormat('hh:mm a').format(
     //     event.startDateTime.toLocal().add(Duration(minutes: event.duration)));
-    inspect(event);
+
     return GestureDetector(
         onTap: () {
           Navigator.pushNamed(context, '/event',
@@ -54,7 +55,7 @@ class EventRow extends StatelessWidget {
               if (event.image != null)
                 Container(
                   // margin: const EdgeInsets.symmetric(horizontal: 16),
-                  height: 125,
+                  height: 200,
                   width: double.infinity,
                   clipBehavior: Clip.hardEdge,
                   decoration: const BoxDecoration(
@@ -83,15 +84,28 @@ class EventRow extends StatelessWidget {
               //           ? theme.primaryColor
               //           : Colors.grey[400],
               // ),
-              Container(
-                  // margin: const EdgeInsets.only(left: 24),
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+              IntrinsicHeight(
+                  child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        H1(event.title),
-                        Paragraph(startTime),
-                      ]))
+                    Container(
+                        color: Color.fromARGB(255, 75, 129, 135),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Paragraph(startTime,
+                                  color: Colors.white, bold: true),
+                              Paragraph(amPm, color: Colors.white, bold: true)
+                            ])),
+                    Flexible(
+                        child: Container(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                                padding: EdgeInsets.all(16),
+                                child: H1(event.title, center: false)))),
+                  ]))
             ])));
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 class Paragraph extends StatelessWidget {
@@ -6,14 +8,17 @@ class Paragraph extends StatelessWidget {
   final bool dense;
   final bool center;
   final Color? color;
+  final bool bold;
 
-  const Paragraph(this.text,
-      {Key? key,
-      this.small = false,
-      this.dense = false,
-      this.center = false,
-      this.color = const Color.fromRGBO(0, 69, 77, 1)})
-      : super(key: key);
+  const Paragraph(
+    this.text, {
+    Key? key,
+    this.small = false,
+    this.dense = false,
+    this.center = false,
+    this.color = const Color.fromRGBO(0, 69, 77, 1),
+    this.bold = false,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +30,10 @@ class Paragraph extends StatelessWidget {
             letterSpacing: dense ? null : 1.5,
             wordSpacing: dense ? null : 1,
             height: dense ? null : 1.5,
-            fontWeight: dense ? FontWeight.normal : FontWeight.w600));
+            fontWeight: bold
+                ? FontWeight.w900
+                : dense
+                    ? FontWeight.normal
+                    : FontWeight.w600));
   }
 }
