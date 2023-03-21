@@ -12,7 +12,7 @@ import 'package:calendar/state/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-double pointSize = 15;
+double pointSize = 25;
 
 class ImageFocalPointSelectionScreen extends StatefulWidget {
   final File image;
@@ -34,7 +34,7 @@ class ImageFocalPointSelectionScreen extends StatefulWidget {
 class ImageFocalPointSelectionScreenState
     extends State<ImageFocalPointSelectionScreen> {
   final GlobalKey imageKey = GlobalKey();
-  Point markerPoint = const Point(0.0, 0.0);
+  Point markerPoint = const Point(-100.0, -100.0);
   FocalPoint focalPoint = FocalPoint(0.0, 0.0);
 
   void handleSubmit() {
@@ -81,7 +81,7 @@ class ImageFocalPointSelectionScreenState
     super.initState();
 
     // set initial focal point to the center
-    Timer(const Duration(milliseconds: 100), () {
+    Timer(const Duration(milliseconds: 500), () {
       final RenderBox renderBox =
           imageKey.currentContext?.findRenderObject() as RenderBox;
       setFocalPoint(
