@@ -57,6 +57,7 @@ class LocationPickerState extends State<LocationPicker> {
         place.geometry?.location.lat ?? 0, place.geometry?.location.lng ?? 0,
         googlePlaceId: place.placeId);
     widget.setLocation(locationData);
+    toggleDatePicker();
   }
 
   onLocationTextChange(String str) async {
