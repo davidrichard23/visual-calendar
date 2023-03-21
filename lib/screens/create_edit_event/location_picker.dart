@@ -30,6 +30,8 @@ class LocationPicker extends StatefulWidget {
 
 class LocationPickerState extends State<LocationPicker> {
   final placesApi = GoogleMapsPlaces(apiKey: googleApiKey);
+  final FocusNode focusNode = FocusNode();
+
   int lastSearchTime = 0;
   int debounceTime = 500;
   Timer? pendingSearchTimer;
@@ -44,6 +46,10 @@ class LocationPickerState extends State<LocationPicker> {
 
   toggleDatePicker() {
     widget.setExpanded(widget.isOpen ? OpenPicker.none : OpenPicker.location);
+
+    Timer(const Duration(milliseconds: 400), () {
+      if (widget.isOpen) focusNode.requestFocus();
+    });
   }
 
   void handleSetLocation(PlacesSearchResult place) {
@@ -105,10 +111,12 @@ class LocationPickerState extends State<LocationPicker> {
               child: Column(children: [
                 Container(height: 1, color: Colors.grey[200]),
                 CustomTextFormField(
+                  focusNode: focusNode,
                   hintText: 'Search Locations',
                   onChanged: onLocationTextChange,
                   fillColor: theme.backgroundColor,
                   margin: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(8),
                   borderRadius: 0,
                 ),
                 if (error != null)
