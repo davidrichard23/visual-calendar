@@ -184,7 +184,6 @@ class _CreateEditEventState extends State<CreateEditEvent> {
   }
 
   onLocationChange(LocationData locationData) {
-    inspect(locationData);
     setState(() => location = locationData);
   }
 

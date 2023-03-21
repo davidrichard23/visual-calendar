@@ -147,12 +147,13 @@ class _EventScreenState extends State<EventScreen> {
                             PrimaryCard(
                                 margin: EdgeInsets.zero,
                                 child: Column(children: [
-                                  Container(
-                                    margin:
-                                        const EdgeInsets.fromLTRB(0, 0, 0, 16),
-                                    child: Center(child: H1(pageItem!.title)),
-                                  ),
-                                  Paragraph(pageItem!.description),
+                                  Center(child: H1(pageItem!.title)),
+                                  if (pageItem!.description != '')
+                                    Container(
+                                        margin: const EdgeInsets.fromLTRB(
+                                            0, 16, 0, 0),
+                                        child:
+                                            Paragraph(pageItem!.description)),
                                 ])),
                             if (event != null && event.location != null)
                               PrimaryCard(
