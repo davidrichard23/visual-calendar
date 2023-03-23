@@ -997,3 +997,113 @@ class RecurrencePattern extends _RecurrencePattern
     ]);
   }
 }
+
+class CompletionRecord extends _CompletionRecord
+    with RealmEntity, RealmObjectBase, RealmObject {
+  static var _defaultsSet = false;
+
+  CompletionRecord(
+    ObjectId id,
+    ObjectId eventId,
+    ObjectId teamId,
+    ObjectId ownerId, {
+    DateTime? recurringInstanceDateTime,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    bool isDeleted = false,
+  }) {
+    if (!_defaultsSet) {
+      _defaultsSet = RealmObjectBase.setDefaults<CompletionRecord>({
+        'isDeleted': false,
+      });
+    }
+    RealmObjectBase.set(this, '_id', id);
+    RealmObjectBase.set(this, 'eventId', eventId);
+    RealmObjectBase.set(this, 'teamId', teamId);
+    RealmObjectBase.set(this, 'ownerId', ownerId);
+    RealmObjectBase.set(
+        this, 'recurringInstanceDateTime', recurringInstanceDateTime);
+    RealmObjectBase.set(this, 'createdAt', createdAt);
+    RealmObjectBase.set(this, 'updatedAt', updatedAt);
+    RealmObjectBase.set(this, 'isDeleted', isDeleted);
+  }
+
+  CompletionRecord._();
+
+  @override
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
+  @override
+  set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
+
+  @override
+  ObjectId get eventId =>
+      RealmObjectBase.get<ObjectId>(this, 'eventId') as ObjectId;
+  @override
+  set eventId(ObjectId value) => RealmObjectBase.set(this, 'eventId', value);
+
+  @override
+  ObjectId get teamId =>
+      RealmObjectBase.get<ObjectId>(this, 'teamId') as ObjectId;
+  @override
+  set teamId(ObjectId value) => RealmObjectBase.set(this, 'teamId', value);
+
+  @override
+  ObjectId get ownerId =>
+      RealmObjectBase.get<ObjectId>(this, 'ownerId') as ObjectId;
+  @override
+  set ownerId(ObjectId value) => RealmObjectBase.set(this, 'ownerId', value);
+
+  @override
+  DateTime? get recurringInstanceDateTime =>
+      RealmObjectBase.get<DateTime>(this, 'recurringInstanceDateTime')
+          as DateTime?;
+  @override
+  set recurringInstanceDateTime(DateTime? value) =>
+      RealmObjectBase.set(this, 'recurringInstanceDateTime', value);
+
+  @override
+  DateTime? get createdAt =>
+      RealmObjectBase.get<DateTime>(this, 'createdAt') as DateTime?;
+  @override
+  set createdAt(DateTime? value) =>
+      RealmObjectBase.set(this, 'createdAt', value);
+
+  @override
+  DateTime? get updatedAt =>
+      RealmObjectBase.get<DateTime>(this, 'updatedAt') as DateTime?;
+  @override
+  set updatedAt(DateTime? value) =>
+      RealmObjectBase.set(this, 'updatedAt', value);
+
+  @override
+  bool get isDeleted => RealmObjectBase.get<bool>(this, 'isDeleted') as bool;
+  @override
+  set isDeleted(bool value) => RealmObjectBase.set(this, 'isDeleted', value);
+
+  @override
+  Stream<RealmObjectChanges<CompletionRecord>> get changes =>
+      RealmObjectBase.getChanges<CompletionRecord>(this);
+
+  @override
+  CompletionRecord freeze() =>
+      RealmObjectBase.freezeObject<CompletionRecord>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(CompletionRecord._);
+    return const SchemaObject(
+        ObjectType.realmObject, CompletionRecord, 'CompletionRecord', [
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+      SchemaProperty('eventId', RealmPropertyType.objectid),
+      SchemaProperty('teamId', RealmPropertyType.objectid),
+      SchemaProperty('ownerId', RealmPropertyType.objectid),
+      SchemaProperty('recurringInstanceDateTime', RealmPropertyType.timestamp,
+          optional: true),
+      SchemaProperty('createdAt', RealmPropertyType.timestamp, optional: true),
+      SchemaProperty('updatedAt', RealmPropertyType.timestamp, optional: true),
+      SchemaProperty('isDeleted', RealmPropertyType.bool),
+    ]);
+  }
+}

@@ -132,3 +132,17 @@ class _RecurrencePattern {
   late bool doesEnd;
   late int? count;
 }
+
+@RealmModel()
+class _CompletionRecord {
+  @MapTo('_id')
+  @PrimaryKey()
+  late ObjectId id;
+  late ObjectId eventId;
+  late ObjectId teamId;
+  late ObjectId ownerId;
+  late DateTime? recurringInstanceDateTime;
+  late DateTime? createdAt;
+  late DateTime? updatedAt;
+  bool isDeleted = false;
+}

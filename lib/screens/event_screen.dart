@@ -7,10 +7,14 @@ import 'package:calendar/components/completed.dart';
 import 'package:calendar/components/max_width.dart';
 import 'package:calendar/components/text/h1.dart';
 import 'package:calendar/components/text/paragraph.dart';
+import 'package:calendar/extensions/date_utils.dart';
+import 'package:calendar/models/completion_record_model.dart';
 import 'package:calendar/models/event_model.dart';
+import 'package:calendar/realm/app_services.dart';
 import 'package:calendar/realm/init_realm.dart';
 import 'package:calendar/realm/schemas.dart';
 import 'package:calendar/screens/login/login_screen.dart';
+import 'package:calendar/state/app_state.dart';
 import 'package:calendar/util/get_cloudflare_image_url.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
@@ -20,8 +24,11 @@ import 'package:realm/realm.dart';
 
 class EventScreen extends StatefulWidget {
   final ObjectId eventId;
+  final DateTime activeDateTime;
 
-  const EventScreen({Key? key, required this.eventId}) : super(key: key);
+  const EventScreen(
+      {Key? key, required this.eventId, required this.activeDateTime})
+      : super(key: key);
 
   @override
   State<EventScreen> createState() => _EventScreenState();
@@ -88,24 +95,41 @@ class _EventScreenState extends State<EventScreen> {
     });
   }
 
+  void showCompleted() {
+    createCreationRecord();
+
+    setState(() {
+      isCompletedVisible = true;
+    });
+    _confettiController.play();
+    Timer(const Duration(milliseconds: 7000), () {
+      if (mounted) {
+        setState(() {
+          isCompletedVisible = false;
+        });
+        Navigator.pop(context);
+      }
+    });
+  }
+
+  void createCreationRecord() {
+    RealmManager realmManager =
+        Provider.of<RealmManager>(context, listen: false);
+    AppState appState = Provider.of<AppState>(context, listen: false);
+    AppServices appServices = Provider.of<AppServices>(context, listen: false);
+
+    final recurringInstanceDateTime =
+        event!.isRecurring ? widget.activeDateTime.startOfDay : null;
+    CompletionRecordModel.create(
+        realmManager.realm!,
+        CompletionRecord(ObjectId(), widget.eventId, appState.activeTeam!.id,
+            ObjectId.fromHexString(appServices.currentUser!.id),
+            recurringInstanceDateTime: recurringInstanceDateTime));
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    void showCompleted() {
-      setState(() {
-        isCompletedVisible = true;
-      });
-      _confettiController.play();
-      Timer(const Duration(milliseconds: 7000), () {
-        if (mounted) {
-          setState(() {
-            isCompletedVisible = false;
-          });
-          Navigator.pop(context);
-        }
-      });
-    }
 
     if (event == null) return Container();
 

@@ -23,6 +23,7 @@ class RealmManager with ChangeNotifier {
         ImageData.schema,
         LocationData.schema,
         FocalPoint.schema,
+        CompletionRecord.schema,
       ],
       clientResetHandler: RecoverOrDiscardUnsyncedChangesHandler(
         // The following callbacks are optional.
@@ -113,6 +114,15 @@ class RealmManager with ChangeNotifier {
       realm!.subscriptions.update((mutableSubscriptions) {
         mutableSubscriptions.add(realm!.all<ImageData>(),
             name: 'defaultImageDataSub');
+      });
+    }
+
+    final defaultCompletionRecord =
+        realm!.subscriptions.findByName('defaultCompletionRecord');
+    if (defaultCompletionRecord == null) {
+      realm!.subscriptions.update((mutableSubscriptions) {
+        mutableSubscriptions.add(realm!.all<CompletionRecord>(),
+            name: 'defaultCompletionRecord');
       });
     }
 

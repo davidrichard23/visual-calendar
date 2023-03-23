@@ -212,6 +212,7 @@ class App extends StatelessWidget {
                   settings: settings,
                   builder: (BuildContext newContext) => EventScreen(
                         eventId: formattedArgs.eventId,
+                        activeDateTime: formattedArgs.activeDateTime,
                       ));
             }
           case '/images':
@@ -269,8 +270,9 @@ class CreateEditTaskScreenArgs {
 
 class EventScreenArgs {
   final ObjectId eventId;
+  final DateTime activeDateTime;
 
-  EventScreenArgs({required this.eventId});
+  EventScreenArgs({required this.eventId, required this.activeDateTime});
 }
 
 class ImagesScreenArgs {
