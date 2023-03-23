@@ -13,6 +13,7 @@ class EventModel {
   String title;
   String description;
   late DateTime startDateTime;
+  DateTime? originalRecurrenceStartDateTime;
   int duration;
   List<EventTask> tasks;
   ImageData? image;

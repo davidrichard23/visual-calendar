@@ -1,8 +1,9 @@
+import 'dart:developer';
+
 import 'package:calendar/components/text/paragraph.dart';
 import 'package:calendar/main.dart';
 import 'package:calendar/models/event_model.dart';
 import 'package:calendar/screens/daily/dependent_view.dart';
-import 'package:calendar/util/get_adjusted_recurring_start_date.dart';
 import 'package:calendar/util/responsive_layout_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:realm/realm.dart';

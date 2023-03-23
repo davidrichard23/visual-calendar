@@ -66,6 +66,8 @@ class _DailyScreenState extends State<DailyScreen> {
             final event = EventModel(realmManager.realm!, e as Event);
             if (!event.isRecurring) return event;
 
+            event.originalRecurrenceStartDateTime = event.startDateTime;
+
             final newStart = getAdjustedRecurringStartDate(event, selectedDate);
             if (newStart != null) {
               event.startDateTime = newStart;

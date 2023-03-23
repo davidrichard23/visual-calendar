@@ -149,11 +149,17 @@ class _CreateEditEventState extends State<CreateEditEvent> {
       return;
     }
 
+    if (widget.existingEvent!.isRecurring) {
+      startDateTime =
+          widget.existingEvent!.originalRecurrenceStartDateTime!.toLocal();
+    } else {
+      startDateTime = widget.existingEvent!.startDateTime.toLocal();
+    }
+
     widget.existingEvent!.sortTasks();
     title = widget.existingEvent!.title;
     description = widget.existingEvent!.description;
     location = widget.existingEvent!.location;
-    startDateTime = widget.existingEvent!.startDateTime.toLocal();
     selectedWeekdays.add(intToWeekday[startDateTime!.weekday]!);
     duration = widget.existingEvent!.duration;
     tasks = widget.existingEvent!.tasks.toList();
