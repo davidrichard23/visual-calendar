@@ -114,6 +114,7 @@ class _CreateEditEventState extends State<CreateEditEvent> {
   String title = '';
   String description = '';
   LocationData? location;
+  bool didUpdateLocation = false;
   DateTime? startDateTime;
   int duration = 60;
   bool isTemplate = false;
@@ -194,7 +195,10 @@ class _CreateEditEventState extends State<CreateEditEvent> {
   }
 
   onLocationChange(LocationData locationData) {
-    setState(() => location = locationData);
+    setState(() {
+      location = locationData;
+      didUpdateLocation = true;
+    });
   }
 
   onStartDateChange(DateTime d) {
@@ -444,7 +448,7 @@ class _CreateEditEventState extends State<CreateEditEvent> {
               duration: duration,
               isRecurring: recurrencePattern != null,
               image: stagedEventImage?.image,
-              location: location,
+              location: didUpdateLocation ? location : null,
               isTemplate: isTemplate,
               recurrencePattern: recurrencePattern,
               tasks: tasks);
