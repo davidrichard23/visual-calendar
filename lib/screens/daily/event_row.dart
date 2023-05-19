@@ -37,11 +37,9 @@ class EventRowState extends State<EventRow>
   @override
   void didUpdateWidget(oldWidget) {
     super.didUpdateWidget(oldWidget);
-    log('update');
 
     if (oldWidget.key == widget.key &&
         oldWidget.isCompleted == widget.isCompleted) return;
-    log('update 2');
 
     _scaleController.reset();
     Timer(const Duration(milliseconds: 200), () => _scaleController.forward());
