@@ -2,7 +2,9 @@ import 'dart:developer';
 
 import 'package:calendar/components/text/paragraph.dart';
 import 'package:calendar/main.dart';
+import 'package:calendar/models/completion_record_model.dart';
 import 'package:calendar/models/event_model.dart';
+import 'package:calendar/realm/schemas.dart';
 import 'package:calendar/screens/daily/dependent_view.dart';
 import 'package:calendar/util/responsive_layout_helper.dart';
 import 'package:flutter/material.dart';
@@ -10,11 +12,13 @@ import 'package:realm/realm.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:calendar/extensions/date_utils.dart';
+import 'package:collection/collection.dart';
 
 class CaregiverView extends StatefulWidget {
   final CalendarController calendarController;
   final EventCalendarDataSource? calendarDataSource;
   final List<EventModel> events;
+  final List<CompletionRecordModel> completionRecords;
   final DateTime activeDate;
 
   const CaregiverView(
@@ -22,6 +26,7 @@ class CaregiverView extends StatefulWidget {
       required this.calendarController,
       this.calendarDataSource,
       required this.events,
+      required this.completionRecords,
       required this.activeDate})
       : super(key: key);
 
@@ -30,6 +35,38 @@ class CaregiverView extends StatefulWidget {
 }
 
 class _CaregiverViewState extends State<CaregiverView> {
+  handleCompletionRevert(CompletionRecordModel completionRecord) async {
+    bool? result = await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Revert completion?'),
+          content: const Text('Do you want to mark this event as incomplete?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true)
+                    .pop(false); // dismisses only the dialog and returns false
+              },
+              child: const Text('No'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true)
+                    .pop(true); // dismisses only the dialog and returns true
+              },
+              child: const Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != null && result) {
+      completionRecord.delete();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -44,8 +81,11 @@ class _CaregiverViewState extends State<CaregiverView> {
       }
 
       EventModel event = details.appointments![0] as EventModel;
+      final completionRecord = widget.completionRecords
+          .firstWhereOrNull((r) => r.eventId == event.id);
       Navigator.pushNamed(context, '/create-event',
-          arguments: CreateEditScreenArgs(existingEvent: event));
+          arguments: CreateEditScreenArgs(
+              existingEvent: event, completionRecord: completionRecord));
     }
 
     void onDragEnd(AppointmentDragEndDetails appointmentDragEndDetails) {
@@ -85,6 +125,11 @@ class _CaregiverViewState extends State<CaregiverView> {
                 timeSlotViewSettings:
                     const TimeSlotViewSettings(timeIntervalHeight: -1),
                 appointmentBuilder: (context, details) {
+                  final completionRecord = widget.completionRecords
+                      .firstWhereOrNull(
+                          (r) => r.eventId == details.appointments.first.id);
+                  final isCompleted = completionRecord != null;
+
                   return Container(
                       clipBehavior: Clip.hardEdge,
                       decoration: BoxDecoration(
@@ -92,7 +137,7 @@ class _CaregiverViewState extends State<CaregiverView> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Container(
-                          padding: const EdgeInsets.only(left: 16, right: 8),
+                          padding: const EdgeInsets.only(left: 8, right: 8),
                           decoration: BoxDecoration(
                             border: Border(
                                 left: BorderSide(
@@ -102,6 +147,20 @@ class _CaregiverViewState extends State<CaregiverView> {
                               // mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
+                                if (isCompleted)
+                                  GestureDetector(
+                                      onTap: () => handleCompletionRevert(
+                                          completionRecord),
+                                      child: Padding(
+                                          padding: const EdgeInsets.only(
+                                              right: 4, top: 2),
+                                          child: Center(
+                                              child: Icon(
+                                            Icons.check_circle_rounded,
+                                            color: theme.cardColor,
+                                            size: 16,
+                                          )))),
+                                // ]),
                                 Flexible(
                                     child: Paragraph(
                                   details.appointments.first.title,
@@ -119,7 +178,9 @@ class _CaregiverViewState extends State<CaregiverView> {
                         left: BorderSide(
                             color: Colors.black.withOpacity(0.2), width: 1))),
                 child: DependentView(
-                    events: widget.events, activeDate: widget.activeDate)))
+                    events: widget.events,
+                    completionRecords: widget.completionRecords,
+                    activeDate: widget.activeDate)))
     ]));
   }
 }

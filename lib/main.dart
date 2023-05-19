@@ -9,6 +9,7 @@ import 'dart:developer';
 
 import 'package:calendar/components/global_error_display.dart';
 import 'package:calendar/components/realm_sync_status.dart';
+import 'package:calendar/models/completion_record_model.dart';
 import 'package:calendar/screens/create_edit_event/create_edit_task.dart';
 import 'package:calendar/models/event_model.dart';
 import 'package:calendar/realm/schemas.dart';
@@ -183,6 +184,7 @@ class App extends StatelessWidget {
                   builder: (BuildContext newContext) => CreateEditEvent(
                         existingEvent: formattedArgs.existingEvent,
                         templateEvent: formattedArgs.templateEvent,
+                        completionRecord: formattedArgs.completionRecord,
                         initalStartDate: formattedArgs.initalStartDate,
                         initalDuration: formattedArgs.initalDuration,
                       ));
@@ -241,12 +243,14 @@ class App extends StatelessWidget {
 class CreateEditScreenArgs {
   final EventModel? existingEvent;
   final EventModel? templateEvent;
+  final CompletionRecordModel? completionRecord;
   final DateTime? initalStartDate;
   final int? initalDuration;
 
   CreateEditScreenArgs(
       {this.existingEvent,
       this.templateEvent,
+      this.completionRecord,
       this.initalStartDate,
       this.initalDuration});
 }

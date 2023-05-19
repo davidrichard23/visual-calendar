@@ -7,6 +7,8 @@ import 'package:calendar/components/cards/primary_card.dart';
 import 'package:calendar/components/custom_text_form_field.dart';
 import 'package:calendar/components/expandable_widget.dart';
 import 'package:calendar/components/max_width.dart';
+import 'package:calendar/components/text/paragraph.dart';
+import 'package:calendar/models/completion_record_model.dart';
 import 'package:calendar/realm/init_realm.dart';
 import 'package:calendar/screens/create_edit_event/date_picker.dart';
 import 'package:calendar/screens/create_edit_event/image_picker.dart';
@@ -77,6 +79,7 @@ enum OpenPicker {
 class CreateEditEvent extends StatefulWidget {
   final EventModel? existingEvent;
   final EventModel? templateEvent;
+  final CompletionRecordModel? completionRecord;
   final DateTime? initalStartDate;
   final int? initalDuration;
   final id = ObjectId();
@@ -85,6 +88,7 @@ class CreateEditEvent extends StatefulWidget {
       {Key? key,
       this.existingEvent,
       this.templateEvent,
+      this.completionRecord,
       this.initalStartDate,
       this.initalDuration})
       : super(key: key);
@@ -492,6 +496,40 @@ class _CreateEditEventState extends State<CreateEditEvent> {
     return recurrencePattern;
   }
 
+  handleCompletionRevert() async {
+    bool? result = await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Revert completion?'),
+          content: const Text('Do you want to mark this event as incomplete?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true)
+                    .pop(false); // dismisses only the dialog and returns false
+              },
+              child: const Text('No'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true)
+                    .pop(true); // dismisses only the dialog and returns true
+              },
+              child: const Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != null && result) {
+      widget.completionRecord?.delete();
+      Navigator.popUntil(
+          context, (predicate) => predicate.settings.name == '/home');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -543,6 +581,25 @@ class _CreateEditEventState extends State<CreateEditEvent> {
                           style: const TextStyle(color: Colors.red),
                         ),
                       const SizedBox(height: 16),
+                      if (widget.completionRecord != null)
+                        Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            child: Row(
+                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Padding(
+                                    padding: EdgeInsets.only(right: 8),
+                                    child: Paragraph('Event is Completed - ')),
+                                SizedBox(
+                                    width: 100,
+                                    child: PrimaryButton(
+                                        small: true,
+                                        onPressed: handleCompletionRevert,
+                                        child: const Paragraph('Revert',
+                                            small: true))),
+                                SizedBox(height: 16),
+                              ],
+                            )),
                       ImagePickerWidget(
                         image: stagedEventImage?.image,
                         setImage: setEventImage,
