@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:calendar/components/text/paragraph.dart';
@@ -5,6 +6,8 @@ import 'package:calendar/main.dart';
 import 'package:calendar/models/completion_record_model.dart';
 import 'package:calendar/models/event_model.dart';
 import 'package:calendar/realm/schemas.dart';
+import 'package:calendar/screens/daily/calendar_widgets/day_view_appointment.dart';
+import 'package:calendar/screens/daily/calendar_widgets/month_view_appointment.dart';
 import 'package:calendar/screens/daily/dependent_view.dart';
 import 'package:calendar/util/responsive_layout_helper.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +22,8 @@ class CaregiverView extends StatefulWidget {
   final EventCalendarDataSource? calendarDataSource;
   final List<EventModel> events;
   final List<CompletionRecordModel> completionRecords;
+  final Function(CalendarView) setCalendarViewMode;
+  final Function(DateTime) setActiveDate;
   final DateTime activeDate;
 
   const CaregiverView(
@@ -27,6 +32,8 @@ class CaregiverView extends StatefulWidget {
       this.calendarDataSource,
       required this.events,
       required this.completionRecords,
+      required this.setCalendarViewMode,
+      required this.setActiveDate,
       required this.activeDate})
       : super(key: key);
 
@@ -35,43 +42,18 @@ class CaregiverView extends StatefulWidget {
 }
 
 class _CaregiverViewState extends State<CaregiverView> {
-  handleCompletionRevert(CompletionRecordModel completionRecord) async {
-    bool? result = await showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Revert completion?'),
-          content: const Text('Do you want to mark this event as incomplete?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context, rootNavigator: true)
-                    .pop(false); // dismisses only the dialog and returns false
-              },
-              child: const Text('No'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context, rootNavigator: true)
-                    .pop(true); // dismisses only the dialog and returns true
-              },
-              child: const Text('Yes'),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (result != null && result) {
-      completionRecord.delete();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     void onEventSelectionChange(CalendarTapDetails details) {
+      if (widget.calendarController.view == CalendarView.month) {
+        if (details.date != null) widget.setActiveDate(details.date!);
+        widget.setCalendarViewMode(CalendarView.day);
+        widget.calendarController.selectedDate = null;
+        return;
+      }
+
       if (details.appointments == null) {
         widget.calendarController.selectedDate = null;
         Navigator.pushNamed(context, '/create-event',
@@ -102,86 +84,69 @@ class _CaregiverViewState extends State<CaregiverView> {
       event.setStartDateTime(newDateTime);
     }
 
-    return Expanded(
-        child: Row(children: [
-      Expanded(
-          flex: 6,
-          child: SfCalendarTheme(
-              data: SfCalendarThemeData(selectionBorderColor: theme.cardColor),
-              child: SfCalendar(
-                controller: widget.calendarController,
-                view: CalendarView.day,
-                dataSource: widget.calendarDataSource,
-                viewHeaderHeight: 0,
-                headerHeight: 0,
-                allowAppointmentResize: true,
-                allowDragAndDrop: true,
-                dragAndDropSettings:
-                    const DragAndDropSettings(showTimeIndicator: false),
-                viewNavigationMode: ViewNavigationMode.none,
-                onTap: onEventSelectionChange,
-                onDragEnd: onDragEnd,
-                todayHighlightColor: theme.cardColor,
-                timeSlotViewSettings:
-                    const TimeSlotViewSettings(timeIntervalHeight: -1),
-                appointmentBuilder: (context, details) {
-                  final completionRecord = widget.completionRecords
-                      .firstWhereOrNull(
-                          (r) => r.eventId == details.appointments.first.id);
-                  final isCompleted = completionRecord != null;
+    void onViewChanged(ViewChangedDetails details) {
+      Timer(const Duration(milliseconds: 100), () {
+        widget.setActiveDate(details.visibleDates[0]);
+      });
+    }
 
-                  return Container(
-                      clipBehavior: Clip.hardEdge,
-                      decoration: BoxDecoration(
-                        color: theme.backgroundColor,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Container(
-                          padding: const EdgeInsets.only(left: 8, right: 8),
-                          decoration: BoxDecoration(
+    return Expanded(
+        child: SafeArea(
+            bottom: true,
+            child: Row(children: [
+              Expanded(
+                  flex: 6,
+                  child: SfCalendarTheme(
+                      data: SfCalendarThemeData(
+                          selectionBorderColor: theme.cardColor),
+                      child: SfCalendar(
+                        controller: widget.calendarController,
+                        view: CalendarView.day,
+                        dataSource: widget.calendarDataSource,
+                        viewHeaderHeight: 0,
+                        headerHeight: 0,
+                        allowAppointmentResize: true,
+                        allowDragAndDrop: true,
+                        dragAndDropSettings:
+                            const DragAndDropSettings(showTimeIndicator: false),
+                        onViewChanged: onViewChanged,
+                        onTap: onEventSelectionChange,
+                        onDragEnd: onDragEnd,
+                        todayHighlightColor: theme.primaryColor,
+                        timeSlotViewSettings:
+                            const TimeSlotViewSettings(timeIntervalHeight: -1),
+                        monthViewSettings: const MonthViewSettings(
+                            showTrailingAndLeadingDates: false,
+                            appointmentDisplayMode:
+                                MonthAppointmentDisplayMode.appointment),
+                        appointmentBuilder: (context, details) {
+                          inspect(details);
+                          if (widget.calendarController.view ==
+                              CalendarView.day) {
+                            return DayViewAppointment(
+                                completionRecords: widget.completionRecords,
+                                appointments: details.appointments);
+                          } else {
+                            return MonthViewAppointment(
+                                completionRecords: widget.completionRecords,
+                                appointment: details.appointments.first);
+                          }
+                        },
+                      ))),
+              if (!ResponsiveLayoutHelper.isMobile(context))
+                Expanded(
+                    flex: 4,
+                    child: Container(
+                        decoration: BoxDecoration(
                             border: Border(
                                 left: BorderSide(
-                                    width: 8, color: theme.primaryColor)),
-                          ),
-                          child: Row(
-                              // mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                if (isCompleted)
-                                  GestureDetector(
-                                      onTap: () => handleCompletionRevert(
-                                          completionRecord),
-                                      child: Padding(
-                                          padding: const EdgeInsets.only(
-                                              right: 4, top: 2),
-                                          child: Center(
-                                              child: Icon(
-                                            Icons.check_circle_rounded,
-                                            color: theme.cardColor,
-                                            size: 16,
-                                          )))),
-                                // ]),
-                                Flexible(
-                                    child: Paragraph(
-                                  details.appointments.first.title,
-                                  small: true,
-                                ))
-                              ])));
-                },
-              ))),
-      if (!ResponsiveLayoutHelper.isMobile(context))
-        Expanded(
-            flex: 4,
-            child: Container(
-                decoration: BoxDecoration(
-                    border: Border(
-                        left: BorderSide(
-                            color: Colors.black.withOpacity(0.2), width: 1))),
-                child: DependentView(
-                    events: widget.events,
-                    completionRecords: widget.completionRecords,
-                    activeDate: widget.activeDate)))
-    ]));
+                                    color: Colors.black.withOpacity(0.2),
+                                    width: 1))),
+                        child: DependentView(
+                            events: widget.events,
+                            completionRecords: widget.completionRecords,
+                            activeDate: widget.activeDate)))
+            ])));
   }
 }
 

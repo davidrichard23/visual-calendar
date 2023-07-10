@@ -66,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
         await Future.delayed(const Duration(milliseconds: 500), () async {
           final realmManager =
               Provider.of<RealmManager>(context, listen: false);
-          inspect(realmManager.realm);
+
           await appState.init(realmManager.realm);
 
           Navigator.pushReplacementNamed(context, '/home');

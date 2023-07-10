@@ -37,18 +37,29 @@ class _DependentViewState extends State<DependentView> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final startDateTime = widget.activeDate.toLocal();
+    final startDate =
+        DateTime(startDateTime.year, startDateTime.month, startDateTime.day);
+    final endDate = DateTime(
+        startDateTime.year, startDateTime.month, startDateTime.day + 1);
+
+    final filteredEvents = widget.events
+        .where((event) =>
+            event.startDateTime.toLocal().isAfter(startDate) &&
+            event.startDateTime.toLocal().isBefore(endDate))
+        .toList();
 
     return Container(
         color: theme.backgroundColor,
         child: ListView.builder(
-            itemCount: widget.events.length + 1,
+            itemCount: filteredEvents.length + 1,
             itemBuilder: (context, index) {
               if (index == 0) {
                 return MaxWidth(
                     maxWidth: maxWidth,
                     child: Column(children: [
                       DateHeader(date: widget.activeDate),
-                      if (!widget.events.isNotEmpty)
+                      if (!filteredEvents.isNotEmpty)
                         const PrimaryCard(
                             child:
                                 H1('You Have No Events Today!', center: true)),
@@ -57,14 +68,28 @@ class _DependentViewState extends State<DependentView> {
 
               index -= 1;
 
-              var event = widget.events[index];
-              final isCompleted =
-                  widget.completionRecords.any((r) => r.eventId == event.id);
+              final event = filteredEvents[index];
+              final isRecurring = event.isRecurring;
+              bool isCompleted;
+              if (isRecurring) {
+                final startDate = DateTime(event.startDateTime.year,
+                    event.startDateTime.month, event.startDateTime.day);
+                final endDate = DateTime(event.startDateTime.year,
+                    event.startDateTime.month, event.startDateTime.day + 1);
+
+                isCompleted = widget.completionRecords.any((r) =>
+                    r.eventId == event.id &&
+                    r.item.createdAt!.isAfter(startDate) &&
+                    r.item.createdAt!.isBefore(endDate));
+              } else {
+                isCompleted =
+                    widget.completionRecords.any((r) => r.eventId == event.id);
+              }
               return MaxWidth(
                   maxWidth: maxWidth,
                   child: EventRow(
                       event: event,
-                      events: widget.events,
+                      events: filteredEvents,
                       isCompleted: isCompleted,
                       activeDateTime: widget.activeDate));
             }));

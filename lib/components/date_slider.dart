@@ -51,7 +51,11 @@ class _DateSliderState extends State<DateSlider> {
     final theme = Theme.of(context);
 
     return Container(
-        color: Colors.white,
+        decoration: const BoxDecoration(
+            color: Colors.white,
+            border: Border(
+                top:
+                    BorderSide(width: 1, color: Color.fromRGBO(0, 0, 0, 0.1)))),
         child: SizedBox(
             height: 58,
             child: ListView.builder(

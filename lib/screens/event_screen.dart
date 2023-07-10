@@ -102,7 +102,7 @@ class _EventScreenState extends State<EventScreen> {
       isCompletedVisible = true;
     });
     _confettiController.play();
-    Timer(const Duration(milliseconds: 7000), () {
+    Timer(const Duration(milliseconds: 4000), () {
       if (mounted) {
         setState(() {
           isCompletedVisible = false;

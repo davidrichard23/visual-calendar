@@ -10,6 +10,7 @@ import 'package:calendar/realm/schemas.dart';
 import 'package:calendar/screens/daily/app_bar.dart';
 import 'package:calendar/screens/daily/caregiver_view.dart';
 import 'package:calendar/screens/daily/dependent_view.dart';
+import 'package:calendar/screens/daily/month_header.dart';
 import 'package:calendar/state/app_state.dart';
 import 'package:calendar/util/get_adjusted_recurring_start_date.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +33,7 @@ class _DailyScreenState extends State<DailyScreen> {
   DateTime selectedDate = DateTime.now();
   List<EventModel> events = [];
   List<CompletionRecordModel> completionRecords = [];
+  bool showingMonthView = false;
 
   @override
   void initState() {
@@ -42,11 +44,18 @@ class _DailyScreenState extends State<DailyScreen> {
     super.initState();
   }
 
-  setSelectedDate(date) {
+  setActiveDate(date) {
     setState(() {
       selectedDate = date;
     });
     calendarController.displayDate = date;
+  }
+
+  setCalendarViewMode(CalendarView view) {
+    calendarController.view = view;
+    setState(() {
+      showingMonthView = calendarController.view == CalendarView.month;
+    });
   }
 
   @override
@@ -61,25 +70,33 @@ class _DailyScreenState extends State<DailyScreen> {
     }
 
     void onNewEvents<T extends RealmObject>(RealmResults<T> newEvents) {
-      final idsToFilter = [];
-      final sorted = newEvents
-          .map((e) {
-            final event = EventModel(realmManager.realm!, e as Event);
-            if (!event.isRecurring) return event;
+      final List<EventModel> sorted = [];
 
-            event.originalRecurrenceStartDateTime = event.startDateTime;
+      for (var e in newEvents) {
+        final event = EventModel(realmManager.realm!, e as Event);
+        event.originalRecurrenceStartDateTime = event.startDateTime;
 
-            final newStart = getAdjustedRecurringStartDate(event, selectedDate);
-            if (newStart != null) {
-              event.startDateTime = newStart;
-            } else {
-              idsToFilter.add(event.id);
-            }
+        if (!event.isRecurring) {
+          sorted.add(event);
+          continue;
+        }
 
-            return event;
-          })
-          .where((event) => !idsToFilter.contains(event.id))
-          .toList();
+        final daysInMonth =
+            DateTime(selectedDate.year, selectedDate.month + 1, 0).day;
+
+        for (var i = 1; i <= daysInMonth; i++) {
+          final eventDup = EventModel(realmManager.realm!, e);
+          eventDup.originalRecurrenceStartDateTime = event.startDateTime;
+          final newSelectedDate =
+              DateTime(selectedDate.year, selectedDate.month, i);
+          final newStart =
+              getAdjustedRecurringStartDate(event, newSelectedDate);
+          if (newStart != null) {
+            eventDup.startDateTime = newStart;
+            sorted.add(eventDup);
+          }
+        }
+      }
 
       sorted.sort((a, b) {
         return a.startDateTime.compareTo(b.startDateTime);
@@ -103,26 +120,25 @@ class _DailyScreenState extends State<DailyScreen> {
     }
 
     DateTime startDate =
-        DateTime(selectedDate.year, selectedDate.month, selectedDate.day)
-            .toUtc();
+        DateTime(selectedDate.year, selectedDate.month, 1).toUtc();
     DateTime endDate =
-        DateTime(selectedDate.year, selectedDate.month, selectedDate.day)
-            .add(const Duration(days: 1))
-            .toUtc();
+        DateTime(selectedDate.year, selectedDate.month + 1, 0).toUtc();
     String startDateStr = DateFormat('y-M-d@HH:mm:ss:0').format(startDate);
     String endDateStr = DateFormat('y-M-d@HH:mm:ss:0').format(endDate);
 
-    var eventsQueryName = 'listEvents-$startDateStr-${appState.activeTeam!.id}';
-    var eventsQueryString =
+    final eventsQueryName =
+        'listEvents-$startDateStr-${appState.activeTeam!.id}';
+    final eventsQueryString =
         '(startDateTime BETWEEN {$startDateStr,$endDateStr} OR (startDateTime <= $startDateStr AND isRecurring == true)) AND isDeleted == false AND teamId == \$0';
-    var eventsQueryArgs = [appState.activeTeam!.id];
+    final eventsQueryArgs = [appState.activeTeam!.id];
 
     final eventIds = events.map((e) => 'oid(${e.id})').toList();
     final format = DateFormat('y-M-d@HH:mm:ss:0').format;
-    var completionRecordsQueryName =
+    final completionRecordsQueryName =
         'get-completion-records-${appState.activeTeam!.id}-$startDate-${eventIds.toString()}';
-    var completionRecordsQueryString =
-        '(recurringInstanceDateTime BETWEEN {${format(startDate)},${format(endDate)}} OR (recurringInstanceDateTime = nil && eventId IN {${eventIds.join((','))}})) AND isDeleted == false';
+    final completionRecordsQueryString =
+        '(recurringInstanceDateTime BETWEEN {${format(startDate)},${format(endDate)}} OR (recurringInstanceDateTime = nil && eventId IN {${eventIds.join((','))}})) AND isDeleted == false AND isDeleted == false AND teamId == \$0';
+    final completionRecordsQueryArgs = [appState.activeTeam!.id];
 
     return Scaffold(
         backgroundColor: Colors.white,
@@ -136,7 +152,13 @@ class _DailyScreenState extends State<DailyScreen> {
         body: Builder(builder: ((context) {
           return Column(
             children: [
-              DateSlider(selectedDate, setSelectedDate),
+              MonthHeader(
+                  date: selectedDate,
+                  setCalendarViewMode: setCalendarViewMode,
+                  setActiveDate: setActiveDate,
+                  calendarViewMode: calendarController.view,
+                  selectedView: selectedView),
+              // if (!showingMonthView) DateSlider(selectedDate, setActiveDate),
               // events
               RealmQueryBuilder<Event>(
                   onUpdate: onNewEvents,
@@ -151,6 +173,7 @@ class _DailyScreenState extends State<DailyScreen> {
                         queryName: completionRecordsQueryName,
                         queryType: QueryType.queryString,
                         queryString: completionRecordsQueryString,
+                        queryArgs: completionRecordsQueryArgs,
                         child: Builder(builder: ((context) {
                           if (appState.teamUserType == 'caregiver' &&
                               selectedView == 'manage') {
@@ -159,6 +182,8 @@ class _DailyScreenState extends State<DailyScreen> {
                                 calendarDataSource: calendarDataSource,
                                 events: events,
                                 completionRecords: completionRecords,
+                                setCalendarViewMode: setCalendarViewMode,
+                                setActiveDate: setActiveDate,
                                 activeDate: selectedDate);
                           } else {
                             return Expanded(
