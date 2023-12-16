@@ -120,7 +120,6 @@ class _CaregiverViewState extends State<CaregiverView> {
                             appointmentDisplayMode:
                                 MonthAppointmentDisplayMode.appointment),
                         appointmentBuilder: (context, details) {
-                          inspect(details);
                           if (widget.calendarController.view ==
                               CalendarView.day) {
                             return DayViewAppointment(

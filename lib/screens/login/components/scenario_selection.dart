@@ -1,7 +1,7 @@
 import 'package:calendar/components/max_width.dart';
 import 'package:calendar/components/text/h1.dart';
 import 'package:calendar/components/text/paragraph.dart';
-import 'package:calendar/screens/login/login_button.dart';
+import 'package:calendar/screens/login/components/login_button.dart';
 import 'package:calendar/screens/login/login_screen.dart';
 import 'package:flutter/material.dart';
 

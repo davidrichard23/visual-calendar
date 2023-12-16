@@ -1,9 +1,9 @@
 import 'package:calendar/components/custom_text_form_field.dart';
 import 'package:calendar/components/max_width.dart';
 import 'package:calendar/components/text/h1.dart';
-import 'package:calendar/screens/login/login_button.dart';
+import 'package:calendar/screens/login/components/login_button.dart';
 import 'package:calendar/screens/login/login_screen.dart';
-import 'package:calendar/screens/login/login_text_form_field.dart';
+import 'package:calendar/screens/login/components/login_text_form_field.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:realm/realm.dart';
@@ -12,12 +12,16 @@ class EmailPassword extends StatefulWidget {
   final PageController pageController;
   final Function(String, String) onSubmit;
   final String submitText;
+  final bool hideEmail;
+  final bool hidePassword;
 
   const EmailPassword(
       {Key? key,
       required this.pageController,
       required this.onSubmit,
-      required this.submitText})
+      required this.submitText,
+      this.hideEmail = false,
+      this.hidePassword = false})
       : super(key: key);
 
   @override
@@ -42,6 +46,7 @@ class _EmailPasswordState extends State<EmailPassword> {
           isLoading = true;
         });
         await widget.onSubmit(email, password);
+        _formKey.currentState!.reset();
         setState(() {
           isLoading = false;
         });
@@ -92,42 +97,46 @@ class _EmailPasswordState extends State<EmailPassword> {
                         Form(
                             key: _formKey,
                             child: Column(children: [
-                              LoginTextFormField(
-                                hintText: 'Email',
-                                textInputAction: TextInputAction.next,
-                                textCapitalization: TextCapitalization.none,
-                                keyboardType: TextInputType.emailAddress,
-                                onSaved: (String? value) {
-                                  if (value == null) return;
-                                  email = value;
-                                },
-                                validator: (String? value) {
-                                  if (value == null) {
-                                    return 'Please enter an email';
-                                  }
-                                  if (!EmailValidator.validate(value)) {
-                                    return 'Please enter a valid email';
-                                  }
-                                  return null;
-                                },
-                              ),
-                              LoginTextFormField(
-                                hintText: 'Password',
-                                textInputAction: TextInputAction.done,
-                                textCapitalization: TextCapitalization.none,
-                                obscureText: true,
-                                // onSubmitted: (_) => handleOnSubmit, // cant get this to work
-                                onSaved: (String? value) {
-                                  if (value == null) return;
-                                  password = value;
-                                },
-                                validator: (String? value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter a password';
-                                  }
-                                  return null;
-                                },
-                              ),
+                              if (!widget.hideEmail)
+                                LoginTextFormField(
+                                  hintText: 'Email',
+                                  textInputAction: TextInputAction.next,
+                                  textCapitalization: TextCapitalization.none,
+                                  keyboardType: TextInputType.emailAddress,
+                                  onSaved: (String? value) {
+                                    if (value == null) return;
+                                    email = value;
+                                    value = null;
+                                  },
+                                  validator: (String? value) {
+                                    if (value == null) {
+                                      return 'Please enter an email';
+                                    }
+                                    if (!EmailValidator.validate(value)) {
+                                      return 'Please enter a valid email';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              if (!widget.hidePassword)
+                                LoginTextFormField(
+                                  hintText: 'Password',
+                                  textInputAction: TextInputAction.done,
+                                  textCapitalization: TextCapitalization.none,
+                                  obscureText: true,
+                                  // onSubmitted: (_) => handleOnSubmit, // cant get this to work
+                                  onSaved: (String? value) {
+                                    if (value == null) return;
+                                    password = value;
+                                    value = null;
+                                  },
+                                  validator: (String? value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter a password';
+                                    }
+                                    return null;
+                                  },
+                                ),
                             ])),
                         const SizedBox(height: 16),
                         LoginScreenButton(

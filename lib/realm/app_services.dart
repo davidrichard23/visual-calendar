@@ -52,6 +52,25 @@ class AppServices with ChangeNotifier {
     }
   }
 
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      EmailPasswordAuthProvider authProvider = EmailPasswordAuthProvider(_app);
+      await authProvider.resetPassword(email);
+    } catch (err) {
+      rethrow;
+    }
+  }
+
+  Future<void> resetPassword(
+      String password, String token, String tokenId) async {
+    try {
+      EmailPasswordAuthProvider authProvider = EmailPasswordAuthProvider(_app);
+      await authProvider.completeResetPassword(password, token, tokenId);
+    } catch (err) {
+      rethrow;
+    }
+  }
+
   Future<User> registerUserEmailPw(String email, String password) async {
     try {
       EmailPasswordAuthProvider authProvider = EmailPasswordAuthProvider(_app);

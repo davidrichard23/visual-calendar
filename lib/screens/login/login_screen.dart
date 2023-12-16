@@ -3,14 +3,16 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:calendar/components/max_width.dart';
+import 'package:calendar/components/buttons/styled_text_button.dart';
 import 'package:calendar/models/team_model.dart';
 import 'package:calendar/realm/app_services.dart';
 import 'package:calendar/realm/init_realm.dart';
 import 'package:calendar/realm/schemas.dart';
-import 'package:calendar/screens/login/create_team.dart';
-import 'package:calendar/screens/login/email_password.dart';
-import 'package:calendar/screens/login/scenario_selection.dart';
-import 'package:calendar/screens/login/invite_token.dart';
+import 'package:calendar/screens/login/components/check_email.dart';
+import 'package:calendar/screens/login/components/create_team.dart';
+import 'package:calendar/screens/login/components/email_password.dart';
+import 'package:calendar/screens/login/components/scenario_selection.dart';
+import 'package:calendar/screens/login/components/invite_token.dart';
 import 'package:calendar/state/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -25,8 +27,19 @@ enum LoginType {
   setupDependent,
 }
 
+enum ResetPasswordPhase {
+  none,
+  sendEmail,
+  checkEmail,
+  resetPassword,
+}
+
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  final String? resetToken;
+  final String? resetTokenId;
+
+  const LoginScreen({Key? key, this.resetToken, this.resetTokenId})
+      : super(key: key);
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -36,7 +49,27 @@ class _LoginScreenState extends State<LoginScreen> {
   final PageController _pageController = PageController();
 
   LoginType? loginType;
+  ResetPasswordPhase resetPasswordPhase = ResetPasswordPhase.none;
   String? error;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.resetToken != null &&
+        widget.resetTokenId != null &&
+        resetPasswordPhase != ResetPasswordPhase.resetPassword) {
+      setState(() {
+        loginType = LoginType.login;
+        resetPasswordPhase = ResetPasswordPhase.resetPassword;
+      });
+      Timer(const Duration(milliseconds: 100), () {
+        _pageController.nextPage(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +116,44 @@ class _LoginScreenState extends State<LoginScreen> {
         await app.logInAnon();
       } catch (err) {
         rethrow;
+      }
+    }
+
+    Future<void> handleSendPasswordResetEmail(String email, String _) async {
+      try {
+        await app.sendPasswordResetEmail(email);
+        setState(() {
+          resetPasswordPhase = ResetPasswordPhase.checkEmail;
+          error = null;
+        });
+      } catch (err) {
+        setState(() {
+          error =
+              'Something went wrong. Please make sure you\'re connected to the internet and entered a valid email';
+        });
+      }
+    }
+
+    Future<void> handleSetNewPassword(String _, String password) async {
+      if (widget.resetToken == null || widget.resetTokenId == null) {
+        setState(() {
+          error = 'Something went wrong. Please try again later';
+        });
+        return;
+      }
+
+      try {
+        await app.resetPassword(
+            password, widget.resetToken!, widget.resetTokenId!);
+        setState(() {
+          resetPasswordPhase = ResetPasswordPhase.none;
+          error = null;
+        });
+      } catch (err) {
+        setState(() {
+          error =
+              'Something went wrong. Your reset token may have expired. Please try again.';
+        });
       }
     }
 
@@ -133,6 +204,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setLoginType(LoginType type, {bool noAnim = false}) {
       setState(() {
         loginType = type;
+        resetPasswordPhase = ResetPasswordPhase.none;
       });
       if (noAnim) {
         _pageController.jumpToPage(_pageController.page!.toInt() + 1);
@@ -155,60 +227,98 @@ class _LoginScreenState extends State<LoginScreen> {
         backgroundColor: theme.primaryColor,
         body: Builder(builder: ((context) {
           return SafeArea(
-            bottom: false,
-            child: PageView(
-                physics: const NeverScrollableScrollPhysics(),
-                controller: _pageController,
-                children: [
-                  // Error
-                  if (error != null)
-                    MaxWidth(
-                        maxWidth: maxWidth,
-                        child: Text(
-                          'Error: ${error!}',
-                          style: const TextStyle(color: Colors.red),
-                        )),
+              bottom: false,
+              child: Column(children: [
+                // Error
+                if (error != null)
+                  MaxWidth(
+                      maxWidth: maxWidth,
+                      child: Text(
+                        'Error: ${error!}',
+                        style: const TextStyle(color: Colors.red),
+                        textAlign: TextAlign.center,
+                      )),
+                Expanded(
+                    child: PageView(
+                        physics: const NeverScrollableScrollPhysics(),
+                        controller: _pageController,
+                        children: [
+                      // Scenario
+                      ScenarioSelection(setLoginType: setLoginType),
 
-                  // Scenario
-                  ScenarioSelection(setLoginType: setLoginType),
+                      // Dependent
+                      if (loginType == LoginType.setupDependent)
+                        InviteToken(
+                            pageController: _pageController,
+                            onSubmit: setupDependent),
 
-                  // Dependent
-                  if (loginType == LoginType.setupDependent)
-                    InviteToken(
-                        pageController: _pageController,
-                        onSubmit: setupDependent),
+                      // Create Team
+                      if (loginType == LoginType.createTeam)
+                        if (currentUser == null)
+                          EmailPassword(
+                              pageController: _pageController,
+                              onSubmit: createAccount,
+                              submitText: 'Create Account')
+                        else
+                          CreateTeam(
+                              onSubmit: createTeam,
+                              pageController: _pageController),
 
-                  // Create Team
-                  if (loginType == LoginType.createTeam)
-                    if (currentUser == null)
-                      EmailPassword(
-                          pageController: _pageController,
-                          onSubmit: createAccount,
-                          submitText: 'Create Account')
-                    else
-                      CreateTeam(
-                          onSubmit: createTeam,
-                          pageController: _pageController),
+                      // Join Team
+                      if (loginType == LoginType.joinTeam)
+                        if (currentUser == null)
+                          EmailPassword(
+                              pageController: _pageController,
+                              onSubmit: createAccount,
+                              submitText: 'Create Account')
+                        else
+                          InviteToken(
+                              onSubmit: joinTeam,
+                              pageController: _pageController),
 
-                  // Join Team
-                  if (loginType == LoginType.joinTeam)
-                    if (currentUser == null)
-                      EmailPassword(
-                          pageController: _pageController,
-                          onSubmit: createAccount,
-                          submitText: 'Create Account')
-                    else
-                      InviteToken(
-                          onSubmit: joinTeam, pageController: _pageController),
+                      // Login
+                      if (loginType == LoginType.login)
+                        Column(children: [
+                          Builder(builder: (context) {
+                            if (resetPasswordPhase == ResetPasswordPhase.none) {
+                              return EmailPassword(
+                                  pageController: _pageController,
+                                  onSubmit: login,
+                                  submitText: 'Login');
+                            } else if (resetPasswordPhase ==
+                                ResetPasswordPhase.sendEmail) {
+                              return EmailPassword(
+                                  pageController: _pageController,
+                                  onSubmit: handleSendPasswordResetEmail,
+                                  hidePassword: true,
+                                  submitText: 'Reset Password');
+                            } else if (resetPasswordPhase ==
+                                ResetPasswordPhase.checkEmail) {
+                              return CheckEmail(
+                                  pageController: _pageController);
+                            } else if (resetPasswordPhase ==
+                                ResetPasswordPhase.resetPassword) {
+                              return EmailPassword(
+                                  pageController: _pageController,
+                                  onSubmit: handleSetNewPassword,
+                                  hideEmail: true,
+                                  submitText: 'Set New Password');
+                            }
 
-                  // Login
-                  if (loginType == LoginType.login)
-                    EmailPassword(
-                        pageController: _pageController,
-                        onSubmit: login,
-                        submitText: 'Login')
-                ]),
-          );
+                            return Container();
+                          }),
+                          if (resetPasswordPhase == ResetPasswordPhase.none)
+                            StyledTextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    resetPasswordPhase =
+                                        ResetPasswordPhase.sendEmail;
+                                  });
+                                },
+                                child: const Text('Forgot Password?')),
+                        ]),
+                    ])),
+              ]));
         })));
   }
 }

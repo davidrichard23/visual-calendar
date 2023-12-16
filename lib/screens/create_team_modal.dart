@@ -4,7 +4,7 @@ import 'package:calendar/components/token_input.dart';
 import 'package:calendar/models/team_model.dart';
 import 'package:calendar/realm/init_realm.dart';
 import 'package:calendar/realm/schemas.dart';
-import 'package:calendar/screens/login/create_team.dart';
+import 'package:calendar/screens/login/components/create_team.dart';
 import 'package:calendar/state/app_state.dart';
 import 'package:calendar/realm/app_services.dart';
 import 'package:flutter/material.dart';

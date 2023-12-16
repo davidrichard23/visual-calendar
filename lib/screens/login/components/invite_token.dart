@@ -1,9 +1,9 @@
 import 'package:calendar/components/custom_text_form_field.dart';
 import 'package:calendar/components/max_width.dart';
 import 'package:calendar/components/token_input.dart';
-import 'package:calendar/screens/login/login_button.dart';
+import 'package:calendar/screens/login/components/login_button.dart';
 import 'package:calendar/screens/login/login_screen.dart';
-import 'package:calendar/screens/login/login_text_form_field.dart';
+import 'package:calendar/screens/login/components/login_text_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:realm/realm.dart';
 

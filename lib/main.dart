@@ -147,6 +147,21 @@ class App extends StatelessWidget {
         ]);
       },
       onGenerateRoute: (RouteSettings settings) {
+        if (settings.name != null) {
+          Uri uri = Uri.parse(settings.name!);
+
+          String baseRoute = uri.path;
+          Map<String, String> queryParams = uri.queryParameters;
+
+          if (baseRoute == '/reset-password') {
+            return MaterialPageRoute(
+                settings: settings,
+                builder: (context) => LoginScreen(
+                    resetToken: queryParams['token'],
+                    resetTokenId: queryParams['tokenId']));
+          }
+        }
+
         switch (settings.name) {
           case '/':
             return MaterialPageRoute(
