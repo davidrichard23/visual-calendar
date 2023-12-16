@@ -171,9 +171,13 @@ class _CreateEditEventState extends State<CreateEditEvent> {
     endTime = startDateTime!.add(Duration(minutes: duration));
     isTemplate = widget.existingEvent!.isTemplate;
 
-    stagedImages.add(StagedImageData(image: widget.existingEvent!.image));
+    if (widget.existingEvent!.image != null) {
+      stagedImages.add(StagedImageData(image: widget.existingEvent!.image));
+    }
     for (var task in tasks) {
-      stagedImages.add(StagedImageData(taskId: task.id, image: task.image));
+      if (task.image != null) {
+        stagedImages.add(StagedImageData(taskId: task.id, image: task.image));
+      }
     }
 
     final recurrencePattern = widget.existingEvent!.recurrencePattern;
@@ -536,6 +540,7 @@ class _CreateEditEventState extends State<CreateEditEvent> {
 
   @override
   Widget build(BuildContext context) {
+    inspect(tasks);
     final theme = Theme.of(context);
     final stagedEventImage =
         stagedImages.firstWhereOrNull((i) => i.taskId == null);

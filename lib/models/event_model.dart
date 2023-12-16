@@ -131,6 +131,8 @@ class EventModel {
 
         if (tasks == null) return;
 
+        item.tasks.clear();
+
         for (var task in tasks) {
           final isNew = !item.tasks.any((task2) => task2.id == task.id);
           if (isNew) {
@@ -139,9 +141,7 @@ class EventModel {
           task.updatedAt = item.updatedAt;
 
           final t = realm.add<EventTask>(task, update: true);
-          if (isNew) {
-            item.tasks.add(t);
-          }
+          item.tasks.add(t);
         }
         _rebuildTaskOrder(tasks);
       });
