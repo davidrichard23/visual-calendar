@@ -540,7 +540,6 @@ class _CreateEditEventState extends State<CreateEditEvent> {
 
   @override
   Widget build(BuildContext context) {
-    inspect(tasks);
     final theme = Theme.of(context);
     final stagedEventImage =
         stagedImages.firstWhereOrNull((i) => i.taskId == null);

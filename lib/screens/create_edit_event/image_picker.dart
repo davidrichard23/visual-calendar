@@ -33,42 +33,60 @@ class ImagePickerWidgetState extends State<ImagePickerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    // final theme = Theme.of(context);
 
     if (widget.image != null) {
-      return GestureDetector(
-          onTap: goToImagePicker,
-          child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              clipBehavior: Clip.hardEdge,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: const Color.fromARGB(255, 161, 210, 198)),
-              child: Stack(children: [
-                CachedNetworkImage(
-                    progressIndicatorBuilder: (context, url,
-                            downloadProgress) =>
-                        CircularProgressIndicator(color: theme.primaryColor),
-                    imageUrl: getCloudflareImageUrl(widget.image!.remoteImageId,
-                        width: 600)),
-                Positioned(
-                  top: 0.0,
-                  right: 0.0,
-                  child: IconButton(
-                      iconSize: 40,
-                      icon: DecoratedIcon(
-                          icon: const Icon(
-                            Icons.cancel,
-                            color: Colors.white,
-                          ),
-                          decoration: IconDecoration(
-                              border: IconBorder(
-                                  width: 1, color: Colors.grey[700]!))),
-                      onPressed: () => setState(() {
-                            widget.setImage(null);
-                          })),
-                ),
-              ])));
+      return LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+        double width = constraints.maxWidth - 32; // 32 margin
+        double height = width / (widget.image?.aspectRatio ?? 1);
+
+        return GestureDetector(
+            onTap: goToImagePicker,
+            child: Container(
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                clipBehavior: Clip.hardEdge,
+                height: height,
+                width: width,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: const Color.fromARGB(255, 161, 210, 198)),
+                child: Stack(children: [
+                  CachedNetworkImage(
+                      progressIndicatorBuilder:
+                          (context, url, downloadProgress) => SizedBox(
+                              height: height,
+                              width: width,
+                              child: Flex(
+                                  direction: Axis.horizontal,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: const [
+                                    CircularProgressIndicator(
+                                        color: Colors.white),
+                                  ])),
+                      imageUrl: getCloudflareImageUrl(
+                          widget.image!.remoteImageId,
+                          width: 600)),
+                  Positioned(
+                    top: 0.0,
+                    right: 0.0,
+                    child: IconButton(
+                        iconSize: 40,
+                        icon: DecoratedIcon(
+                            icon: const Icon(
+                              Icons.cancel,
+                              color: Colors.white,
+                            ),
+                            decoration: IconDecoration(
+                                border: IconBorder(
+                                    width: 1, color: Colors.grey[700]!))),
+                        onPressed: () => setState(() {
+                              widget.setImage(null);
+                            })),
+                  ),
+                ])));
+      });
     } else {
       return Container(
           margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
