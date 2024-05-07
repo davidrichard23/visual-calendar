@@ -1,44 +1,47 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:calendar/components/buttons/primary_button.dart';
 import 'package:calendar/components/text/h1.dart';
 import 'package:calendar/components/text/paragraph.dart';
-import 'package:calendar/realm/app_services.dart';
-import 'package:calendar/realm/init_realm.dart';
 import 'package:calendar/realm/schemas.dart';
-import 'package:calendar/state/app_state.dart';
+import 'package:calendar/screens/image_manager/screens/web_image_search.dart';
+import 'package:calendar/util/get_cloudflare_image_url.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 double pointSize = 25;
 
-class ImageFocalPointSelectionScreen extends StatefulWidget {
-  final File image;
-  final double aspectRatio;
-  final Function(File, FocalPoint) onSelectFocalPoint;
+class ImageFocalPointSelection extends StatefulWidget {
+  final ImageData? existingImage;
+  final File? localImage;
+  final WebImage? webImage;
+  final FocalPoint startingFocalPoint;
+  final Function(FocalPoint) onSelectFocalPoint;
 
-  const ImageFocalPointSelectionScreen(
+  const ImageFocalPointSelection(
       {Key? key,
-      required this.image,
-      required this.aspectRatio,
+      required this.existingImage,
+      required this.localImage,
+      required this.webImage,
+      required this.startingFocalPoint,
       required this.onSelectFocalPoint})
       : super(key: key);
 
   @override
-  State<ImageFocalPointSelectionScreen> createState() =>
-      ImageFocalPointSelectionScreenState();
+  State<ImageFocalPointSelection> createState() =>
+      ImageFocalPointSelectionState();
 }
 
-class ImageFocalPointSelectionScreenState
-    extends State<ImageFocalPointSelectionScreen> {
+class ImageFocalPointSelectionState extends State<ImageFocalPointSelection> {
   final GlobalKey imageKey = GlobalKey();
   Point markerPoint = const Point(-100.0, -100.0);
   FocalPoint focalPoint = FocalPoint(0.0, 0.0);
 
   void handleSubmit() {
-    widget.onSelectFocalPoint(widget.image, focalPoint);
+    widget.onSelectFocalPoint(focalPoint);
     Navigator.pop(context);
   }
 
@@ -55,48 +58,46 @@ class ImageFocalPointSelectionScreenState
   }
 
   void setFocalPoint(offset) {
-    final RenderBox renderBox =
-        imageKey.currentContext?.findRenderObject() as RenderBox;
+    final size = getSize();
     double x = offset.dx;
     double y = offset.dy;
 
     if (x < 0 + pointSize / 2) x = pointSize / 2;
     if (y < 0 + pointSize / 2) y = pointSize / 2;
-    if (x > renderBox.size.width - pointSize / 2) {
-      x = renderBox.size.width - pointSize / 2;
+    if (x > size.width - pointSize / 2) {
+      x = size.width - pointSize / 2;
     }
-    if (y > renderBox.size.height - pointSize / 2) {
-      y = renderBox.size.height - pointSize / 2;
+    if (y > size.height - pointSize / 2) {
+      y = size.height - pointSize / 2;
     }
 
     setState(() {
       markerPoint = Point<double>(x - pointSize / 2, y - pointSize / 2);
-      focalPoint =
-          FocalPoint(x / renderBox.size.width, y / renderBox.size.height);
+      focalPoint = FocalPoint(x / size.width, y / size.height);
     });
+  }
+
+  Size getSize() {
+    RenderBox renderBox =
+        imageKey.currentContext?.findRenderObject() as RenderBox;
+    return Size(renderBox.size.width, renderBox.size.height);
   }
 
   @override
   void initState() {
     super.initState();
 
-    // set initial focal point to the center
-    Timer(const Duration(milliseconds: 500), () {
-      final RenderBox renderBox =
-          imageKey.currentContext?.findRenderObject() as RenderBox;
-      setFocalPoint(
-          Offset(renderBox.size.width / 2, renderBox.size.height / 2));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      double x = widget.startingFocalPoint.x;
+      double y = widget.startingFocalPoint.y;
 
-      return;
+      final size = getSize();
+      setFocalPoint(Offset(size.width * x, size.height * y));
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    RealmManager realmManager =
-        Provider.of<RealmManager>(context, listen: true);
-    final app = Provider.of<AppServices>(context, listen: true);
-    final appState = Provider.of<AppState>(context, listen: true);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -126,7 +127,35 @@ class ImageFocalPointSelectionScreenState
                               onHorizontalDragDown: handleDragDown,
                               onVerticalDragUpdate: handleDragUpdate,
                               onHorizontalDragUpdate: handleDragUpdate,
-                              child: Image.file(widget.image, key: imageKey)),
+                              child: widget.localImage != null
+                                  ? Image.file(widget.localImage!,
+                                      key: imageKey)
+                                  : widget.existingImage != null
+                                      ? CachedNetworkImage(
+                                          key: imageKey,
+                                          fit: BoxFit.cover,
+                                          progressIndicatorBuilder: (context,
+                                                  url, downloadProgress) =>
+                                              Center(
+                                                  child: SizedBox(
+                                                      width: 30,
+                                                      height: 30,
+                                                      child: CircularProgressIndicator(
+                                                          color: theme
+                                                              .primaryColor))),
+                                          imageUrl: getCloudflareImageUrl(widget
+                                              .existingImage!.remoteImageId))
+                                      : CachedNetworkImage(
+                                          key: imageKey,
+                                          fit: BoxFit.cover,
+                                          progressIndicatorBuilder:
+                                              (context, url, downloadProgress) =>
+                                                  Center(
+                                                      child: SizedBox(
+                                                          width: 30,
+                                                          height: 30,
+                                                          child: CircularProgressIndicator(color: theme.primaryColor))),
+                                          imageUrl: widget.webImage!.url)),
                           Positioned(
                               top: markerPoint.y as double,
                               left: markerPoint.x as double,

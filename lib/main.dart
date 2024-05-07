@@ -18,7 +18,7 @@ import 'package:calendar/screens/create_team_modal.dart';
 import 'package:calendar/screens/daily/daily_screen.dart';
 import 'package:calendar/screens/event_screen.dart';
 import 'package:calendar/screens/generate_invite.dart';
-import 'package:calendar/screens/images_screen.dart';
+import 'package:calendar/screens/image_manager/image_manager.dart';
 import 'package:calendar/screens/init.dart';
 import 'package:calendar/screens/join_team.dart';
 import 'package:calendar/screens/login/login_screen.dart';
@@ -232,17 +232,27 @@ class App extends StatelessWidget {
                         activeDateTime: formattedArgs.activeDateTime,
                       ));
             }
-          case '/images':
+          case '/image-manager':
             {
               final args = settings.arguments;
-              final formattedArgs = args as ImagesScreenArgs;
+              final formattedArgs = args as ImagesManagerArgs?;
 
               return MaterialExtendedPageRoute<void>(
                   settings: settings,
-                  builder: (BuildContext newContext) => ImagesScreen(
-                        onSelectImage: formattedArgs.onSelectImage,
-                      ));
+                  builder: (BuildContext newContext) => ImageManager(
+                      onChooseImage: formattedArgs?.onChooseImage));
             }
+          // case '/images':
+          //   {
+          //     final args = settings.arguments;
+          //     final formattedArgs = args as ImagesScreenArgs;
+
+          //     return MaterialExtendedPageRoute<void>(
+          //         settings: settings,
+          //         builder: (BuildContext newContext) => ImagesScreen(
+          //               onSelectImage: formattedArgs.onSelectImage,
+          //             ));
+          //   }
           case '/templates':
             {
               return MaterialExtendedPageRoute<void>(
@@ -294,8 +304,8 @@ class EventScreenArgs {
   EventScreenArgs({required this.eventId, required this.activeDateTime});
 }
 
-class ImagesScreenArgs {
-  final Function(ImageData) onSelectImage;
+class ImagesManagerArgs {
+  final Function(ImageData)? onChooseImage;
 
-  ImagesScreenArgs({required this.onSelectImage});
+  ImagesManagerArgs({this.onChooseImage});
 }

@@ -3,8 +3,6 @@ import 'dart:developer';
 import 'package:realm/realm.dart';
 import '../realm/schemas.dart';
 
-// TODO: add aspect ratio
-
 class ImageDataModel {
   final ObjectId id;
   ObjectId teamId;
@@ -12,8 +10,8 @@ class ImageDataModel {
   String? title;
   String remoteImageId;
   List<String> tags = [];
-  late double? aspectRatio;
-  late FocalPoint? focalPoint;
+  late double? aspectRatio; // optional for backwards compat
+  late FocalPoint? focalPoint; // optional for backwards compat
   bool isPublic;
   bool isDeleted = false;
   late DateTime createdAt;
@@ -63,6 +61,21 @@ class ImageDataModel {
     } on RealmException catch (e) {
       log(e.message);
       return null;
+    }
+  }
+
+  void update({List<String>? newTags, FocalPoint? newFocalPoint}) {
+    try {
+      realm.write(() {
+        if (newTags != null) {
+          item.tags.clear();
+          item.tags.addAll(newTags);
+        }
+        if (newFocalPoint != null) item.focalPoint = newFocalPoint;
+        item.updatedAt = DateTime.now().toUtc();
+      });
+    } on RealmException catch (e) {
+      log(e.message);
     }
   }
 

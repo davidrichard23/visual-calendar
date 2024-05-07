@@ -27,8 +27,8 @@ class ImagePickerWidgetState extends State<ImagePickerWidget> {
   }
 
   void goToImagePicker() {
-    Navigator.pushNamed(context, '/images',
-        arguments: ImagesScreenArgs(onSelectImage: onSelectImage));
+    Navigator.pushNamed(context, '/image-manager',
+        arguments: ImagesManagerArgs(onChooseImage: onSelectImage));
   }
 
   @override
@@ -53,6 +53,9 @@ class ImagePickerWidgetState extends State<ImagePickerWidget> {
                     color: const Color.fromARGB(255, 161, 210, 198)),
                 child: Stack(children: [
                   CachedNetworkImage(
+                      fit: BoxFit.contain,
+                      width: width,
+                      height: height,
                       progressIndicatorBuilder:
                           (context, url, downloadProgress) => SizedBox(
                               height: height,

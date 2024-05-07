@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:isolate';
 
 import 'package:calendar/components/text/h1.dart';
 import 'package:calendar/components/text/paragraph.dart';
@@ -26,13 +27,18 @@ class _GlobalErrorDisplayState extends State<GlobalErrorDisplay> {
       });
       // myErrorsHandler.onErrorDetails(details);
     };
-    PlatformDispatcher.instance.onError = (error, stack) {
+    PlatformDispatcher.instance.onError = (e, stack) {
       // myErrorsHandler.onError(error, stack);
       Timer(const Duration(milliseconds: 100), () {
-        if (mounted) setState(() => error = error.toString());
+        if (mounted) setState(() => error = e.toString());
       });
       return true;
     };
+
+    Isolate.current.addErrorListener(RawReceivePort((pair) async {
+      final List<dynamic> errorAndStacktrace = pair;
+      if (mounted) setState(() => error = errorAndStacktrace.toString());
+    }).sendPort);
 
     if (error != null) {
       return Material(

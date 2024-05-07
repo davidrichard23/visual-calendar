@@ -24,6 +24,7 @@ class CustomTextFormField extends StatelessWidget {
   final EdgeInsets? margin;
   final EdgeInsets? padding;
   final FocusNode? focusNode;
+  final TextEditingController? controller;
 
   const CustomTextFormField(
       {this.hintText,
@@ -45,6 +46,7 @@ class CustomTextFormField extends StatelessWidget {
       this.margin = const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       this.padding = const EdgeInsets.all(16),
       this.focusNode,
+      this.controller,
       Key? key})
       : super(key: key);
 
@@ -60,6 +62,7 @@ class CustomTextFormField extends StatelessWidget {
           borderRadius: BorderRadius.all(Radius.circular(borderRadius!)),
         ),
         child: TextFormField(
+            controller: controller,
             focusNode: focusNode,
             minLines: minLines,
             maxLines: maxLines,

@@ -45,6 +45,11 @@ class DrawerComponentState extends State<DrawerComponent> {
                             child: TeamSelection()),
                         const SizedBox(height: 48),
                         DrawerRow(
+                            icon: Icons.image_outlined,
+                            text: 'Manage Images',
+                            onTap: () =>
+                                Navigator.pushNamed(context, '/image-manager')),
+                        DrawerRow(
                             icon: Icons.add_circle_outline,
                             text: 'Invite To Team',
                             onTap: () => Navigator.pushNamed(
