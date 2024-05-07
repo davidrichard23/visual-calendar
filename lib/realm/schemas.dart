@@ -146,3 +146,25 @@ class _CompletionRecord {
   late DateTime? updatedAt;
   bool isDeleted = false;
 }
+
+@RealmModel()
+class _RecurrenceOverride {
+  @MapTo('_id')
+  @PrimaryKey()
+  late ObjectId id;
+  late ObjectId eventId;
+  late ObjectId teamId;
+  late ObjectId ownerId;
+  late DateTime recurringInstanceDateTime;
+  late bool isCancelled;
+  late String title;
+  late String description;
+  late DateTime startDateTime;
+  late int duration;
+  late List<_EventTask> tasks = [];
+  late _ImageData? image;
+  late _LocationData? location;
+  late DateTime? createdAt;
+  late DateTime? updatedAt;
+  bool isDeleted = false;
+}
