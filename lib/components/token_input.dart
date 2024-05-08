@@ -7,8 +7,8 @@ import 'package:calendar/components/text/paragraph.dart';
 import 'package:calendar/util/consts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
-import 'package:frccblue/frccblue.dart';
+// import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+// import 'package:frccblue/frccblue.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:realm/realm.dart';
 
@@ -31,51 +31,51 @@ class _TokenInputState extends State<TokenInput> {
   String? error;
   bool isLoading = false;
 
-  final flutterReactiveBle = FlutterReactiveBle();
-  StreamSubscription<BleStatus>? bleStatusListener;
-  BleStatus? bleStatus;
-  String? bleErrorStatusStr;
+  // final flutterReactiveBle = FlutterReactiveBle();
+  // StreamSubscription<BleStatus>? bleStatusListener;
+  // BleStatus? bleStatus;
+  // String? bleErrorStatusStr;
 
-  @override
-  void initState() {
-    Timer(const Duration(seconds: 1), () {
-      listenForBluetoothState();
-    });
-    super.initState();
-  }
+  // @override
+  // void initState() {
+  //   Timer(const Duration(seconds: 1), () {
+  //     listenForBluetoothState();
+  //   });
+  //   super.initState();
+  // }
 
-  @override
-  void dispose() {
-    Frccblue.stopPeripheral();
-    bleStatusListener?.cancel();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   Frccblue.stopPeripheral();
+  //   bleStatusListener?.cancel();
+  //   super.dispose();
+  // }
 
-  void listenForBluetoothState() {
-    bleStatusListener = flutterReactiveBle.statusStream.listen((status) {
-      setState(() => bleStatus = status);
+  // void listenForBluetoothState() {
+  //   bleStatusListener = flutterReactiveBle.statusStream.listen((status) {
+  //     setState(() => bleStatus = status);
 
-      switch (status) {
-        case BleStatus.poweredOff:
-          setState(() => bleErrorStatusStr =
-              'Bluetooth is turned off. Please turn it on if you\'d like to recieve an invite code from nearby devices.');
-          break;
-        case BleStatus.ready:
-          setState(() => bleErrorStatusStr = null);
-          initPlatformState();
-          break;
-        case BleStatus.unauthorized:
-          setState(() => bleErrorStatusStr =
-              'The app does not have permission to use bluetooth. Please enable it in settings if you\'d like to recieve an invite code from nearby devices.');
-          break;
-        case BleStatus.unsupported:
-          setState(() =>
-              bleErrorStatusStr = 'This device does not support bluetooth.');
-          break;
-        default:
-      }
-    });
-  }
+  //     switch (status) {
+  //       case BleStatus.poweredOff:
+  //         setState(() => bleErrorStatusStr =
+  //             'Bluetooth is turned off. Please turn it on if you\'d like to recieve an invite code from nearby devices.');
+  //         break;
+  //       case BleStatus.ready:
+  //         setState(() => bleErrorStatusStr = null);
+  //         initPlatformState();
+  //         break;
+  //       case BleStatus.unauthorized:
+  //         setState(() => bleErrorStatusStr =
+  //             'The app does not have permission to use bluetooth. Please enable it in settings if you\'d like to recieve an invite code from nearby devices.');
+  //         break;
+  //       case BleStatus.unsupported:
+  //         setState(() =>
+  //             bleErrorStatusStr = 'This device does not support bluetooth.');
+  //         break;
+  //       default:
+  //     }
+  //   });
+  // }
 
   // TODO
   // Future<void> _requestPermissions() async {
@@ -100,18 +100,18 @@ class _TokenInputState extends State<TokenInput> {
   //   }
   // }
 
-  Future<void> initPlatformState() async {
-    Frccblue.init(didReceiveWrite: (MethodCall call) {
-      setState(() {
-        token = utf8.decode(call.arguments['data']);
-      });
+  // Future<void> initPlatformState() async {
+  //   Frccblue.init(didReceiveWrite: (MethodCall call) {
+  //     setState(() {
+  //       token = utf8.decode(call.arguments['data']);
+  //     });
 
-      handleSubmit();
-    });
+  //     handleSubmit();
+  //   });
 
-    Frccblue.startPeripheral(
-        bluetoothServiceId.toString(), bluetoothCharacteristicId.toString());
-  }
+  //   Frccblue.startPeripheral(
+  //       bluetoothServiceId.toString(), bluetoothCharacteristicId.toString());
+  // }
 
   void onTokenInput(String value) {
     setState(() {
@@ -184,44 +184,45 @@ class _TokenInputState extends State<TokenInput> {
                     const H1('Receive token automatically from nearby devices',
                         center: true),
                     const SizedBox(height: 24),
-                    if (bleStatus == BleStatus.ready)
-                      Column(children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: 16,
-                              width: 16,
-                              child: CircularProgressIndicator(
-                                color: theme.primaryColor,
-                              ),
-                            ),
-                            const Flexible(
-                                child: Padding(
-                                    padding: EdgeInsets.only(left: 8),
-                                    child:
-                                        Paragraph("Searching for devices."))),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        const Paragraph(
-                            "Make sure the app is open on your other device, you are on the \"Generate Invite Token\" page, and you have generated a new token.",
-                            center: true),
-                      ]),
-                    if (bleErrorStatusStr != null)
-                      Paragraph(bleErrorStatusStr!,
-                          center: true, color: Colors.red),
-                    if (bleStatus == BleStatus.unauthorized)
-                      SizedBox(
-                          width: 200,
-                          child: PrimaryButton(
-                              small: true,
-                              child: const Paragraph('Open App Settings',
-                                  small: true),
-                              onPressed: () => openAppSettings())),
-                    const SizedBox(height: 56),
-                    const H1('Or enter your 8 digit invite token manually',
-                        center: true),
+                    // if (bleStatus == BleStatus.ready)
+                    //   Column(children: [
+                    //     Row(
+                    //       mainAxisAlignment: MainAxisAlignment.center,
+                    //       children: [
+                    //         SizedBox(
+                    //           height: 16,
+                    //           width: 16,
+                    //           child: CircularProgressIndicator(
+                    //             color: theme.primaryColor,
+                    //           ),
+                    //         ),
+                    //         const Flexible(
+                    //             child: Padding(
+                    //                 padding: EdgeInsets.only(left: 8),
+                    //                 child:
+                    //                     Paragraph("Searching for devices."))),
+                    //       ],
+                    //     ),
+                    //     const SizedBox(height: 16),
+                    //     const Paragraph(
+                    //         "Make sure the app is open on your other device, you are on the \"Generate Invite Token\" page, and you have generated a new token.",
+                    //         center: true),
+                    //   ]),
+                    // if (bleErrorStatusStr != null)
+                    //   Paragraph(bleErrorStatusStr!,
+                    //       center: true, color: Colors.red),
+                    // if (bleStatus == BleStatus.unauthorized)
+                    //   SizedBox(
+                    //       width: 200,
+                    //       child: PrimaryButton(
+                    //           small: true,
+                    //           child: const Paragraph('Open App Settings',
+                    //               small: true),
+                    //           onPressed: () => openAppSettings())),
+                    // const SizedBox(height: 56),
+                    // const H1('Or enter your 8 digit invite token manually',
+                    //     center: true),
+                    const H1('Enter your 8 digit invite token', center: true),
                   ],
                 ),
               if (error != null) const SizedBox(height: 20),

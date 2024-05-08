@@ -20,7 +20,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 0.0.1+17
 
 environment:
-  sdk: '>=2.18.1 <3.0.0'
+  sdk: '>=3.0.0 <4.0.0'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -37,9 +37,9 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   english_words: ^4.0.0
-  realm: ^1.0.2
+  realm: ^1.2.0
   provider: ^6.0.3
-  intl: ^0.17.0
+  intl: ^0.18.1
   image_picker: ^0.8.5+3
   percent_indicator: ^4.2.2
   confetti: ^0.7.0
@@ -47,8 +47,8 @@ dependencies:
   localstorage: ^4.0.0+1
   passcode_screen: ^2.0.1
   scroll_to_index: ^3.0.1
-  syncfusion_flutter_calendar: ^20.4.54
-  syncfusion_flutter_datepicker: ^20.4.54
+  syncfusion_flutter_calendar: ^25.1.42
+  syncfusion_flutter_datepicker: ^25.1.42
   sheet: ^1.0.0-pre
   modal_bottom_sheet: ^3.0.0-pre
   jiffy: ^5.0.0
@@ -63,19 +63,19 @@ dependencies:
   email_validator: ^2.1.17
   flutter_initicon: ^3.0.0+1
   fluttertoast: ^8.1.4
-  sentry_flutter: ^6.20.1
+  sentry_flutter: ^8.1.0
   path_provider: ^2.0.13
   camera: ^0.10.3+2
   path: ^1.8.2
-  flutter_reactive_ble: ^5.0.3
+  # flutter_reactive_ble: ^5.0.3
   share_plus: ^6.3.1
   permission_handler: ^10.2.0
-  frccblue:
-    git:
-      url: https://github.com/frcc00/frccblue
+  # frccblue:
+  #   git:
+  #     url: https://github.com/frcc00/frccblue
   image_size_getter: ^2.1.2
   google_maps_webservice: ^0.0.20-nullsafety.5
-  google_maps_flutter: ^2.2.5
+  google_maps_flutter: ^2.6.1
 
 dev_dependencies:
   flutter_test:
@@ -86,7 +86,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

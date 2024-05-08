@@ -1107,3 +1107,192 @@ class CompletionRecord extends _CompletionRecord
     ]);
   }
 }
+
+class RecurrenceOverride extends _RecurrenceOverride
+    with RealmEntity, RealmObjectBase, RealmObject {
+  static var _defaultsSet = false;
+
+  RecurrenceOverride(
+    ObjectId id,
+    ObjectId eventId,
+    ObjectId teamId,
+    ObjectId ownerId,
+    DateTime recurringInstanceDateTime,
+    bool isCancelled,
+    String title,
+    String description,
+    DateTime startDateTime,
+    int duration, {
+    ImageData? image,
+    LocationData? location,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    bool isDeleted = false,
+    Iterable<EventTask> tasks = const [],
+  }) {
+    if (!_defaultsSet) {
+      _defaultsSet = RealmObjectBase.setDefaults<RecurrenceOverride>({
+        'isDeleted': false,
+      });
+    }
+    RealmObjectBase.set(this, '_id', id);
+    RealmObjectBase.set(this, 'eventId', eventId);
+    RealmObjectBase.set(this, 'teamId', teamId);
+    RealmObjectBase.set(this, 'ownerId', ownerId);
+    RealmObjectBase.set(
+        this, 'recurringInstanceDateTime', recurringInstanceDateTime);
+    RealmObjectBase.set(this, 'isCancelled', isCancelled);
+    RealmObjectBase.set(this, 'title', title);
+    RealmObjectBase.set(this, 'description', description);
+    RealmObjectBase.set(this, 'startDateTime', startDateTime);
+    RealmObjectBase.set(this, 'duration', duration);
+    RealmObjectBase.set(this, 'image', image);
+    RealmObjectBase.set(this, 'location', location);
+    RealmObjectBase.set(this, 'createdAt', createdAt);
+    RealmObjectBase.set(this, 'updatedAt', updatedAt);
+    RealmObjectBase.set(this, 'isDeleted', isDeleted);
+    RealmObjectBase.set<RealmList<EventTask>>(
+        this, 'tasks', RealmList<EventTask>(tasks));
+  }
+
+  RecurrenceOverride._();
+
+  @override
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
+  @override
+  set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
+
+  @override
+  ObjectId get eventId =>
+      RealmObjectBase.get<ObjectId>(this, 'eventId') as ObjectId;
+  @override
+  set eventId(ObjectId value) => RealmObjectBase.set(this, 'eventId', value);
+
+  @override
+  ObjectId get teamId =>
+      RealmObjectBase.get<ObjectId>(this, 'teamId') as ObjectId;
+  @override
+  set teamId(ObjectId value) => RealmObjectBase.set(this, 'teamId', value);
+
+  @override
+  ObjectId get ownerId =>
+      RealmObjectBase.get<ObjectId>(this, 'ownerId') as ObjectId;
+  @override
+  set ownerId(ObjectId value) => RealmObjectBase.set(this, 'ownerId', value);
+
+  @override
+  DateTime get recurringInstanceDateTime =>
+      RealmObjectBase.get<DateTime>(this, 'recurringInstanceDateTime')
+          as DateTime;
+  @override
+  set recurringInstanceDateTime(DateTime value) =>
+      RealmObjectBase.set(this, 'recurringInstanceDateTime', value);
+
+  @override
+  bool get isCancelled =>
+      RealmObjectBase.get<bool>(this, 'isCancelled') as bool;
+  @override
+  set isCancelled(bool value) =>
+      RealmObjectBase.set(this, 'isCancelled', value);
+
+  @override
+  String get title => RealmObjectBase.get<String>(this, 'title') as String;
+  @override
+  set title(String value) => RealmObjectBase.set(this, 'title', value);
+
+  @override
+  String get description =>
+      RealmObjectBase.get<String>(this, 'description') as String;
+  @override
+  set description(String value) =>
+      RealmObjectBase.set(this, 'description', value);
+
+  @override
+  DateTime get startDateTime =>
+      RealmObjectBase.get<DateTime>(this, 'startDateTime') as DateTime;
+  @override
+  set startDateTime(DateTime value) =>
+      RealmObjectBase.set(this, 'startDateTime', value);
+
+  @override
+  int get duration => RealmObjectBase.get<int>(this, 'duration') as int;
+  @override
+  set duration(int value) => RealmObjectBase.set(this, 'duration', value);
+
+  @override
+  RealmList<EventTask> get tasks =>
+      RealmObjectBase.get<EventTask>(this, 'tasks') as RealmList<EventTask>;
+  @override
+  set tasks(covariant RealmList<EventTask> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  ImageData? get image =>
+      RealmObjectBase.get<ImageData>(this, 'image') as ImageData?;
+  @override
+  set image(covariant ImageData? value) =>
+      RealmObjectBase.set(this, 'image', value);
+
+  @override
+  LocationData? get location =>
+      RealmObjectBase.get<LocationData>(this, 'location') as LocationData?;
+  @override
+  set location(covariant LocationData? value) =>
+      RealmObjectBase.set(this, 'location', value);
+
+  @override
+  DateTime? get createdAt =>
+      RealmObjectBase.get<DateTime>(this, 'createdAt') as DateTime?;
+  @override
+  set createdAt(DateTime? value) =>
+      RealmObjectBase.set(this, 'createdAt', value);
+
+  @override
+  DateTime? get updatedAt =>
+      RealmObjectBase.get<DateTime>(this, 'updatedAt') as DateTime?;
+  @override
+  set updatedAt(DateTime? value) =>
+      RealmObjectBase.set(this, 'updatedAt', value);
+
+  @override
+  bool get isDeleted => RealmObjectBase.get<bool>(this, 'isDeleted') as bool;
+  @override
+  set isDeleted(bool value) => RealmObjectBase.set(this, 'isDeleted', value);
+
+  @override
+  Stream<RealmObjectChanges<RecurrenceOverride>> get changes =>
+      RealmObjectBase.getChanges<RecurrenceOverride>(this);
+
+  @override
+  RecurrenceOverride freeze() =>
+      RealmObjectBase.freezeObject<RecurrenceOverride>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(RecurrenceOverride._);
+    return const SchemaObject(
+        ObjectType.realmObject, RecurrenceOverride, 'RecurrenceOverride', [
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+      SchemaProperty('eventId', RealmPropertyType.objectid),
+      SchemaProperty('teamId', RealmPropertyType.objectid),
+      SchemaProperty('ownerId', RealmPropertyType.objectid),
+      SchemaProperty('recurringInstanceDateTime', RealmPropertyType.timestamp),
+      SchemaProperty('isCancelled', RealmPropertyType.bool),
+      SchemaProperty('title', RealmPropertyType.string),
+      SchemaProperty('description', RealmPropertyType.string),
+      SchemaProperty('startDateTime', RealmPropertyType.timestamp),
+      SchemaProperty('duration', RealmPropertyType.int),
+      SchemaProperty('tasks', RealmPropertyType.object,
+          linkTarget: 'EventTask', collectionType: RealmCollectionType.list),
+      SchemaProperty('image', RealmPropertyType.object,
+          optional: true, linkTarget: 'ImageData'),
+      SchemaProperty('location', RealmPropertyType.object,
+          optional: true, linkTarget: 'LocationData'),
+      SchemaProperty('createdAt', RealmPropertyType.timestamp, optional: true),
+      SchemaProperty('updatedAt', RealmPropertyType.timestamp, optional: true),
+      SchemaProperty('isDeleted', RealmPropertyType.bool),
+    ]);
+  }
+}

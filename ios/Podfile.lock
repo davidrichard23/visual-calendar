@@ -5,18 +5,13 @@ PODS:
   - fluttertoast (0.0.2):
     - Flutter
     - Toast
-  - FMDB (2.7.5):
-    - FMDB/standard (= 2.7.5)
-  - FMDB/standard (2.7.5)
-  - frccblue (0.0.1):
-    - Flutter
   - google_maps_flutter_ios (0.0.1):
     - Flutter
-    - GoogleMaps
-  - GoogleMaps (6.2.1):
-    - GoogleMaps/Maps (= 6.2.1)
-  - GoogleMaps/Base (6.2.1)
-  - GoogleMaps/Maps (6.2.1):
+    - GoogleMaps (< 9.0, >= 8.4)
+  - GoogleMaps (8.4.0):
+    - GoogleMaps/Maps (= 8.4.0)
+  - GoogleMaps/Base (8.4.0)
+  - GoogleMaps/Maps (8.4.0):
     - GoogleMaps/Base
   - image_picker_ios (0.0.1):
     - Flutter
@@ -25,51 +20,40 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - permission_handler_apple (9.0.4):
+  - permission_handler_apple (9.1.1):
     - Flutter
-  - Protobuf (3.11.4)
-  - reactive_ble_mobile (0.0.1):
+  - realm (1.2.0):
     - Flutter
-    - Protobuf (~> 3.5)
-    - SwiftProtobuf (~> 1.0)
-  - realm (1.0.2):
-    - Flutter
-  - Sentry/HybridSDK (7.31.5)
-  - sentry_flutter (0.0.1):
+  - Sentry/HybridSDK (8.25.0)
+  - sentry_flutter (8.1.0):
     - Flutter
     - FlutterMacOS
-    - Sentry/HybridSDK (= 7.31.5)
+    - Sentry/HybridSDK (= 8.25.0)
   - share_plus (0.0.1):
     - Flutter
-  - sqflite (0.0.2):
+  - sqflite (0.0.3):
     - Flutter
-    - FMDB (>= 2.7.5)
-  - SwiftProtobuf (1.21.0)
-  - Toast (4.0.0)
+    - FlutterMacOS
+  - Toast (4.1.1)
 
 DEPENDENCIES:
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
   - Flutter (from `Flutter`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
-  - frccblue (from `.symlinks/plugins/frccblue/ios`)
   - google_maps_flutter_ios (from `.symlinks/plugins/google_maps_flutter_ios/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
-  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/ios`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
-  - reactive_ble_mobile (from `.symlinks/plugins/reactive_ble_mobile/ios`)
   - realm (from `.symlinks/plugins/realm/ios`)
   - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
-  - sqflite (from `.symlinks/plugins/sqflite/ios`)
+  - sqflite (from `.symlinks/plugins/sqflite/darwin`)
 
 SPEC REPOS:
   trunk:
-    - FMDB
     - GoogleMaps
-    - Protobuf
     - Sentry
-    - SwiftProtobuf
     - Toast
 
 EXTERNAL SOURCES:
@@ -79,8 +63,6 @@ EXTERNAL SOURCES:
     :path: Flutter
   fluttertoast:
     :path: ".symlinks/plugins/fluttertoast/ios"
-  frccblue:
-    :path: ".symlinks/plugins/frccblue/ios"
   google_maps_flutter_ios:
     :path: ".symlinks/plugins/google_maps_flutter_ios/ios"
   image_picker_ios:
@@ -88,11 +70,9 @@ EXTERNAL SOURCES:
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
   path_provider_foundation:
-    :path: ".symlinks/plugins/path_provider_foundation/ios"
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
-  reactive_ble_mobile:
-    :path: ".symlinks/plugins/reactive_ble_mobile/ios"
   realm:
     :path: ".symlinks/plugins/realm/ios"
   sentry_flutter:
@@ -100,30 +80,25 @@ EXTERNAL SOURCES:
   share_plus:
     :path: ".symlinks/plugins/share_plus/ios"
   sqflite:
-    :path: ".symlinks/plugins/sqflite/ios"
+    :path: ".symlinks/plugins/sqflite/darwin"
 
 SPEC CHECKSUMS:
-  camera_avfoundation: 3125e8cd1a4387f6f31c6c63abb8a55892a9eeeb
-  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
-  fluttertoast: eb263d302cc92e04176c053d2385237e9f43fad0
-  FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
-  frccblue: f37697fd2bcb0ce5f55077d0e69aa2b71b51ea7c
-  google_maps_flutter_ios: 3e0b99383a8003b8169d06e7e324170bd0424105
-  GoogleMaps: 20d7b12be49a14287f797e88e0e31bc4156aaeb4
-  image_picker_ios: b786a5dcf033a8336a657191401bfdf12017dabb
+  camera_avfoundation: 759172d1a77ae7be0de08fc104cfb79738b8a59e
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  fluttertoast: 9f2f8e81bb5ce18facb9748d7855bf5a756fe3db
+  google_maps_flutter_ios: c454f18e0e22df6ac0e9f2a4df340858f5a3680c
+  GoogleMaps: 8939898920281c649150e0af74aa291c60f2e77d
+  image_picker_ios: b545a5f16c0fa88e3ecbbce3ed4de45567a8ec18
   package_info_plus: 6c92f08e1f853dc01228d6f553146438dafcd14e
-  path_provider_foundation: 37748e03f12783f9de2cb2c4eadfaa25fe6d4852
-  permission_handler_apple: 44366e37eaf29454a1e7b1b7d736c2cceaeb17ce
-  Protobuf: 176220c526ad8bd09ab1fb40a978eac3fef665f7
-  reactive_ble_mobile: 9ce6723d37ccf701dbffd202d487f23f5de03b4c
-  realm: 5611e4476ab83b786a5c87df3e928cc624c96170
-  Sentry: 4c9babff9034785067c896fd580b1f7de44da020
-  sentry_flutter: b10ae7a5ddcbc7f04648eeb2672b5747230172f1
+  path_provider_foundation: 3784922295ac71e43754bd15e0653ccfd36a147c
+  permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
+  realm: cd5f2416933d487ea0b1db128acabcadc544c855
+  Sentry: cd86fc55628f5b7c572cabe66cc8f95a9d2f165a
+  sentry_flutter: ca7760fc008dc3bc2981730dc0c1d2f892178370
   share_plus: 056a1e8ac890df3e33cb503afffaf1e9b4fbae68
-  sqflite: 6d358c025f5b867b29ed92fc697fd34924e11904
-  SwiftProtobuf: afced68785854575756db965e9da52bbf3dc45e7
-  Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
+  sqflite: 673a0e54cc04b7d6dba8d24fb8095b31c3a99eec
+  Toast: 1f5ea13423a1e6674c4abdac5be53587ae481c4e
 
-PODFILE CHECKSUM: c36831407da05a73916ba61dcb888a6f2ac46cde
+PODFILE CHECKSUM: 8b03d944f021b1c43f64aa770a48ddfa7701fb30
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.15.2

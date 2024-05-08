@@ -11,7 +11,7 @@ import 'package:calendar/util/consts.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+// import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -33,99 +33,99 @@ class GenerateInvite extends StatefulWidget {
 }
 
 class _GenerateInviteState extends State<GenerateInvite> {
-  final flutterReactiveBle = FlutterReactiveBle();
-  StreamSubscription<DiscoveredDevice>? scanDeviceListener;
-  StreamSubscription<BleStatus>? bleStatusListener;
-  BleStatus? bleStatus;
+  // final flutterReactiveBle = FlutterReactiveBle();
+  // StreamSubscription<DiscoveredDevice>? scanDeviceListener;
+  // StreamSubscription<BleStatus>? bleStatusListener;
+  // BleStatus? bleStatus;
   String? error;
   String? bleStatusErrorStr;
 
   String selectedInviteType = 'caregiver';
   TeamInviteModel? newInvite;
-  DiscoveredDevice? device;
+  // DiscoveredDevice? device;
 
-  @override
-  void initState() {
-    listenForBluetoothState();
-    super.initState();
-  }
+  // @override
+  // void initState() {
+  //   listenForBluetoothState();
+  //   super.initState();
+  // }
 
-  @override
-  void dispose() {
-    scanDeviceListener?.cancel();
-    bleStatusListener?.cancel();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   scanDeviceListener?.cancel();
+  //   bleStatusListener?.cancel();
+  //   super.dispose();
+  // }
 
-  void listenForBluetoothState() {
-    bleStatusListener = flutterReactiveBle.statusStream.listen((status) {
-      setState(() => bleStatus = status);
+  // void listenForBluetoothState() {
+  //   bleStatusListener = flutterReactiveBle.statusStream.listen((status) {
+  //     setState(() => bleStatus = status);
 
-      switch (status) {
-        case BleStatus.poweredOff:
-          if (scanDeviceListener != null) scanDeviceListener!.cancel();
-          setState(() => bleStatusErrorStr =
-              'Bluetooth is turned off. Please turn it on if you\'d like to share this code with nearby devices.');
-          break;
-        case BleStatus.ready:
-          setState(() => bleStatusErrorStr = null);
-          if (newInvite != null) scanBle();
-          break;
-        case BleStatus.unauthorized:
-          setState(() => bleStatusErrorStr =
-              'The app does not have permission to use bluetooth. Please enable it in settings if you\'d like to share this code with nearby devices.');
-          break;
-        case BleStatus.unsupported:
-          setState(() =>
-              bleStatusErrorStr = 'This device does not support bluetooth.');
-          break;
-        default:
-      }
-    });
-  }
+  //     switch (status) {
+  //       case BleStatus.poweredOff:
+  //         if (scanDeviceListener != null) scanDeviceListener!.cancel();
+  //         setState(() => bleStatusErrorStr =
+  //             'Bluetooth is turned off. Please turn it on if you\'d like to share this code with nearby devices.');
+  //         break;
+  //       case BleStatus.ready:
+  //         setState(() => bleStatusErrorStr = null);
+  //         if (newInvite != null) scanBle();
+  //         break;
+  //       case BleStatus.unauthorized:
+  //         setState(() => bleStatusErrorStr =
+  //             'The app does not have permission to use bluetooth. Please enable it in settings if you\'d like to share this code with nearby devices.');
+  //         break;
+  //       case BleStatus.unsupported:
+  //         setState(() =>
+  //             bleStatusErrorStr = 'This device does not support bluetooth.');
+  //         break;
+  //       default:
+  //     }
+  //   });
+  // }
 
-  void scanBle() {
-    scanDeviceListener = flutterReactiveBle.scanForDevices(
-        withServices: [bluetoothServiceId],
-        scanMode: ScanMode.lowPower).listen((d) {
-      setState(() => device = d);
-      scanDeviceListener!.cancel();
-      handleSendToDevice(d);
-    }, onError: (err) {
-      setState(() => error = err.toString());
-    });
-  }
+  // void scanBle() {
+  //   scanDeviceListener = flutterReactiveBle.scanForDevices(
+  //       withServices: [bluetoothServiceId],
+  //       scanMode: ScanMode.lowPower).listen((d) {
+  //     setState(() => device = d);
+  //     scanDeviceListener!.cancel();
+  //     handleSendToDevice(d);
+  //   }, onError: (err) {
+  //     setState(() => error = err.toString());
+  //   });
+  // }
 
-  handleSendToDevice(DiscoveredDevice device) async {
-    flutterReactiveBle
-        .connectToAdvertisingDevice(
-      id: device.id,
-      withServices: [bluetoothServiceId],
-      prescanDuration: const Duration(seconds: 5),
-      connectionTimeout: const Duration(seconds: 2),
-    )
-        .listen((connectionState) async {
-      final characteristic = QualifiedCharacteristic(
-          serviceId: bluetoothServiceId,
-          characteristicId: bluetoothCharacteristicId,
-          deviceId: device.id);
+  // handleSendToDevice(DiscoveredDevice device) async {
+  //   flutterReactiveBle
+  //       .connectToAdvertisingDevice(
+  //     id: device.id,
+  //     withServices: [bluetoothServiceId],
+  //     prescanDuration: const Duration(seconds: 5),
+  //     connectionTimeout: const Duration(seconds: 2),
+  //   )
+  //       .listen((connectionState) async {
+  //     final characteristic = QualifiedCharacteristic(
+  //         serviceId: bluetoothServiceId,
+  //         characteristicId: bluetoothCharacteristicId,
+  //         deviceId: device.id);
 
-      await flutterReactiveBle.writeCharacteristicWithResponse(characteristic,
-          value: utf8.encode(newInvite!.token.toUpperCase()));
+  //     await flutterReactiveBle.writeCharacteristicWithResponse(characteristic,
+  //         value: utf8.encode(newInvite!.token.toUpperCase()));
 
-      Fluttertoast.showToast(
-          msg: "Successfully Invited New Device",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 5,
-          backgroundColor: Colors.black.withOpacity(0.8),
-          textColor: Colors.white,
-          fontSize: 16.0);
-      Navigator.pop(context);
-    }, onError: (error) {
-      setState(() => error = error.toString());
-    });
-  }
+  //     Fluttertoast.showToast(
+  //         msg: "Successfully Invited New Device",
+  //         toastLength: Toast.LENGTH_SHORT,
+  //         gravity: ToastGravity.CENTER,
+  //         timeInSecForIosWeb: 5,
+  //         backgroundColor: Colors.black.withOpacity(0.8),
+  //         textColor: Colors.white,
+  //         fontSize: 16.0);
+  //     Navigator.pop(context);
+  //   }, onError: (error) {
+  //     setState(() => error = error.toString());
+  //   });
+  // }
 
   // TODO
   // Future<void> _requestPermissions() async {
@@ -181,7 +181,7 @@ class _GenerateInviteState extends State<GenerateInvite> {
             fontSize: 16.0);
       });
 
-      if (bleStatus == BleStatus.ready) scanBle();
+      // if (bleStatus == BleStatus.ready) scanBle();
     }
 
     handleShare() {
@@ -279,51 +279,51 @@ class _GenerateInviteState extends State<GenerateInvite> {
                                         color: Colors.white,
                                       )))
                             ]),
-                        const SizedBox(height: 40),
-                        const H1(
-                            'Share token automatically with nearby devices',
-                            center: true),
-                        const SizedBox(height: 24),
-                        if (error != null)
-                          Paragraph('Error: $error!',
-                              center: true, color: Colors.red),
-                        if (bleStatus == BleStatus.ready)
-                          Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                    height: 16,
-                                    width: 16,
-                                    child: CircularProgressIndicator(
-                                      color: theme.primaryColor,
-                                    ),
-                                  ),
-                                  const Flexible(
-                                      child: Padding(
-                                          padding: EdgeInsets.only(left: 8),
-                                          child: Paragraph(
-                                              "Searching for devices."))),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              const Paragraph(
-                                  "Make sure the app is open on your other device and you are on the \"Join Team\" page.",
-                                  center: true),
-                            ],
-                          ),
-                        if (bleStatusErrorStr != null)
-                          Paragraph(bleStatusErrorStr!,
-                              center: true, color: Colors.red),
-                        if (bleStatus == BleStatus.unauthorized)
-                          SizedBox(
-                              width: 200,
-                              child: PrimaryButton(
-                                  small: true,
-                                  child: const Paragraph('Open App Settings',
-                                      small: true),
-                                  onPressed: () => openAppSettings())),
+                        // const SizedBox(height: 40),
+                        // const H1(
+                        //     'Share token automatically with nearby devices',
+                        //     center: true),
+                        // const SizedBox(height: 24),
+                        // if (error != null)
+                        //   Paragraph('Error: $error!',
+                        //       center: true, color: Colors.red),
+                        // if (bleStatus == BleStatus.ready)
+                        //   Column(
+                        //     children: [
+                        //       Row(
+                        //         mainAxisAlignment: MainAxisAlignment.center,
+                        //         children: [
+                        //           SizedBox(
+                        //             height: 16,
+                        //             width: 16,
+                        //             child: CircularProgressIndicator(
+                        //               color: theme.primaryColor,
+                        //             ),
+                        //           ),
+                        //           const Flexible(
+                        //               child: Padding(
+                        //                   padding: EdgeInsets.only(left: 8),
+                        //                   child: Paragraph(
+                        //                       "Searching for devices."))),
+                        //         ],
+                        //       ),
+                        //       const SizedBox(height: 16),
+                        //       const Paragraph(
+                        //           "Make sure the app is open on your other device and you are on the \"Join Team\" page.",
+                        //           center: true),
+                        //     ],
+                        //   ),
+                        // if (bleStatusErrorStr != null)
+                        //   Paragraph(bleStatusErrorStr!,
+                        //       center: true, color: Colors.red),
+                        // if (bleStatus == BleStatus.unauthorized)
+                        //   SizedBox(
+                        //       width: 200,
+                        //       child: PrimaryButton(
+                        //           small: true,
+                        //           child: const Paragraph('Open App Settings',
+                        //               small: true),
+                        //           onPressed: () => openAppSettings())),
                       ],
                     )
                 ]))));
