@@ -45,6 +45,7 @@ class _CaregiverViewState extends State<CaregiverView> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    var monthRenderTracking = {};
 
     void onEventSelectionChange(CalendarTapDetails details) {
       if (widget.calendarController.view == CalendarView.month) {
@@ -119,6 +120,29 @@ class _CaregiverViewState extends State<CaregiverView> {
                             showTrailingAndLeadingDates: false,
                             appointmentDisplayMode:
                                 MonthAppointmentDisplayMode.appointment),
+                        monthCellBuilder: (BuildContext buildContext,
+                            MonthCellDetails details) {
+                          return Container(
+                              clipBehavior: Clip.hardEdge,
+                              margin: const EdgeInsets.symmetric(horizontal: 2),
+                              decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: Colors.grey[300]!, width: 0.5)),
+                              child: SingleChildScrollView(
+                                  child: Column(children: [
+                                Text(
+                                  details.date.day.toString(),
+                                  style: TextStyle(
+                                    color: Colors.black.withOpacity(0.7),
+                                  ),
+                                ),
+                                ...details.appointments.map((appointment) =>
+                                    MonthViewAppointment(
+                                        completionRecords:
+                                            widget.completionRecords,
+                                        appointment: appointment))
+                              ])));
+                        },
                         appointmentBuilder: (context, details) {
                           if (widget.calendarController.view ==
                               CalendarView.day) {
@@ -126,6 +150,23 @@ class _CaregiverViewState extends State<CaregiverView> {
                                 completionRecords: widget.completionRecords,
                                 appointments: details.appointments);
                           } else {
+                            return Container();
+                            final day =
+                                details.appointments.first.startDateTime.day;
+                            // if (!monthRenderTracking.containsKey(day)) {
+                            //   monthRenderTracking[details
+                            //       .appointments.first.startDateTime.day] = 0;
+                            //   return Container();
+                            // }
+                            // if (monthRenderTracking[day] > 5) {
+                            //   return Container();
+                            // }
+
+                            // monthRenderTracking[
+                            //     details.appointments.first.startDateTime.day]++;
+                            print(details.appointments.first.startDateTime.day);
+                            print('length: ' +
+                                details.appointments.length.toString());
                             return MonthViewAppointment(
                                 completionRecords: widget.completionRecords,
                                 appointment: details.appointments.first);

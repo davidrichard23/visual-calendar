@@ -8,9 +8,9 @@ import 'package:collection/collection.dart';
 class MonthViewAppointment extends StatelessWidget {
   final List<CompletionRecordModel> completionRecords;
   final dynamic appointment;
+
   const MonthViewAppointment(
-      {Key? key, required this.completionRecords, required this.appointment})
-      : super(key: key);
+      {super.key, required this.completionRecords, required this.appointment});
 
   @override
   Widget build(BuildContext context) {
@@ -19,9 +19,10 @@ class MonthViewAppointment extends StatelessWidget {
     //     .firstWhereOrNull((r) => r.eventId == appointments.first.id);
     // final isCompleted = completionRecord != null;
     // log(appointment.title);
+    print(appointment.title);
     return Container(
         clipBehavior: Clip.hardEdge,
-        // margin: EdgeInsets.only(bottom: 2),
+        margin: const EdgeInsets.only(bottom: 2),
         decoration: BoxDecoration(
           color: theme.backgroundColor,
           borderRadius: BorderRadius.circular(4),
@@ -32,28 +33,17 @@ class MonthViewAppointment extends StatelessWidget {
               border:
                   Border(left: BorderSide(width: 4, color: theme.primaryColor)),
             ),
-            child: Row(
-                // mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // if (isCompleted)
-                  //   Padding(
-                  //       padding: const EdgeInsets.only(right: 4, top: 2),
-                  //       child: Center(
-                  //           child: Icon(
-                  //         Icons.check_circle_rounded,
-                  //         color: theme.cardColor,
-                  //         size: 16,
-                  //       ))),
-                  // ]),
-                  Flexible(
-                      child: Text(
-                    appointment.title,
-                    style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w500),
-                  ))
-                ])));
+            child: Row(children: [
+              Flexible(
+                  child: Text(
+                appointment.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w500),
+              ))
+            ])));
   }
 }
