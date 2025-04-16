@@ -162,7 +162,9 @@ class _RealmQueryBuilderState<T extends RealmObject>
           } on RealmException catch (err) {
             // cant figure out why i get this error, but it seems to only happen
             // on hot reload so we're just going to ignore it for now
-            if (!err.message.contains('Error code: 18')) {
+            print(err.message);
+            if (!err.message.contains('Error code: 18') &&
+                !err.message.contains('Error code: 2009')) {
               rethrow;
             }
           }

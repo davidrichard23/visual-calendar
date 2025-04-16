@@ -1,6 +1,7 @@
 {
 	"version": "0.2.0",
 	"configurations": [
+
 		{
 			"name": "Current Device",
 			"request": "launch",
@@ -8,10 +9,10 @@
       "args": []
 		},
 		{
-			"name": "iPhone 14 Pro Max",
+			"name": "iPhone 15 Pro Max",
 			"request": "launch",
 			"type": "dart",
-			"deviceId": "iPhone 14 Pro Max",
+			"deviceId": "iPhone 15 Pro Max",
       "args": []
 		},
 		{
