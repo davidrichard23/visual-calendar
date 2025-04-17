@@ -26,7 +26,7 @@ DateTime? getAdjustedRecurringStartDate(
         final newStartDate = DateTime(selectedDate.year, selectedDate.month,
             selectedDate.day, origStartDate.hour, origStartDate.minute);
 
-        return newStartDate;
+        return newStartDate.toUtc();
       }
       return null;
     case 'weekly':
@@ -37,7 +37,7 @@ DateTime? getAdjustedRecurringStartDate(
         final newStartDate = DateTime(selectedDate.year, selectedDate.month,
             selectedDate.day, origStartDate.hour, origStartDate.minute);
 
-        return newStartDate;
+        return newStartDate.toUtc();
       }
       return null;
     case 'monthly':
@@ -48,7 +48,7 @@ DateTime? getAdjustedRecurringStartDate(
         final newStartDate = DateTime(selectedDate.year, selectedDate.month,
             selectedDate.day, origStartDate.hour, origStartDate.minute);
 
-        return newStartDate;
+        return newStartDate.toUtc();
       }
       return null;
     case 'yearly':
@@ -63,7 +63,7 @@ DateTime? getAdjustedRecurringStartDate(
         final newStartDate = DateTime(selectedDate.year, selectedDate.month,
             selectedDate.day, origStartDate.hour, origStartDate.minute);
 
-        return newStartDate;
+        return newStartDate.toUtc();
       }
       return null;
     default:

@@ -5,6 +5,7 @@ import 'package:calendar/components/text/paragraph.dart';
 import 'package:calendar/main.dart';
 import 'package:calendar/models/completion_record_model.dart';
 import 'package:calendar/models/event_model.dart';
+import 'package:calendar/models/recurrence_override_model.dart';
 import 'package:calendar/realm/schemas.dart';
 import 'package:calendar/screens/daily/calendar_widgets/day_view_appointment.dart';
 import 'package:calendar/screens/daily/calendar_widgets/month_view_appointment.dart';

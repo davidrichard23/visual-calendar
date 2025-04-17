@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:realm/realm.dart';
 
 part 'schemas.g.dart';
@@ -48,7 +46,7 @@ class _Event {
   late _ImageData? image;
   late _LocationData? location;
   late bool isRecurring;
-  late bool isCompleted = false;
+  late bool isCompleted = false; // Not used?
   late bool isTemplate = false;
   late _RecurrencePattern? recurrencePattern;
   late DateTime? createdAt;
@@ -157,10 +155,10 @@ class _RecurrenceOverride {
   late ObjectId ownerId;
   late DateTime recurringInstanceDateTime;
   late bool isCancelled;
-  late String title;
-  late String description;
-  late DateTime startDateTime;
-  late int duration;
+  late String? title;
+  late String? description;
+  late DateTime? startDateTime;
+  late int? duration;
   late List<_EventTask> tasks = [];
   late _ImageData? image;
   late _LocationData? location;

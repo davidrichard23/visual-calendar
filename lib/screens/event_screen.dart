@@ -96,7 +96,7 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   void showCompleted() {
-    createCreationRecord();
+    createCompletionRecord();
 
     setState(() {
       isCompletedVisible = true;
@@ -112,7 +112,7 @@ class _EventScreenState extends State<EventScreen> {
     });
   }
 
-  void createCreationRecord() {
+  void createCompletionRecord() {
     RealmManager realmManager =
         Provider.of<RealmManager>(context, listen: false);
     AppState appState = Provider.of<AppState>(context, listen: false);

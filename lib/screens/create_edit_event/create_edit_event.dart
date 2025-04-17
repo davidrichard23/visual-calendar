@@ -60,6 +60,13 @@ Map<int, String> intToWeekday = {
   7: 'sunday',
 };
 
+enum DeleteType {
+  dismiss,
+  event,
+  instance,
+  allFuture,
+}
+
 class StagedImageData {
   final ObjectId? taskId;
   final ImageData? image;
@@ -347,34 +354,79 @@ class _CreateEditEventState extends State<CreateEditEvent> {
   }
 
   handleDelete() async {
-    bool result = await showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Are you sure?'),
-          content: Text('Do you want to delete this event?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context, rootNavigator: true)
-                    .pop(false); // dismisses only the dialog and returns false
-              },
-              child: Text('No'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context, rootNavigator: true)
-                    .pop(true); // dismisses only the dialog and returns true
-              },
-              child: Text('Yes'),
-            ),
-          ],
-        );
-      },
-    );
+    DeleteType? result;
 
-    if (result) {
+    if (widget.existingEvent!.isRecurring) {
+      result = await showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('This is a repeating event'),
+            content: Text(
+                'Do you want to delete only this event or all future events?'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop(DeleteType
+                      .instance); // dismisses only the dialog and returns false
+                },
+                child: Text('Delete This Event'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop(DeleteType
+                      .allFuture); // dismisses only the dialog and returns true
+                },
+                child: Text('Delete All Future Events'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop(DeleteType
+                      .dismiss); // dismisses only the dialog and returns true
+                },
+                child: Text('Cancel'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      result = await showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Are you sure?'),
+            content: Text('Do you want to delete this event?'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop(DeleteType
+                      .dismiss); // dismisses only the dialog and returns false
+                },
+                child: Text('No'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop(DeleteType
+                      .event); // dismisses only the dialog and returns true
+                },
+                child: Text('Yes'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
+    if (result == DeleteType.event) {
       widget.existingEvent!.delete();
+    } else if (result == DeleteType.instance) {
+      widget.existingEvent!.deleteInstance();
+    } else if (result == DeleteType.allFuture) {
+      widget.existingEvent!.deleteAllFutureEvents();
+    }
+
+    if (result != DeleteType.dismiss) {
       Navigator.popUntil(
           context, (predicate) => predicate.settings.name == '/home');
     }

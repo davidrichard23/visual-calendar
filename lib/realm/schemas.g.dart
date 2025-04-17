@@ -1118,11 +1118,11 @@ class RecurrenceOverride extends _RecurrenceOverride
     ObjectId teamId,
     ObjectId ownerId,
     DateTime recurringInstanceDateTime,
-    bool isCancelled,
-    String title,
-    String description,
-    DateTime startDateTime,
-    int duration, {
+    bool isCancelled, {
+    String? title,
+    String? description,
+    DateTime? startDateTime,
+    int? duration,
     ImageData? image,
     LocationData? location,
     DateTime? createdAt,
@@ -1196,28 +1196,28 @@ class RecurrenceOverride extends _RecurrenceOverride
       RealmObjectBase.set(this, 'isCancelled', value);
 
   @override
-  String get title => RealmObjectBase.get<String>(this, 'title') as String;
+  String? get title => RealmObjectBase.get<String>(this, 'title') as String?;
   @override
-  set title(String value) => RealmObjectBase.set(this, 'title', value);
+  set title(String? value) => RealmObjectBase.set(this, 'title', value);
 
   @override
-  String get description =>
-      RealmObjectBase.get<String>(this, 'description') as String;
+  String? get description =>
+      RealmObjectBase.get<String>(this, 'description') as String?;
   @override
-  set description(String value) =>
+  set description(String? value) =>
       RealmObjectBase.set(this, 'description', value);
 
   @override
-  DateTime get startDateTime =>
-      RealmObjectBase.get<DateTime>(this, 'startDateTime') as DateTime;
+  DateTime? get startDateTime =>
+      RealmObjectBase.get<DateTime>(this, 'startDateTime') as DateTime?;
   @override
-  set startDateTime(DateTime value) =>
+  set startDateTime(DateTime? value) =>
       RealmObjectBase.set(this, 'startDateTime', value);
 
   @override
-  int get duration => RealmObjectBase.get<int>(this, 'duration') as int;
+  int? get duration => RealmObjectBase.get<int>(this, 'duration') as int?;
   @override
-  set duration(int value) => RealmObjectBase.set(this, 'duration', value);
+  set duration(int? value) => RealmObjectBase.set(this, 'duration', value);
 
   @override
   RealmList<EventTask> get tasks =>
@@ -1280,10 +1280,11 @@ class RecurrenceOverride extends _RecurrenceOverride
       SchemaProperty('ownerId', RealmPropertyType.objectid),
       SchemaProperty('recurringInstanceDateTime', RealmPropertyType.timestamp),
       SchemaProperty('isCancelled', RealmPropertyType.bool),
-      SchemaProperty('title', RealmPropertyType.string),
-      SchemaProperty('description', RealmPropertyType.string),
-      SchemaProperty('startDateTime', RealmPropertyType.timestamp),
-      SchemaProperty('duration', RealmPropertyType.int),
+      SchemaProperty('title', RealmPropertyType.string, optional: true),
+      SchemaProperty('description', RealmPropertyType.string, optional: true),
+      SchemaProperty('startDateTime', RealmPropertyType.timestamp,
+          optional: true),
+      SchemaProperty('duration', RealmPropertyType.int, optional: true),
       SchemaProperty('tasks', RealmPropertyType.object,
           linkTarget: 'EventTask', collectionType: RealmCollectionType.list),
       SchemaProperty('image', RealmPropertyType.object,

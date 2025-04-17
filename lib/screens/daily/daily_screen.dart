@@ -5,6 +5,7 @@ import 'package:calendar/components/drawer/drawer.dart';
 import 'package:calendar/data/realm_query_builder.dart';
 import 'package:calendar/models/completion_record_model.dart';
 import 'package:calendar/models/event_model.dart';
+import 'package:calendar/models/recurrence_override_model.dart';
 import 'package:calendar/realm/init_realm.dart';
 import 'package:calendar/realm/schemas.dart';
 import 'package:calendar/screens/daily/app_bar.dart';
@@ -119,6 +120,29 @@ class _DailyScreenState extends State<DailyScreen> {
       });
     }
 
+    void onNewRecurrenceOverrides<T extends RealmObject>(
+        RealmResults<T> newRecurrenceOverrides) {
+      final recurrenceOverrides = newRecurrenceOverrides
+          .map((r) => RecurrenceOverrideModel(
+              realmManager.realm!, r as RecurrenceOverride))
+          .toList();
+
+      List<EventModel> newAppointments =
+          calendarDataSource?.appointments?.where((event) {
+        return recurrenceOverrides.every((overrride) {
+          final res = overrride.eventId != event.id ||
+              !overrride.recurringInstanceDateTime
+                  .isAtSameMomentAs(event.startDateTime);
+          return res;
+        });
+      }).toList() as List<EventModel>;
+
+      setState(() {
+        calendarDataSource = EventCalendarDataSource(realmManager.realm!,
+            newAppointments, selectedDate, Theme.of(context));
+      });
+    }
+
     DateTime startDate =
         DateTime(selectedDate.year, selectedDate.month, 1).toUtc();
     DateTime endDate =
@@ -139,6 +163,12 @@ class _DailyScreenState extends State<DailyScreen> {
     final completionRecordsQueryString =
         '(recurringInstanceDateTime BETWEEN {${format(startDate)},${format(endDate)}} OR (recurringInstanceDateTime = nil && eventId IN {${eventIds.join((','))}})) AND isDeleted == false AND isDeleted == false AND teamId == \$0';
     final completionRecordsQueryArgs = [appState.activeTeam!.id];
+
+    final recurrenceOverrideQueryName =
+        'get-recurrence-overrides-${appState.activeTeam!.id}-$startDate-${eventIds.toString()}';
+    final recurrenceOverrideQueryString =
+        'recurringInstanceDateTime BETWEEN {${format(startDate)},${format(endDate)}} AND isDeleted == false AND isDeleted == false AND teamId == \$0';
+    final recurrenceOverrideQueryArgs = [appState.activeTeam!.id];
 
     return Scaffold(
         backgroundColor: Colors.white,
@@ -175,23 +205,32 @@ class _DailyScreenState extends State<DailyScreen> {
                         queryString: completionRecordsQueryString,
                         queryArgs: completionRecordsQueryArgs,
                         child: Builder(builder: ((context) {
-                          if (appState.teamUserType == 'caregiver' &&
-                              selectedView == 'manage') {
-                            return CaregiverView(
-                                calendarController: calendarController,
-                                calendarDataSource: calendarDataSource,
-                                events: events,
-                                completionRecords: completionRecords,
-                                setCalendarViewMode: setCalendarViewMode,
-                                setActiveDate: setActiveDate,
-                                activeDate: selectedDate);
-                          } else {
-                            return Expanded(
-                                child: DependentView(
-                                    events: events,
-                                    completionRecords: completionRecords,
-                                    activeDate: selectedDate));
-                          }
+                          // recurrence overrides
+                          return RealmQueryBuilder<RecurrenceOverride>(
+                              onUpdate: onNewRecurrenceOverrides,
+                              queryName: recurrenceOverrideQueryName,
+                              queryType: QueryType.queryString,
+                              queryString: recurrenceOverrideQueryString,
+                              queryArgs: recurrenceOverrideQueryArgs,
+                              child: Builder(builder: ((context) {
+                                if (appState.teamUserType == 'caregiver' &&
+                                    selectedView == 'manage') {
+                                  return CaregiverView(
+                                      calendarController: calendarController,
+                                      calendarDataSource: calendarDataSource,
+                                      events: events,
+                                      completionRecords: completionRecords,
+                                      setCalendarViewMode: setCalendarViewMode,
+                                      setActiveDate: setActiveDate,
+                                      activeDate: selectedDate);
+                                } else {
+                                  return Expanded(
+                                      child: DependentView(
+                                          events: events,
+                                          completionRecords: completionRecords,
+                                          activeDate: selectedDate));
+                                }
+                              })));
                         })));
                   }))),
             ],

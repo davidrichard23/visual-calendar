@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:calendar/models/event_task_model.dart';
+import 'package:calendar/models/recurrence_override_model.dart';
 import 'package:intl/intl.dart';
 import 'package:realm/realm.dart';
 import '../realm/schemas.dart';
@@ -19,7 +20,7 @@ class EventModel {
   ImageData? image;
   LocationData? location;
   bool isRecurring;
-  bool isCompleted = false;
+  bool isCompleted = false; // Not used?
   bool isTemplate = false;
   RecurrencePattern? recurrencePattern;
   late DateTime createdAt;
@@ -251,5 +252,24 @@ class EventModel {
       log(e.message);
       return false;
     }
+  }
+
+  RecurrenceOverrideModel? deleteInstance() {
+    final override = RecurrenceOverride(
+      ObjectId(),
+      id,
+      teamId,
+      ownerId,
+      startDateTime,
+      true,
+    );
+    return RecurrenceOverrideModel.create(realm, override);
+  }
+
+  void deleteAllFutureEvents() {
+    final newEndDateTime = startDateTime.subtract(const Duration(days: 1));
+    realm.write(() {
+      item.recurrencePattern?.endDateTime = newEndDateTime;
+    });
   }
 }

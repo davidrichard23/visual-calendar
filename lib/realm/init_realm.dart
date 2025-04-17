@@ -24,6 +24,7 @@ class RealmManager with ChangeNotifier {
         LocationData.schema,
         FocalPoint.schema,
         CompletionRecord.schema,
+        RecurrenceOverride.schema,
       ],
       clientResetHandler: RecoverOrDiscardUnsyncedChangesHandler(
         // The following callbacks are optional.
@@ -123,6 +124,15 @@ class RealmManager with ChangeNotifier {
       realm!.subscriptions.update((mutableSubscriptions) {
         mutableSubscriptions.add(realm!.all<CompletionRecord>(),
             name: 'defaultCompletionRecord');
+      });
+    }
+
+    final defaultRecurrenceOverride =
+        realm!.subscriptions.findByName('defaultRecurrenceOverride');
+    if (defaultRecurrenceOverride == null) {
+      realm!.subscriptions.update((mutableSubscriptions) {
+        mutableSubscriptions.add(realm!.all<RecurrenceOverride>(),
+            name: 'defaultRecurrenceOverride');
       });
     }
 
